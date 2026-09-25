@@ -337,10 +337,12 @@ export class QuoteView {
                 const count = list.length;
                 const isActive = c.value === activeCoverage;
                 return `
-                  <button class="cov-nav-btn ${isActive ? 'active' : ''}" data-coverage-tab="${c.value}">
+                  <button class="cov-nav-btn ${isActive ? 'active' : ''}" data-coverage-tab="${c.value}" title="${c.sublabel} Coverage (${count} plan${count !== 1 ? 's' : ''})">
                     <span class="cov-nav-amount">${c.label}</span>
-                    <span style="font-size:0.65rem; opacity:0.8; font-weight:600;">${c.sublabel}</span>
-                    <span class="cov-nav-badge">${count > 0 ? `${count} plan${count > 1 ? 's' : ''}` : '0 plans'}</span>
+                    <span class="cov-nav-sublabel">${c.sublabel}</span>
+                    <span class="cov-nav-badge">
+                      <span class="cov-badge-count">${count}</span><span class="cov-badge-text"> plan${count !== 1 ? 's' : ''}</span>
+                    </span>
                   </button>
                 `;
               }).join('')}
