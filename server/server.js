@@ -7,8 +7,26 @@ const connectDB = require('./db');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ── CORS Configuration ────────────────────────────────────────────────────────
+// Configured to allow local frontend development and production/preview Vercel deployments.
+const allowedOrigins = [
+  'http://localhost:5173',                          // Vite local dev server
+  'http://localhost:3000',                          // Express local dev server
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000',
+  'https://YOUR_VERCEL_APP_URL.vercel.app',         // 👈 PLACEHOLDER: Replace with your actual Vercel domain
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+  /\.vercel\.app$/,                                 // Automatically matches all Vercel deployments (*.vercel.app)
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 // ── Middleware ────────────────────────────────────────────────────────────────
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -3,7 +3,17 @@
  * Centralised fetch wrapper for all backend API calls.
  */
 
-const BASE = '/api';
+// ── Environment-Aware API Base URL ───────────────────────────────────────────
+// When running locally (localhost / 127.0.0.1), requests target http://localhost:3000.
+// When deployed (e.g. Vercel), requests target the deployed Render backend.
+const RENDER_BACKEND_URL = 'https://khanna-travels-qoutation.onrender.com';
+const LOCAL_BACKEND_URL  = 'http://localhost:3000';
+
+const IS_LOCAL = typeof window !== 'undefined' && 
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+export const BASE_URL = IS_LOCAL ? LOCAL_BACKEND_URL : RENDER_BACKEND_URL;
+const BASE = `${BASE_URL}/api`;
 const AUTH_STORAGE_KEY = 'khanna_admin_token';
 
 export function getAdminToken() {
