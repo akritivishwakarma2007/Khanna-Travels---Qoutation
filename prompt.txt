@@ -1,0 +1,307 @@
+Create a modern, professional **Insurance Quotation Comparison Web App** for travel insurance. The uploaded reference image shows the pricing tables that should be used as the initial quotation/rate data.
+
+ ### Core Purpose
+
+ The website should allow an insurance agent/user to enter a customer's travel details and automatically compare insurance quotations from multiple insurance companies based on the available rate tables.
+
+ ### Input Form
+
+ Create a clean, step-by-step or single-page form with:
+
+ **Customer Details**
+
+ - Customer name
+- Age
+- Number of travelers
+
+ **Trip Details**
+
+ - Departure date
+- Return/arrival date
+- Destination country
+- Departure country
+- Trip duration — automatically calculate from dates
+- Coverage requirement / Sum insured:
+  - USD 50,000
+  - USD 250,000
+  - USD 500,000
+- USA & Canada coverage:
+  - Excluding USA & Canada
+  - Including USA & Canada
+
+ The system must automatically calculate the number of travel days and identify the correct **Days Slab** from the quotation data:
+
+ - 1–4
+- 5–6
+- 7–8
+- 9–12
+- 13–14
+- 15–21
+- 22–28
+- 29–35
+- 36–47
+- 48–60
+- 61–75
+- 76–90
+- 91–105
+- 106–120
+- 121–140
+- 141–160
+- 161–180
+
+ ### Quotation Logic
+
+ Use the uploaded image/table as the initial pricing database.
+
+ The pricing structure is:
+
+ **Plan:** Value Pro\
+ **Coverage:** USD 50,000 / USD 250,000 / USD 500,000\
+ **Region:** Including USA & Canada / Excluding USA & Canada\
+ **Age bands:**
+
+ - 0–40 years
+- 41–60 years
+- 61–70 years
+- 71–80 years
+- 81–85 years
+
+ When the user enters an age, travel duration, coverage amount, and USA/Canada preference, automatically find the matching price from the corresponding quotation table.
+
+ For example:
+
+ `Age → Age Band`\
+ `Travel Dates → Number of Days → Days Slab`\
+ `Coverage Amount → Correct Coverage Table`\
+ `USA/Canada Selection → Including/Excluding Table`\
+ `All values → Matching quotation price`
+
+ ### Comparison Dashboard
+
+ After clicking **“Compare Quotes”**, show a professional comparison dashboard.
+
+ Display:
+
+ - Customer/trip summary at the top
+- Travel duration
+- Age
+- Destination
+- Coverage amount
+- USA/Canada coverage
+- Date range
+
+ Then show insurance companies in comparison cards/table format.
+
+ Each company should display:
+
+ - Company name
+- Plan name
+- Coverage amount
+- Coverage region
+- Premium
+- Key benefits
+- Deductible, if available
+- Claim/support information, if available
+- **Select Plan** button
+- **View Details** button
+
+ Sort results from **lowest premium to highest premium** by default.
+
+ Highlight the cheapest quotation with a **“Best Price”** badge.
+
+ Also provide:
+
+ - Lowest Premium
+- Highest Premium
+- Average Premium
+- Premium Difference
+- Recommended Plan
+
+ ### UI/UX
+
+ Design a polished, premium **B2B insurance dashboard**, not a basic form.
+
+ Use:
+
+ - White/light gray background
+- Dark navy text
+- Teal/green as the primary accent
+- Orange for important actions/highlights
+- Rounded cards
+- Subtle shadows
+- Clean typography
+- Spacious layout
+- Responsive design for desktop, tablet and mobile
+
+ Create a left sidebar navigation:
+
+ - Dashboard
+- New Quotation
+- Compare Quotes
+- Customers
+- Quotations
+- Insurance Companies
+- Rate Tables
+- Reports
+- Settings
+
+ Top navigation:
+
+ - Page title
+- Search
+- Notifications
+- User profile
+
+ ### New Quotation Screen
+
+ Create a visually attractive quotation form with sections:
+
+ **1\. Customer Information**\
+ **2\. Travel Information**\
+ **3\. Coverage Selection**\
+ **4\. Insurance Comparison**
+
+ Use date pickers for dates and dropdowns/radio buttons for coverage options.
+
+ Show a live summary on the right side:
+
+```
+Customer
+Age
+
+Trip
+Departure → Return
+
+Duration
+XX Days
+
+Destination
+Country
+
+Coverage
+USD 250,000
+
+Region
+Excluding USA & Canada
+```
+
+ ### Rate Table Management
+
+ Create an admin page where insurance companies and their quotation/rate tables can be managed.
+
+ Allow the admin to:
+
+ - Add insurance company
+- Add insurance plan
+- Select coverage amount
+- Select region
+- Add age bands
+- Add day slabs
+- Enter premiums
+- Edit rates
+- Delete rates
+- Import rates from Excel/CSV
+- Export rate tables
+
+ Create a spreadsheet-like editable table similar to the uploaded reference image.
+
+ ### Data Architecture
+
+ Do not hardcode the comparison logic directly into the UI.
+
+ Create a structured pricing database such as:
+
+```
+Insurance Company
+Plan
+Coverage Amount
+Region
+Age From
+Age To
+Days From
+Days To
+Premium
+Currency
+```
+
+ The calculation engine should query this data dynamically.
+
+ Example:
+
+```
+Age = 45
+Trip Duration = 18 days
+Coverage = USD 250,000
+Region = Including USA & Canada
+
+Age Band → 41–60
+Days Slab → 15–21
+
+Find:
+Coverage = 250,000
+Region = Including
+Age Band = 41–60
+Days Slab = 15–21
+
+Return matching premium
+```
+
+ ### Important Validation
+
+ Handle:
+
+ - Missing dates
+- Return date before departure date
+- Invalid age
+- Age outside available range
+- Trip duration above 180 days
+- Missing quotation/rate
+- Unsupported destination
+- No matching insurance company
+
+ Show clear user-friendly error messages.
+
+ ### Quotation Details
+
+ When the user selects a plan, open a detailed quotation page/modal containing:
+
+ - Customer information
+- Trip information
+- Coverage details
+- Premium
+- Company information
+- Benefits
+- Terms & conditions
+- Quote reference number
+- Quote creation date
+
+ Provide:
+
+ - Download PDF
+- Print
+- Email quotation
+- Save quotation
+
+ ### Dashboard
+
+ The main dashboard should show:
+
+ - Total quotations
+- Quotations generated today
+- Customers
+- Average premium
+- Cheapest available plan
+- Recent quotations
+- Popular coverage amounts
+- Company-wise quotation comparison
+- Monthly quotation chart
+
+ ### Important Product Requirement
+
+ Design the application so that **multiple insurance companies can be added later**. The current uploaded Value Pro tables should be treated as the initial rate data, but the architecture must support unlimited companies and plans.
+
+ The final experience should feel like a real-world **insurance broker/agent quotation comparison platform**, with a fast workflow:
+
+ **Enter customer details → Enter travel dates → Automatically calculate days → Select coverage → Automatically match rate tables → Compare insurance companies → Select best quotation → Generate/save/share quotation.**
+
+ Use the uploaded image as the visual and data reference for the initial **Value Pro** rate tables.

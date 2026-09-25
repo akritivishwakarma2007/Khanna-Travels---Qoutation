@@ -1,0 +1,108 @@
+/**
+ * Dedicated Print & PDF Export Stylesheet
+ * Formats Travel Insurance Quotation for Clean A4 / Letter Printing
+ */
+
+@media print {
+  /* 1. Hide all application chrome, navigation, buttons, and comparison tables */
+  .app-header,
+  .app-sidebar,
+  .app-topbar,
+  .db-banner,
+  .toast-container,
+  .quote-page-container,
+  .quote-page-header,
+  .quote-form-card,
+  .sticky-comparison-header,
+  .sticky-summary-bar,
+  .coverage-nav-bar,
+  .results-toolbar,
+  .results-grid,
+  .selected-plans-dock,
+  .admin-wrapper,
+  .modal-header,
+  .modal-footer,
+  .modal-close,
+  button,
+  .btn,
+  .no-print {
+    display: none !important;
+  }
+
+  /* 2. Reset body & page backgrounds for clean white printout */
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 10.5pt !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  main, #app {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* 3. Make print modal fill the printed page directly */
+  #quotationPrintPreviewModal {
+    position: static !important;
+    background: none !important;
+    padding: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  #quotationPrintPreviewCard {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  #printQuotationDoc {
+    padding: 0 !important;
+    width: 100% !important;
+    display: block !important;
+    max-width: 100% !important;
+  }
+
+  /* 4. Self-contained quote block with page-break-inside avoid */
+  .print-quote-block {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    margin-bottom: 24pt !important;
+    border: 1.5pt solid #1B3A6B !important;
+    border-radius: 4pt !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+  }
+
+  .print-quote-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  .print-quote-table td,
+  .print-quote-table th {
+    border: 0.75pt solid #cbd5e1 !important;
+  }
+
+  .plan-highlight-band {
+    background: #fef3c7 !important;
+    border-top: 2pt solid #f59e0b !important;
+    border-bottom: 2pt solid #f59e0b !important;
+  }
+
+  @page {
+    margin: 1.5cm;
+    size: A4 portrait;
+  }
+}

@@ -1,0 +1,5112 @@
+[
+  {
+    "companyName": "Asego Travel LLP",
+    "plans": [
+      {
+        "planName": "Value Pro",
+        "rates": [
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 520,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 610,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 909,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 1609,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 1675,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 618,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 670,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 1066,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 1881,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 2447,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 893,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 998,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 1424,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 1955,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 2546,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 902,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 1008,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 1438,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 2594,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 3581,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 911,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 1018,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 1452,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 2703,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 3908,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 960,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 1077,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 1876,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 3365,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 4505,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 1067,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 1216,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 2288,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 4133,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 5620,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 1327,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 1535,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 2731,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 4846,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 6865,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 1535,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 1771,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 3512,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 5966,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 9177,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 1941,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 2258,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 4630,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 7165,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 11687,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 2214,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 2566,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 5790,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 8317,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 14529,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 2672,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 3059,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 7466,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 11228,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 17415,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 3383,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 4033,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 9223,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 15166,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 20161,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 3413,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 4069,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 10237,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 18231,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 23027,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 3837,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 4553,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 13270,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 20778,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 27521,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 4878,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 5724,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 14728,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 23073,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 30265,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 4926,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 5780,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 15498,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 24624,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 33675,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 807,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 989,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 1197,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 2738,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 3588,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 930,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 1041,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 1430,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 3010,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 5318,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 1213,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 1334,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 2044,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 3253,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 5533,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 1334,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 1437,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 2117,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 4108,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 7868,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 1347,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 1451,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 2137,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 4441,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 8600,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 1438,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 1646,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 2905,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 4621,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 9948,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 1630,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 1838,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 3596,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 6310,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 12448,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 2006,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 2302,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 4359,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 7387,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 15239,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 2302,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 2627,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 5593,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 9816,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 20422,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 3366,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 4573,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 7094,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 12669,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 26041,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 4618,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 6179,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 8781,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 15641,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 32413,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 5568,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 7531,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 10898,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 19928,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 38876,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 6636,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 8847,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 15261,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 25152,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 45032,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 6694,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 8926,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 16931,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 28160,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 51451,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 7676,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 10083,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 20208,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 31291,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 61519,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 9041,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 11123,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 25069,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 35777,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 67662,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 9130,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 11232,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 27440,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 40259,
+            "currency": "INR"
+          },
+          {
+            "coverage": 50000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 75304,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 625,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 726,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 1105,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 1947,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 2048,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 729,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 811,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 1311,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 2247,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 2953,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 1050,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 1193,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 1681,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 2405,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 3196,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 1103,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 1240,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 1711,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 3034,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 4262,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 1134,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 1333,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 1757,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 3325,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 4748,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 1212,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 1446,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 2242,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 4585,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 5541,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 1270,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 1520,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 2814,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 4939,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 6631,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 1612,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 1911,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 3195,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 5791,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 8169,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 1888,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 2054,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 4319,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 7338,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 11104,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 2290,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 2687,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 5788,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 8383,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 13966,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 2635,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 3117,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 6919,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 10229,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 17871,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 3234,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 3762,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 9183,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 14035,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 20550,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 4043,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 4759,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 11872,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 18173,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 23992,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 4198,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 4801,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 12591,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 22208,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 27863,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 4489,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 5349,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 16587,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 24805,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 32887,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 6000,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 7000,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 18438,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 29678,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 37226,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 6157,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 7196,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 19597,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 31723,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 39399,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 968,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 1177,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 1454,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 3313,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 4389,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 1098,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 1259,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 1759,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 3597,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 6418,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 1425,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 1594,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 2412,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 4001,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 6621,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 1631,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 1767,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 2519,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 4806,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 9363,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 1677,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 1819,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 2586,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 5462,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 10448,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 1788,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 2025,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 3471,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 6629,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 12236,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 1940,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 2298,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 4423,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 7859,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 14689,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 2438,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 2866,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 5100,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 9316,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 18134,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 2831,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 3047,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 6880,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 12074,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 24710,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 3972,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 5442,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 9471,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 14822,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 31119,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 5495,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 7507,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 10493,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 19239,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 39868,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 6737,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 9264,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 13405,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 24910,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 45874,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 7930,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 10440,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 19636,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 31834,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 53588,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 8234,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 10532,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 20825,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 37082,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 62256,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 8981,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 11848,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 27970,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 45754,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 73515,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 11121,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 13603,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 34335,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 51593,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 83224,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 11412,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 13984,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 34810,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 55849,
+            "currency": "INR"
+          },
+          {
+            "coverage": 250000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 95637,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 749,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 864,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 1343,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 2356,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 2505,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 861,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 981,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 1612,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 2686,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 3426,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 1233,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 1425,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 1983,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 2958,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 3792,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 1292,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 1525,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 2037,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 3550,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 5071,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 1349,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 1575,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 2126,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 4090,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 5769,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 1412,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 1630,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 2679,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 5731,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 6815,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 1511,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 1900,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 3462,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 5902,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 7825,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 1959,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 2380,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 3738,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 6920,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 9721,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 2323,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 2383,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 5313,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 9026,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 13436,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 2702,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 3197,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 7235,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 9808,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 16689,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 3136,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 3788,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 8268,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 12582,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 21981,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 3913,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 4628,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 11295,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 17544,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 24249,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 4831,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 5616,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 13891,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 25639,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 28550,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 5163,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 5666,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 15487,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 25761,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 33714,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 5252,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 6285,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 20734,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 32398,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 39301,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 7380,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 8561,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 22598,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 40469,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 45788,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 7696,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 8959,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 24398,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 46461,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Excluding",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 48461,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 1162,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 1400,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 1767,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 4009,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 1,
+            "daysTo": 4,
+            "premium": 5367,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 1295,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 1524,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 2163,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 4298,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 5,
+            "daysTo": 6,
+            "premium": 8243,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 1674,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 1904,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 2846,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 4921,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 7,
+            "daysTo": 8,
+            "premium": 8655,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 1995,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 2174,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 2998,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 5623,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 9,
+            "daysTo": 12,
+            "premium": 11142,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 2087,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 2228,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 3129,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 6718,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 13,
+            "daysTo": 14,
+            "premium": 12695,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 2225,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 2491,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 4148,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 8286,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 15,
+            "daysTo": 21,
+            "premium": 15050,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 2551,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 2872,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 5440,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 9392,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 22,
+            "daysTo": 28,
+            "premium": 17333,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 2962,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 3568,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 5967,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 11132,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 29,
+            "daysTo": 35,
+            "premium": 21580,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 3482,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 4744,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 8462,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 14850,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 36,
+            "daysTo": 47,
+            "premium": 29899,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 4687,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 6476,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 11839,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 17342,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 48,
+            "daysTo": 60,
+            "premium": 37188,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 6539,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 9121,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 12540,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 23663,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 61,
+            "daysTo": 75,
+            "premium": 49038,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 8152,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 11394,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 16488,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 31138,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 76,
+            "daysTo": 90,
+            "premium": 54131,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 9476,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 12319,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 22974,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 44153,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 91,
+            "daysTo": 105,
+            "premium": 63770,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 10128,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 12428,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 25615,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 46646,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 106,
+            "daysTo": 120,
+            "premium": 75330,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 10508,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 13922,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 34963,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 60207,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 121,
+            "daysTo": 140,
+            "premium": 87851,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 13679,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 16637,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 42747,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 71506,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 141,
+            "daysTo": 160,
+            "premium": 102365,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 0,
+            "ageTo": 40,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 14266,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 41,
+            "ageTo": 60,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 17410,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 61,
+            "ageTo": 70,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 43513,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 71,
+            "ageTo": 80,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 83578,
+            "currency": "INR"
+          },
+          {
+            "coverage": 500000,
+            "region": "Including",
+            "ageFrom": 81,
+            "ageTo": 85,
+            "daysFrom": 161,
+            "daysTo": 180,
+            "premium": 121458,
+            "currency": "INR"
+          }
+        ]
+      }
+    ]
+  }
+]

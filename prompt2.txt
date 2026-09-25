@@ -1,0 +1,176 @@
+Khanna Travels — Quote Comparison App — Project Plan
+0. Branding
+Project Name: Khanna Travels
+
+Logo: Provided logo — "KHANNA" in navy blue + "TRAVELS" in red, with the tagline "HOLIDAYS REDEFINED" in black beneath, on a white background.
+
+Brand Colors (derived from logo):
+
+Color	Approx. Hex	Used for
+Navy Blue	#1B3A6B	Primary text, nav labels, headings, table headers
+Red	#E03A3A	Accent/action color — buttons, active tab, "Best Price" badge, highlights
+Black	#000000	Tagline text, small secondary text
+White	#FFFFFF	Page and header background
+Header Design:
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  [KHANNA TRAVELS logo]              New Quote   Admin      [Agent ▾] │
+│  ───────────────────                                                  │
+└──────────────────────────────────────────────────────────────────────┘
+Left: Logo, left-aligned, sized to sit comfortably in a ~64–72px tall header bar.
+Center/Right: Two nav items only — New Quote and Admin — in navy text; the active page underlined/highlighted in red.
+Far right: Small agent/user label.
+Bottom border: Thin light-gray line separating header from page content.
+Background: White, matching the logo's own background so it blends seamlessly.
+This replaces any earlier generic teal/blue accent — red is the accent color, navy is the primary text/nav color throughout the app (buttons, active coverage-amount tab, badges all use red; headings and nav use navy).
+
+1. Project Overview
+What it is: A web app where an admin manages multiple insurance companies and their travel insurance plans/rate tables, and an agent enters a customer's trip details to instantly compare premiums across every company and plan — grouped by coverage amount (50k / 100k / 200k / 500k / 750k / 1M).
+
+What it is not: Not a CRM, not a dashboard/reporting tool, not a customer portal. Just: manage rate data → enter a quote → compare.
+
+Backend database: MongoDB (Atlas, cloud-hosted) — accessible from anywhere via a connection string.
+
+2. Project Phases
+Phase 1 — Database & Backend Foundation
+Set up MongoDB Atlas connection
+Define schema (Company → Plans → Rates)
+Build REST API: Companies CRUD, Plans CRUD, Rates CRUD
+Build the quote-matching/compare API endpoint
+Test API endpoints independently (e.g., with Postman) before touching UI
+Output: A working backend where data can be added/edited/deleted and queried, even before any UI exists.
+
+Phase 2 — Admin Panel (Frontend)
+Companies list page (add/edit/delete)
+Plans management inside a company (add/edit/delete, supports multiple plans per company)
+Rate table editor (spreadsheet-style grid) per plan
+Excel/CSV import and export for rates
+Output: Admin can fully populate and maintain rate data through the UI, no direct database editing needed.
+
+Phase 3 — Quote Form & Comparison Page (Frontend)
+Quote form: customer name, DOB, countries, dates, coverage, region
+Auto-calculation of age and travel days
+Comparison results page with coverage-amount tab bar
+Sorting, "Best Price" badge, empty states
+Output: Agent-facing flow fully working end to end: enter details → compare → view results across tabs.
+
+Phase 4 — Polish & Validation
+Form validation (dates, age range, missing data)
+Empty/error states (no matching plans, etc.)
+UI styling pass (spacing, colors, responsiveness)
+Basic testing with real sample data (the Value Pro rate tables you already have)
+Output: A stable, usable v1 of the app.
+
+Phase 5 — Optional Future Additions (not in v1)
+PDF/print/email of a selected quote
+Admin login/authentication
+Saved quote history
+Benefits/deductible detail fields shown per plan
+3. MongoDB Database Design
+Database: insuranceQuotesDB
+Collection: companies
+Each document represents one company, containing all of its plans, and each plan containing all of its rates — fully nested, since a company's plans/rates are only ever read/written together with that company.
+
+{
+  "_id": "ObjectId",
+  "companyName": "ICICI Lombard",
+  "createdAt": "ISODate",
+  "updatedAt": "ISODate",
+  "plans": [
+    {
+      "_id": "ObjectId",
+      "planName": "Value Pro",
+      "rates": [
+        {
+          "_id": "ObjectId",
+          "coverage": 50000,
+          "region": "Excluding",
+          "ageFrom": 0,
+          "ageTo": 40,
+          "daysFrom": 1,
+          "daysTo": 4,
+          "premium": 520,
+          "currency": "INR"
+        },
+        {
+          "_id": "ObjectId",
+          "coverage": 50000,
+          "region": "Including",
+          "ageFrom": 0,
+          "ageTo": 40,
+          "daysFrom": 1,
+          "daysTo": 4,
+          "premium": 807,
+          "currency": "INR"
+        }
+      ]
+    },
+    {
+      "_id": "ObjectId",
+      "planName": "Ace",
+      "rates": [ ]
+    }
+  ]
+}
+Field Rules
+Field	Type	Notes
+companyName	String	Required, unique
+planName	String	Required within a company; a company can have many
+coverage	Number	One of: 50000, 100000, 200000, 500000, 750000, 1000000
+region	String	"Excluding" or "Including" (USA & Canada)
+ageFrom / ageTo	Number	Defines the age band for this rate row
+daysFrom / daysTo	Number	Defines the days slab for this rate row
+premium	Number	The price for this exact combination
+currency	String	Default "INR"
+No age bands or day slabs are fixed system-wide — each rate row simply states its own range, so every company can structure its bands differently if needed.
+
+Mongoose Schema Sketch
+const RateSchema = new Schema({
+  coverage: { type: Number, required: true, enum: [50000, 100000, 200000, 500000, 750000, 1000000] },
+  region: { type: String, required: true, enum: ["Excluding", "Including"] },
+  ageFrom: { type: Number, required: true },
+  ageTo: { type: Number, required: true },
+  daysFrom: { type: Number, required: true },
+  daysTo: { type: Number, required: true },
+  premium: { type: Number, required: true },
+  currency: { type: String, default: "INR" }
+});
+
+const PlanSchema = new Schema({
+  planName: { type: String, required: true },
+  rates: [RateSchema]
+});
+
+const CompanySchema = new Schema({
+  companyName: { type: String, required: true, unique: true },
+  plans: [PlanSchema]
+}, { timestamps: true });
+
+module.exports = mongoose.model("Company", CompanySchema);
+Connection Setup
+// .env
+MONGODB_URI=your_connection_string_here
+
+// db.js
+const mongoose = require("mongoose");
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+Why this structure
+One companies collection is enough — no separate plans or rates collections, since they're always accessed together with their parent company.
+Adding a new company = one new document. Adding a plan or rate = pushing into the relevant array. No schema changes needed for growth.
+The comparison query loops through all companies → all plans → all rates, filtering by region + coverage + age range + days range, entirely on the backend via MongoDB aggregation — fast even as data grows.
+Indexes (for performance once data grows)
+Index on plans.rates.coverage and plans.rates.region to speed up the compare query
+Unique index on companyName to prevent duplicate companies
+4. Deliverables Checklist
+ MongoDB Atlas cluster created, connection string ready
+ Company/Plan/Rate schema implemented (Mongoose)
+ API endpoints: Companies, Plans, Rates (CRUD) + Compare
+ Admin panel: manage companies, plans, rate tables, import/export
+ Quote form with auto age/days calculation
+ Comparison page with coverage-amount tabs, sorting, Best Price badge
+ Validation and empty/error states
+ Sample data loaded (your existing Value Pro rate tables) for testing
+5. What You Need to Provide
+A MongoDB Atlas connection string (MONGODB_URI) — once given, the whole app becomes live against your real database with no further setup.

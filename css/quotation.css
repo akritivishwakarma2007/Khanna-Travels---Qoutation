@@ -1,0 +1,980 @@
+/**
+ * Quotation Form, Live Summary & Comparison Dashboard Styles
+ */
+
+/* Step Header */
+.step-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal-primary), var(--teal-hover));
+  color: #ffffff;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9375rem;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3);
+}
+
+.quote-workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+/* Duration Display Badge */
+.duration-display-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--teal-light);
+  border: 1px solid var(--teal-border);
+  border-radius: var(--radius-md);
+  color: var(--teal-hover);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.duration-display-badge .days-count {
+  font-size: 1.25rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.duration-display-badge.error-badge {
+  background-color: var(--red-light);
+  border-color: #fca5a5;
+  color: var(--red-danger);
+}
+
+/* Coverage Selector Pills */
+.coverage-pills-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.875rem;
+}
+
+.coverage-option-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-light);
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.coverage-option-card input[type="radio"] {
+  display: none;
+}
+
+.coverage-option-card:hover {
+  border-color: #cbd5e1;
+  background-color: var(--bg-subtle);
+}
+
+.coverage-option-card.selected {
+  border-color: var(--teal-primary);
+  background-color: var(--teal-light);
+  box-shadow: 0 0 0 1px var(--teal-primary);
+}
+
+.cov-amount {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-main);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.cov-desc {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.radio-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.coverage-option-card.selected .radio-check,
+.region-option-card.selected .radio-check {
+  border-color: var(--teal-primary);
+  background-color: var(--teal-primary);
+}
+
+.coverage-option-card.selected .radio-check::after,
+.region-option-card.selected .radio-check::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #ffffff;
+}
+
+/* Region Selector Cards */
+.region-toggle-selector {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.region-option-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-light);
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.region-option-card input[type="radio"] {
+  display: none;
+}
+
+.region-option-card:hover {
+  border-color: #cbd5e1;
+  background-color: var(--bg-subtle);
+}
+
+.region-option-card.selected {
+  border-color: var(--teal-primary);
+  background-color: var(--teal-light);
+  box-shadow: 0 0 0 1px var(--teal-primary);
+}
+
+.reg-icon {
+  font-size: 1.75rem;
+}
+
+.reg-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.reg-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Form Validation Alerts */
+.form-alert {
+  padding: 0.875rem 1.25rem;
+  border-radius: var(--radius-md);
+  margin-top: 1.25rem;
+  font-size: 0.875rem;
+}
+
+.form-alert-error {
+  background-color: var(--red-light);
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.form-alert-error ul {
+  margin-left: 1.25rem;
+  margin-top: 0.35rem;
+}
+
+.form-alert-warning {
+  background-color: var(--amber-light);
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.form-action-bar {
+  margin-top: 1.5rem;
+  text-align: right;
+}
+
+.btn-compare {
+  width: 100%;
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.35);
+}
+
+/* Live Reactive Summary Card (Right Column) */
+.live-summary-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.sticky-sidebar {
+  position: sticky;
+  top: calc(var(--topbar-height) + 1.5rem);
+}
+
+.summary-card-header {
+  padding: 1.125rem 1.25rem;
+  background-color: #0b1329; /* Executive Navy */
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.summary-card-header h4 {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.live-pulse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--green-primary);
+  box-shadow: 0 0 8px var(--green-primary);
+  animation: pulseDot 1.5s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.summary-card-body {
+  padding: 1.25rem;
+}
+
+.summary-item {
+  margin-bottom: 0.875rem;
+}
+
+.summary-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.summary-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.summary-value.highlight-teal {
+  color: var(--teal-primary);
+}
+
+.summary-value.highlight-navy {
+  color: #0f172a;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.summary-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.summary-dates {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.summary-dates .arrow {
+  color: var(--teal-primary);
+  font-weight: 800;
+}
+
+.summary-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
+}
+
+.summary-divider {
+  height: 1px;
+  background-color: var(--border-light);
+  margin: 0.875rem 0;
+}
+
+.estimated-price-box {
+  background: linear-gradient(135deg, var(--bg-subtle), #ffffff);
+  border: 1px dashed var(--teal-border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.est-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--teal-primary);
+  letter-spacing: 0.05em;
+}
+
+.est-price {
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: var(--text-main);
+  font-family: 'JetBrains Mono', monospace;
+  margin: 0.25rem 0;
+}
+
+.est-note {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.summary-card-footer {
+  padding: 1rem 1.25rem;
+  background-color: var(--bg-subtle);
+  border-top: 1px solid var(--border-light);
+}
+
+/* ==========================================================================
+   COMPARISON DASHBOARD SECTION
+   ========================================================================== */
+
+.comparison-dashboard-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px dashed var(--border-light);
+}
+
+.comparison-summary-banner {
+  background-color: #0b1329; /* Dark Navy Banner */
+  color: #ffffff;
+  padding: 1.25rem 1.75rem;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-md);
+  flex-wrap: wrap;
+}
+
+.banner-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.35rem;
+}
+
+.banner-meta-items {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  font-size: 0.8125rem;
+  color: #cbd5e1;
+}
+
+.meta-sep {
+  color: #475569;
+}
+
+/* Comparative Financial Metrics Bar */
+.financial-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.metric-card {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-xs);
+  transition: transform 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.metric-tag {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.metric-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-main);
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1.1;
+  margin-bottom: 0.35rem;
+}
+
+.metric-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metric-lowest {
+  border-left: 4px solid var(--green-primary);
+}
+
+.metric-lowest .metric-value {
+  color: var(--green-primary);
+}
+
+.metric-recommended {
+  border-left: 4px solid var(--teal-primary);
+  background: linear-gradient(135deg, var(--teal-light), #ffffff);
+}
+
+.metric-recommended .metric-value {
+  color: var(--teal-primary);
+}
+
+.metric-avg {
+  border-left: 4px solid var(--blue-primary);
+}
+
+.metric-diff {
+  border-left: 4px solid var(--orange-primary);
+}
+
+.metric-diff .metric-value {
+  color: var(--orange-primary);
+}
+
+/* Toolbar */
+.comparison-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+}
+
+.toolbar-count {
+  font-size: 0.875rem;
+  color: var(--text-body);
+}
+
+.filter-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* Comparison Cards Grid */
+.quotes-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+.quote-card {
+  background-color: var(--bg-surface);
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.quote-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+.quote-card.card-cheapest {
+  border-color: var(--green-primary);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.12);
+}
+
+.quote-card.card-recommended {
+  border-color: var(--teal-primary);
+}
+
+.card-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.badge-pill {
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.badge-best-price {
+  background-color: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-rec-plan {
+  background-color: var(--teal-light);
+  color: var(--teal-hover);
+  border: 1px solid var(--teal-border);
+}
+
+.claim-ratio-pill {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.quote-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.insurer-avatar {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.insurer-name {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.plan-subtitle {
+  font-size: 0.8125rem;
+  color: var(--teal-primary);
+  font-weight: 600;
+}
+
+.rating-stars {
+  font-size: 0.75rem;
+  color: #f59e0b;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.reviews-sub {
+  color: var(--text-subtle);
+}
+
+.quote-price-block {
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--border-light);
+}
+
+.price-main {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.currency-symbol {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.price-figure {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1;
+}
+
+.price-tenure {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.price-breakdown {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+.deductible-info {
+  font-size: 0.75rem;
+  color: var(--text-body);
+  margin-top: 0.5rem;
+  border-top: 1px dashed var(--border-light);
+  padding-top: 0.5rem;
+}
+
+.quote-benefits-list {
+  flex: 1;
+  margin-bottom: 1.25rem;
+}
+
+.benefits-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.quote-benefits-list ul {
+  list-style: none;
+}
+
+.quote-benefits-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-body);
+  margin-bottom: 0.35rem;
+  line-height: 1.35;
+}
+
+.quote-benefits-list .b-icon {
+  color: var(--teal-primary);
+  font-weight: bold;
+}
+
+.quote-support-footer {
+  margin-bottom: 1.25rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.quote-actions-row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 0.75rem;
+}
+
+/* ==========================================================================
+   OFFICIAL QUOTATION DOCUMENT STYLES (Modal & Printable)
+   ========================================================================== */
+
+.quote-document {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  color: var(--text-main);
+}
+
+.quote-doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.broker-logo-mark {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--teal-hover);
+  margin-bottom: 0.25rem;
+}
+
+.broker-sub, .broker-contact, .broker-rep {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.quote-doc-meta {
+  text-align: right;
+}
+
+.meta-badge {
+  display: inline-block;
+  background-color: #0b1329;
+  color: #ffffff;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+}
+
+.quote-ref {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.quote-date, .quote-validity {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.quote-doc-divider {
+  height: 2px;
+  background-color: var(--teal-primary);
+  margin-bottom: 1.5rem;
+}
+
+.quote-doc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.doc-card {
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border-light);
+}
+
+.doc-card h4 {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--text-main);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.doc-meta-table {
+  width: 100%;
+  font-size: 0.8125rem;
+}
+
+.doc-meta-table td {
+  padding: 0.25rem 0;
+}
+
+.doc-meta-table td:first-child {
+  color: var(--text-muted);
+  width: 45%;
+}
+
+.doc-section {
+  margin-bottom: 1.5rem;
+}
+
+.doc-section h4 {
+  font-size: 0.875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-main);
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.insurer-banner-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, var(--teal-light), #ffffff);
+  border: 1px solid var(--teal-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+}
+
+.insurer-brand-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-icon {
+  font-size: 2rem;
+}
+
+.brand-name {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.brand-plan {
+  font-size: 0.875rem;
+  color: var(--text-body);
+}
+
+.brand-rating {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.insurer-sum-insured {
+  text-align: right;
+}
+
+.si-title {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: var(--teal-primary);
+  letter-spacing: 0.05em;
+}
+
+.si-amount {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-main);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.si-deductible {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.benefits-grid-doc {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.benefit-doc-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-body);
+}
+
+.check-icon {
+  color: var(--teal-primary);
+  font-weight: bold;
+}
+
+.financial-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.financial-table th {
+  background-color: var(--bg-subtle);
+  padding: 0.65rem 0.875rem;
+  text-align: left;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border-light);
+}
+
+.financial-table td {
+  padding: 0.75rem 0.875rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.small-desc {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.total-row td {
+  font-size: 1rem;
+  font-weight: 800;
+  background-color: var(--bg-subtle);
+  border-top: 2px solid var(--teal-primary);
+}
+
+.grand-total {
+  color: var(--teal-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.25rem;
+}
+
+.terms-section {
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.hotline-box {
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+}
+
+.doc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-light);
+  font-size: 0.6875rem;
+  color: var(--text-subtle);
+}
+
+.doc-stamp {
+  font-weight: 800;
+  color: var(--teal-primary);
+  border: 1px solid var(--teal-border);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 900px) {
+  .quote-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+  .financial-metrics-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .coverage-pills-selector, .region-toggle-selector {
+    grid-template-columns: 1fr;
+  }
+  .quote-doc-grid, .benefits-grid-doc {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,282 @@
+/**
+ * Admin Rate Tables & Spreadsheet Matrix Styles
+ */
+
+.matrix-filter-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  align-items: flex-end;
+}
+
+.filter-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
+
+.batch-adjust-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Active Matrix Strip */
+.matrix-info-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.25rem;
+  background-color: #0b1329; /* Dark Navy */
+  color: #ffffff;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.info-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.active-tag {
+  font-size: 0.8125rem;
+  color: #cbd5e1;
+  background-color: rgba(255, 255, 255, 0.08);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-sm);
+}
+
+.active-tag strong {
+  color: #ffffff;
+}
+
+.cells-count {
+  font-size: 0.8125rem;
+  color: var(--teal-border);
+}
+
+/* Spreadsheet Grid Container */
+.spreadsheet-container-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.table-scroll-wrapper {
+  overflow-x: auto;
+  max-height: 70vh;
+}
+
+.spreadsheet-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+}
+
+.spreadsheet-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background-color: var(--bg-subtle);
+}
+
+.spreadsheet-table th {
+  padding: 0.875rem 1rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-main);
+  border-bottom: 2px solid var(--border-light);
+  border-right: 1px solid var(--border-light);
+  background-color: var(--bg-subtle);
+}
+
+.spreadsheet-table th:last-child {
+  border-right: none;
+}
+
+.th-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.th-sub {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Sticky Column for Days Slab */
+.col-sticky-slab {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background-color: #ffffff;
+  min-width: 170px;
+  width: 180px;
+  text-align: left !important;
+  border-right: 2px solid var(--border-light) !important;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.03);
+}
+
+.spreadsheet-table thead .col-sticky-slab {
+  z-index: 30;
+  background-color: var(--bg-subtle);
+}
+
+.slab-label-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.slab-pill {
+  font-weight: 800;
+  color: var(--text-main);
+  font-size: 0.875rem;
+}
+
+.slab-range {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+/* Spreadsheet Body Cells */
+.spreadsheet-table tbody tr:hover td {
+  background-color: #f8fafc;
+}
+
+.spreadsheet-table tbody tr:hover .col-sticky-slab {
+  background-color: #f1f5f9;
+}
+
+.spreadsheet-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-light);
+  border-right: 1px solid var(--border-light);
+  text-align: center;
+  background-color: #ffffff;
+  transition: background 0.15s ease;
+}
+
+.spreadsheet-table td:last-child {
+  border-right: none;
+}
+
+.cell-input-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.45rem;
+  width: 100%;
+  max-width: 120px;
+  transition: all 0.15s ease;
+}
+
+.cell-currency {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.rate-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-align: right;
+  outline: none;
+}
+
+.cell-input-wrapper:focus-within {
+  background-color: #ffffff;
+  border-color: var(--teal-primary);
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+}
+
+/* Modified cell highlight */
+.rate-cell.cell-modified {
+  background-color: var(--amber-light) !important;
+}
+
+.rate-cell.cell-modified .cell-input-wrapper {
+  border-color: var(--amber-warning);
+  background-color: #ffffff;
+}
+
+.rate-cell.cell-modified .rate-input {
+  color: #b45309;
+}
+
+/* Data Table (for quotes, customers) */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.data-table th {
+  background-color: var(--bg-subtle);
+  padding: 0.875rem 1rem;
+  text-align: left;
+  font-weight: 700;
+  color: var(--text-main);
+  border-bottom: 2px solid var(--border-light);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: middle;
+}
+
+.data-table tr:hover td {
+  background-color: var(--bg-subtle);
+}
+
+.text-navy { color: #0f172a; }
+.text-teal { color: var(--teal-primary); }
+
+.cust-cell, .trip-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.cust-age, .trip-dates {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.action-btn-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
