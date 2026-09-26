@@ -9,7 +9,8 @@ import {
   getCompanies, getCompany, addCompany, renameCompany, toggleCompanyStatus, deleteCompany,
   getCompanyPlans, addPlan, renamePlan, togglePlanStatus, duplicatePlan, deletePlan,
   getRates, saveRateGrid, bulkEditRates, previewImportCsv, importRatesCsv, exportRatesCsvUrl, downloadTemplateUrl,
-  loginAdmin, logoutAdmin, isAdminAuthenticated
+  loginAdmin, logoutAdmin, isAdminAuthenticated,
+  getVisaLinks, addVisaLink, updateVisaLink, deleteVisaLink
 } from './api.js';
 
 // Default standard templates for Age Bands × Days Slabs
@@ -60,10 +61,79 @@ const DEFAULT_TEMPLATES = {
   }
 };
 
+// Initial verified official visa portals for 1-click loading and initial state
+const DEFAULT_INITIAL_VISA_LINKS = [
+  {
+    _id: 'default_uae_icp',
+    title: 'Dubai / UAE Official eVisa (ICP Smart Services)',
+    url: 'https://smartservices.icp.gov.ae/',
+    country: 'UAE',
+    category: 'Official eVisa',
+    notes: 'Federal Authority for Identity, Citizenship, Customs & Port Security (Tourist 30/60 Days)'
+  },
+  {
+    _id: 'default_uae_gdrfa',
+    title: 'Dubai GDRFA eVisa Portal (General Directorate)',
+    url: 'https://www.gdrfad.gov.ae/',
+    country: 'UAE',
+    category: 'Official eVisa',
+    notes: 'Dubai entry permit and residency visa application & status verification'
+  },
+  {
+    _id: 'default_usa_ustraveldocs',
+    title: 'United States Visa Appointment Service (US Travel Docs / CGI)',
+    url: 'https://www.ustraveldocs.com/',
+    country: 'USA',
+    category: 'Appointment Portal',
+    notes: 'Official US Visa appointment scheduling and fee payment for India'
+  },
+  {
+    _id: 'default_usa_ceac',
+    title: 'US DS-160 Non-Immigrant Visa Application (CEAC)',
+    url: 'https://ceac.state.gov/genniv/',
+    country: 'USA',
+    category: 'Official Application',
+    notes: 'Consular Electronic Application Center — submit nonimmigrant visa application'
+  },
+  {
+    _id: 'default_uk_gov',
+    title: 'UK Visa & Immigration Official Portal (GOV.UK)',
+    url: 'https://www.gov.uk/apply-to-come-to-the-uk',
+    country: 'United Kingdom',
+    category: 'Official Portal',
+    notes: 'Official British Government portal for UK standard visitor visa applications'
+  },
+  {
+    _id: 'default_schengen_vfs',
+    title: 'Schengen Visa Booking & Tracking (VFS Global)',
+    url: 'https://visa.vfsglobal.com/',
+    country: 'Schengen / Europe',
+    category: 'VFS Application',
+    notes: 'Official biometric appointment booking for France, Germany, Italy, Switzerland, Spain, etc.'
+  },
+  {
+    _id: 'default_thailand_evisa',
+    title: 'Thailand Official eVisa Portal',
+    url: 'https://www.thaievisa.go.th/',
+    country: 'Thailand',
+    category: 'Official eVisa',
+    notes: 'Official Ministry of Foreign Affairs of the Kingdom of Thailand online visa system'
+  },
+  {
+    _id: 'default_singapore_ica',
+    title: 'Singapore Immigration & Checkpoints Authority (ICA e-Services)',
+    url: 'https://www.ica.gov.sg/',
+    country: 'Singapore',
+    category: 'Official Portal',
+    notes: 'SG Arrival Card with electronic health declaration and eVisa processing'
+  }
+];
+
 export class AdminView {
   constructor(app) {
     this.app = app;
     this.state = {
+      adminSection: 'insurance', // 'insurance' | 'visa-links'
       level: 'companies', // 'companies' | 'plans' | 'rates'
       companies: [],
       companyFilter: 'all', // 'all' | 'active' | 'archived'
@@ -78,10 +148,17 @@ export class AdminView {
       matrixData: {}, // key `${dayIdx}_${ageIdx}` => premium
       overlapErrors: [],
       gapWarnings: [],
-      savedTemplates: { ...DEFAULT_TEMPLATES }
+      savedTemplates: { ...DEFAULT_TEMPLATES },
+
+      // Visa Links state
+      visaLinks: [...DEFAULT_INITIAL_VISA_LINKS],
+      visaFilterCountry: 'all',
+      visaSearchQuery: '',
+      editingVisaLink: null
     };
 
     this._loadSavedTemplates();
+    this._loadLocalVisaLinks();
   }
 
   _loadSavedTemplates() {
@@ -112,7 +189,9 @@ export class AdminView {
 
     return `
       <div class="admin-wrapper" id="adminWrapper">
-        ${this._renderBreadcrumbs()}
+        <div id="adminNavSection">
+          ${this._renderBreadcrumbs()}
+        </div>
         <div id="adminContent">
           ${this._renderCurrentLevel()}
         </div>
@@ -131,7 +210,7 @@ export class AdminView {
             </div>
             <h1 class="admin-login-title">Admin Portal Authentication</h1>
             <p class="admin-login-subtitle">
-              Enter the administrator password to manage insurers, plans, and rate tables.
+              Enter the administrator password to manage insurers, plans, rate tables, and visa portal links.
             </p>
           </div>
 
@@ -171,53 +250,75 @@ export class AdminView {
 
           <div class="admin-login-footer">
             <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style="color:var(--navy); flex-shrink:0;"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-            <span>Live agency pricing protection — rate modification is restricted to authorized administrative staff.</span>
+            <span>Live agency protection — restricted to authorized administrative staff.</span>
           </div>
         </div>
       </div>
     `;
   }
 
-  // ── Breadcrumbs ───────────────────────────────────────────────────────────
+  // ── Breadcrumbs & Admin Module Switcher ────────────────────────────────────
   _renderBreadcrumbs() {
-    const { level, selectedCompany, selectedPlan } = this.state;
+    const { level, selectedCompany, selectedPlan, adminSection = 'insurance' } = this.state;
+    const isVisa = adminSection === 'visa-links';
+    const visaCount = (this.state.visaLinks || []).length;
 
     return `
-      <div class="admin-breadcrumb-bar">
-        <ul class="admin-breadcrumbs">
-          <li class="breadcrumb-item ${level === 'companies' ? 'active' : ''}">
-            ${level === 'companies' 
-              ? '<span>Companies</span>' 
-              : '<button class="crumb-btn" data-nav-to="companies">Companies</button>'
-            }
-          </li>
-          ${selectedCompany ? `
-            <li class="breadcrumb-separator">›</li>
-            <li class="breadcrumb-item ${level === 'plans' ? 'active' : ''}">
-              ${level === 'plans'
-                ? `<span>${selectedCompany.companyName}</span>`
-                : `<button class="crumb-btn" data-nav-to="plans">${selectedCompany.companyName}</button>`
-              }
-            </li>
-          ` : ''}
-          ${selectedPlan && level === 'rates' ? `
-            <li class="breadcrumb-separator">›</li>
-            <li class="breadcrumb-item active">
-              <span>${selectedPlan.planName} (Rates)</span>
-            </li>
-          ` : ''}
-        </ul>
+      <div class="admin-module-bar">
+        <div class="admin-module-tabs">
+          <button type="button" class="admin-tab-btn ${!isVisa ? 'active' : ''}" data-admin-section="insurance">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+            Insurance Plans &amp; Rates
+          </button>
+          <button type="button" class="admin-tab-btn tab-visa ${isVisa ? 'active' : ''}" data-admin-section="visa-links">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"/></svg>
+            Official Visa Portal Links
+            <span class="admin-tab-badge" id="visaBadgeCount">${visaCount}</span>
+          </button>
+        </div>
 
         <div class="admin-auth-indicator">
           <span class="admin-auth-badge">🛡️ Admin Authenticated</span>
-          <button class="crumb-btn btn-admin-logout" id="btnAdminLogout" title="Sign out of admin portal">Sign Out</button>
+          <button type="button" class="crumb-btn btn-admin-logout" id="btnAdminLogout" title="Sign out of admin portal">Sign Out</button>
         </div>
       </div>
+
+      ${!isVisa ? `
+        <div class="admin-breadcrumb-bar">
+          <ul class="admin-breadcrumbs">
+            <li class="breadcrumb-item ${level === 'companies' ? 'active' : ''}">
+              ${level === 'companies' 
+                ? '<span>Companies</span>' 
+                : '<button type="button" class="crumb-btn" data-nav-to="companies">Companies</button>'
+              }
+            </li>
+            ${selectedCompany ? `
+              <li class="breadcrumb-separator">›</li>
+              <li class="breadcrumb-item ${level === 'plans' ? 'active' : ''}">
+                ${level === 'plans'
+                  ? `<span>${selectedCompany.companyName}</span>`
+                  : `<button type="button" class="crumb-btn" data-nav-to="plans">${selectedCompany.companyName}</button>`
+                }
+              </li>
+            ` : ''}
+            ${selectedPlan && level === 'rates' ? `
+              <li class="breadcrumb-separator">›</li>
+              <li class="breadcrumb-item active">
+                <span>${selectedPlan.planName} (Rates)</span>
+              </li>
+            ` : ''}
+          </ul>
+        </div>
+      ` : ''}
     `;
   }
 
   // ── Level Router ──────────────────────────────────────────────────────────
   _renderCurrentLevel() {
+    if (this.state.adminSection === 'visa-links') {
+      return this._renderVisaLinksPage();
+    }
+
     switch (this.state.level) {
       case 'rates':
         return this._renderRateGridPage();
@@ -227,6 +328,274 @@ export class AdminView {
       default:
         return this._renderCompaniesPage();
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // OFFICIAL VISA WEBSITE LINKS PAGE
+  // ═══════════════════════════════════════════════════════════════════════════
+  _renderVisaLinksPage() {
+    const allLinks = this.state.visaLinks || [];
+    const query = (this.state.visaSearchQuery || '').toLowerCase().trim();
+    const filterCountry = this.state.visaFilterCountry || 'all';
+
+    // Unique countries for quick filter pills
+    const rawCountries = allLinks.map(l => (l.country || '').trim()).filter(Boolean);
+    const uniqueCountries = ['all', ...Array.from(new Set(rawCountries))];
+
+    // Filtered links
+    const filteredLinks = allLinks.filter(l => {
+      const matchCountry = filterCountry === 'all' || 
+        (l.country || '').toLowerCase() === filterCountry.toLowerCase();
+      const matchQuery = !query ||
+        (l.title || '').toLowerCase().includes(query) ||
+        (l.url || '').toLowerCase().includes(query) ||
+        (l.country || '').toLowerCase().includes(query) ||
+        (l.category || '').toLowerCase().includes(query) ||
+        (l.notes || '').toLowerCase().includes(query);
+      return matchCountry && matchQuery;
+    });
+
+    const editItem = this.state.editingVisaLink;
+
+    return `
+      <div class="visa-page-container">
+        <!-- Header -->
+        <div class="visa-page-header">
+          <div>
+            <h1 class="page-title">🌐 Official Visa Website Portals</h1>
+            <p class="page-subtitle">
+              Centralized repository for verified embassy, consulate &amp; government visa application links.
+              Add portal links, copy them to share with clients, or directly visit embassy pages with one click.
+            </p>
+          </div>
+          <div class="visa-header-stats">
+            <div class="visa-stat-pill">
+              <span>Saved Portals:</span>
+              <span class="visa-stat-num">${allLinks.length}</span>
+            </div>
+            ${allLinks.length === 0 ? `
+              <button type="button" class="btn btn-secondary btn-sm" id="btnSeedVisaLinks">
+                ⚡ Load Common Portals
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- Add / Edit Link Box -->
+        <div class="visa-add-card">
+          <div class="visa-add-header">
+            <div class="visa-add-header-title">
+              <span class="icon">${editItem ? '✏️' : '🔗'}</span>
+              <h3>${editItem ? 'Edit Visa Portal Link' : 'Add New Visa Website Link'}</h3>
+            </div>
+            ${editItem ? `
+              <button type="button" class="btn btn-secondary btn-sm" id="btnCancelEditVisaLink">
+                Cancel Edit
+              </button>
+            ` : ''}
+          </div>
+
+          <div class="visa-add-body">
+            <form id="formAddVisaLink" novalidate>
+              <div class="visa-form-grid">
+                <!-- 1. Name Box of what link is -->
+                <div class="form-group">
+                  <label class="form-label" for="vlinkTitle">
+                    Visa / Portal Name <span class="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="vlinkTitle"
+                    class="form-input"
+                    placeholder="e.g. Dubai / UAE Official eVisa (ICP Portal)"
+                    value="${this._esc(editItem ? editItem.title : '')}"
+                    required
+                  />
+                  <span class="form-hint">Name of the portal or embassy visa service</span>
+                </div>
+
+                <!-- 2. Link Adding Box -->
+                <div class="form-group">
+                  <label class="form-label" for="vlinkUrl">
+                    Website Link (URL) <span class="required">*</span>
+                  </label>
+                  <div class="url-input-wrapper">
+                    <span class="url-input-prefix">https://</span>
+                    <input
+                      type="text"
+                      id="vlinkUrl"
+                      class="form-input url-input"
+                      placeholder="smartservices.icp.gov.ae or full URL"
+                      value="${this._esc(editItem ? editItem.url.replace(/^https?:\/\//i, '') : '')}"
+                      required
+                    />
+                  </div>
+                  <span class="form-hint">Paste the website link here (click 'Save' to add)</span>
+                </div>
+
+                <!-- 3. Country / Region Box -->
+                <div class="form-group">
+                  <label class="form-label" for="vlinkCountry">
+                    Country / Region <span class="optional-tag">(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="vlinkCountry"
+                    class="form-input"
+                    placeholder="e.g. UAE, USA, UK, Schengen, Thailand"
+                    value="${this._esc(editItem ? (editItem.country || '') : '')}"
+                  />
+                  <span class="form-hint">Used for quick country filtering</span>
+                </div>
+
+                <!-- 4. Category / Type Box -->
+                <div class="form-group">
+                  <label class="form-label" for="vlinkCategory">
+                    Category / Type <span class="optional-tag">(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="vlinkCategory"
+                    class="form-input"
+                    placeholder="e.g. Official eVisa, Appointment Booking, Status Check"
+                    value="${this._esc(editItem ? (editItem.category || '') : 'Official eVisa')}"
+                  />
+                </div>
+
+                <!-- 5. Notes / Instructions Box -->
+                <div class="form-group full-width">
+                  <label class="form-label" for="vlinkNotes">
+                    Notes / Instructions <span class="optional-tag">(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="vlinkNotes"
+                    class="form-input"
+                    placeholder="e.g. 30/60 Days Tourist Visa, require passport copy &amp; photo"
+                    value="${this._esc(editItem ? (editItem.notes || '') : '')}"
+                  />
+                </div>
+              </div>
+
+              <div class="visa-form-actions">
+                ${editItem ? `
+                  <button type="button" class="btn btn-secondary" id="btnCancelEditVisaLink">Cancel</button>
+                ` : ''}
+                <button type="submit" class="btn btn-primary" id="btnSaveVisaLink">
+                  <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  ${editItem ? 'Update Visa Link' : '💾 Save Visa Link'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Search & Filter Toolbar -->
+        <div class="visa-toolbar">
+          <div class="visa-search-box">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              id="visaSearchInput"
+              class="form-input search-input"
+              placeholder="Search by country, portal name, or URL..."
+              value="${this._esc(this.state.visaSearchQuery || '')}"
+            />
+            ${this.state.visaSearchQuery ? `
+              <button type="button" class="btn-clear-search" id="btnClearVisaSearch" title="Clear search">✕</button>
+            ` : ''}
+          </div>
+
+          ${uniqueCountries.length > 1 ? `
+            <div class="visa-country-pills">
+              ${uniqueCountries.map(c => `
+                <button type="button" class="pill-btn ${filterCountry === c ? 'active' : ''}" data-visa-country="${c}">
+                  ${c === 'all' ? 'All Portals' : `${this._getCountryFlag(c)} ${c}`}
+                </button>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- Search Empty State -->
+        <div id="visaEmptySearchState" style="display:none; text-align:center; padding:2rem; background:var(--white); border-radius:var(--radius-md); border:1px solid var(--gray-200);">
+          <p style="color:var(--gray-500); font-size:0.9rem;">No visa links match your search query.</p>
+        </div>
+
+        <!-- Saved Links Grid -->
+        ${filteredLinks.length > 0 ? `
+          <div class="visa-links-grid" id="visaLinksGrid">
+            ${filteredLinks.map(link => `
+              <div class="visa-link-card"
+                   data-link-id="${link._id}"
+                   data-title="${this._esc(link.title)}"
+                   data-url="${this._esc(link.url)}"
+                   data-country="${this._esc(link.country || '')}"
+                   data-notes="${this._esc(link.notes || '')}">
+                
+                <div class="vcard-top">
+                  <div class="vcard-badge-row">
+                    <span class="vcard-country-badge">
+                      ${this._getCountryFlag(link.country)} ${this._esc(link.country || 'Global')}
+                    </span>
+                    <span class="vcard-cat-badge">
+                      ${this._esc(link.category || 'Official Portal')}
+                    </span>
+                  </div>
+                  <div class="vcard-menu">
+                    <button type="button" class="btn-icon-action btn-edit-visa" data-id="${link._id}" title="Edit Portal Link">✏️</button>
+                    <button type="button" class="btn-icon-action btn-delete-visa" data-id="${link._id}" title="Delete Portal Link">🗑️</button>
+                  </div>
+                </div>
+
+                <!-- Portal Name -->
+                <h4 class="vcard-title">${this._esc(link.title)}</h4>
+
+                ${link.notes ? `
+                  <p class="vcard-notes">📝 ${this._esc(link.notes)}</p>
+                ` : ''}
+
+                <!-- Clickable URL box that opens directly -->
+                <div class="vcard-url-box">
+                  <a href="${this._esc(link.url)}" target="_blank" rel="noopener noreferrer" class="vcard-url-link" title="Click to open ${this._esc(link.title)} directly in new tab">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" style="flex-shrink:0;"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"/></svg>
+                    <span class="vcard-url-text">${this._esc(link.url)}</span>
+                    <span class="vcard-url-arrow">↗</span>
+                  </a>
+                </div>
+
+                <!-- Actions: One-click Copy & Direct Visit -->
+                <div class="vcard-actions">
+                  <button type="button" class="btn-copy-visa" data-copy-url="${this._esc(link.url)}" data-title="${this._esc(link.title)}" title="Copy link to clipboard">
+                    <span class="btn-copy-icon">📋</span>
+                    <span class="btn-copy-label">Copy Link</span>
+                  </button>
+                  <a href="${this._esc(link.url)}" target="_blank" rel="noopener noreferrer" class="btn-visit-visa" title="Open official website directly">
+                    <span>Visit Portal ↗</span>
+                  </a>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        ` : `
+          <div class="visa-empty-state">
+            <div class="visa-empty-icon">🌐</div>
+            <h3 class="visa-empty-title">No Visa Links Found</h3>
+            <p class="visa-empty-text">
+              ${query || filterCountry !== 'all'
+                ? 'No visa portals match your current filter criteria.'
+                : 'You have not added any official visa website links yet. Add your first link using the form above.'
+              }
+            </p>
+            ${allLinks.length === 0 ? `
+              <button type="button" class="btn btn-primary" id="btnSeedVisaLinks">
+                ⚡ Load 8 Popular Verified Visa Portals
+              </button>
+            ` : ''}
+          </div>
+        `}
+      </div>
+    `;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -592,12 +961,13 @@ export class AdminView {
 
     if (isAdminAuthenticated()) {
       await this._loadCompanies();
+      await this._loadVisaLinks();
     }
 
     if (this._eventsAttached) return;
     this._eventsAttached = true;
 
-    // 1. Delegated Admin Login Submit Handler
+    // 1. Delegated Form Submit Handlers
     container.addEventListener('submit', async (e) => {
       if (e.target.id === 'adminLoginForm') {
         e.preventDefault();
@@ -626,6 +996,7 @@ export class AdminView {
           this.app.showToast('Admin authenticated successfully', 'success');
 
           await this._loadCompanies();
+          await this._loadVisaLinks();
           this.container.innerHTML = this.render();
           this._refresh();
         } catch (err) {
@@ -638,6 +1009,14 @@ export class AdminView {
             submitBtn.innerHTML = 'Sign In to Admin';
           }
         }
+        return;
+      }
+
+      // Add / Edit Visa Portal Link Form
+      if (e.target.id === 'formAddVisaLink') {
+        e.preventDefault();
+        await this._handleSaveVisaLink(e.target);
+        return;
       }
     });
 
@@ -658,7 +1037,7 @@ export class AdminView {
       }
     });
 
-    // 4. Matrix cell input handler
+    // 4. Input handler for Matrix & Visa Search
     container.addEventListener('input', (e) => {
       if (e.target.classList.contains('matrix-input')) {
         const row = e.target.dataset.row;
@@ -667,6 +1046,14 @@ export class AdminView {
         e.target.value = val;
         this.state.matrixData[`${row}_${col}`] = val;
         e.target.classList.toggle('filled', !!val);
+        return;
+      }
+
+      // Live search for Visa Portal Links (instant in-place card filtering)
+      if (e.target.id === 'visaSearchInput') {
+        this.state.visaSearchQuery = e.target.value.toLowerCase().trim();
+        this._filterVisaCardsInPlace();
+        return;
       }
     });
 
@@ -694,6 +1081,68 @@ export class AdminView {
       logoutAdmin();
       this.app.showToast('Logged out of Admin Portal', 'info');
       this.container.innerHTML = this.render();
+      return;
+    }
+
+    // ── Admin Module Switching (Insurance vs Visa Links) ──
+    const moduleBtn = e.target.closest('[data-admin-section]');
+    if (moduleBtn) {
+      this.state.adminSection = moduleBtn.dataset.adminSection;
+      if (this.state.adminSection === 'visa-links') {
+        await this._loadVisaLinks();
+      }
+      this._refresh();
+      return;
+    }
+
+    // ── Visa Link: Copy URL to Clipboard ──
+    const copyBtn = e.target.closest('[data-copy-url]');
+    if (copyBtn) {
+      const url = copyBtn.dataset.copyUrl;
+      const title = copyBtn.dataset.title || 'Visa Portal';
+      await this._copyToClipboard(url, copyBtn, title);
+      return;
+    }
+
+    // ── Visa Link: Edit Portal ──
+    const editVisaBtn = e.target.closest('.btn-edit-visa');
+    if (editVisaBtn) {
+      this._startEditVisaLink(editVisaBtn.dataset.id);
+      return;
+    }
+
+    // ── Visa Link: Delete Portal ──
+    const deleteVisaBtn = e.target.closest('.btn-delete-visa');
+    if (deleteVisaBtn) {
+      await this._deleteVisaLink(deleteVisaBtn.dataset.id);
+      return;
+    }
+
+    // ── Visa Link: Filter by Country ──
+    const visaCountryBtn = e.target.closest('[data-visa-country]');
+    if (visaCountryBtn) {
+      this.state.visaFilterCountry = visaCountryBtn.dataset.visaCountry;
+      this._refresh();
+      return;
+    }
+
+    // ── Visa Link: Clear Search ──
+    if (e.target.closest('#btnClearVisaSearch')) {
+      this.state.visaSearchQuery = '';
+      this._refresh();
+      return;
+    }
+
+    // ── Visa Link: Cancel Edit ──
+    if (e.target.closest('#btnCancelEditVisaLink')) {
+      this.state.editingVisaLink = null;
+      this._refresh();
+      return;
+    }
+
+    // ── Visa Link: Seed Default Verified Portals ──
+    if (e.target.closest('#btnSeedVisaLinks')) {
+      await this._seedDefaultVisaLinks();
       return;
     }
 
@@ -1855,6 +2304,242 @@ export class AdminView {
     });
   }
 
+  // ── Visa Links Helper Methods ─────────────────────────────────────────────
+  _getCountryFlag(country) {
+    const c = (country || '').toLowerCase();
+    if (c.includes('uae') || c.includes('dubai') || c.includes('emirates')) return '🇦🇪';
+    if (c.includes('usa') || c.includes('united states') || c.includes('america')) return '🇺🇸';
+    if (c.includes('uk') || c.includes('britain') || c.includes('united kingdom') || c.includes('england')) return '🇬🇧';
+    if (c.includes('schengen') || c.includes('europe') || c.includes('france') || c.includes('germany') || c.includes('italy') || c.includes('spain') || c.includes('swiss')) return '🇪🇺';
+    if (c.includes('thailand')) return '🇹🇭';
+    if (c.includes('singapore')) return '🇸🇬';
+    if (c.includes('malaysia')) return '🇲🇾';
+    if (c.includes('canada')) return '🇨🇦';
+    if (c.includes('australia')) return '🇦🇺';
+    if (c.includes('saudi') || c.includes('ksa')) return '🇸🇦';
+    if (c.includes('oman')) return '🇴🇲';
+    if (c.includes('vietnam')) return '🇻🇳';
+    if (c.includes('indonesia') || c.includes('bali')) return '🇮🇩';
+    if (c.includes('japan')) return '🇯🇵';
+    if (c.includes('turkey') || c.includes('turkiye')) return '🇹🇷';
+    if (c.includes('qatar')) return '🇶🇦';
+    if (c.includes('egypt')) return '🇪🇬';
+    if (c.includes('sri lanka')) return '🇱🇰';
+    if (c.includes('new zealand')) return '🇳🇿';
+    return '🌐';
+  }
+
+  _loadLocalVisaLinks() {
+    try {
+      const stored = localStorage.getItem('khanna_visa_links');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          this.state.visaLinks = parsed;
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  _persistLocalVisaLinks() {
+    try {
+      localStorage.setItem('khanna_visa_links', JSON.stringify(this.state.visaLinks));
+    } catch {
+      // ignore
+    }
+  }
+
+  async _loadVisaLinks() {
+    try {
+      const links = await getVisaLinks();
+      if (Array.isArray(links) && links.length > 0) {
+        this.state.visaLinks = links;
+        this._persistLocalVisaLinks();
+      }
+    } catch (err) {
+      console.warn('Could not load visa links from API, fallback to local storage:', err);
+      this._loadLocalVisaLinks();
+    }
+  }
+
+  async _handleSaveVisaLink(formEl) {
+    const titleInput = formEl.querySelector('#vlinkTitle');
+    const urlInput = formEl.querySelector('#vlinkUrl');
+    const countryInput = formEl.querySelector('#vlinkCountry');
+    const categoryInput = formEl.querySelector('#vlinkCategory');
+    const notesInput = formEl.querySelector('#vlinkNotes');
+
+    const title = titleInput ? titleInput.value.trim() : '';
+    let url = urlInput ? urlInput.value.trim() : '';
+    const country = countryInput ? countryInput.value.trim() : '';
+    const category = categoryInput ? categoryInput.value.trim() : 'Official Portal';
+    const notes = notesInput ? notesInput.value.trim() : '';
+
+    if (!title) {
+      this.app.showToast('Please enter the visa / portal name', 'error');
+      if (titleInput) titleInput.focus();
+      return;
+    }
+    if (!url) {
+      this.app.showToast('Please enter the website link (URL)', 'error');
+      if (urlInput) urlInput.focus();
+      return;
+    }
+
+    if (!/^https?:\/\//i.test(url)) {
+      url = 'https://' + url;
+    }
+
+    const payload = { title, url, country, category, notes };
+
+    try {
+      if (this.state.editingVisaLink) {
+        const id = this.state.editingVisaLink._id;
+        try {
+          const updated = await updateVisaLink(id, payload);
+          const idx = this.state.visaLinks.findIndex(l => String(l._id) === String(id));
+          if (idx !== -1) {
+            this.state.visaLinks[idx] = updated || { ...payload, _id: id };
+          }
+        } catch {
+          // Local fallback
+          const idx = this.state.visaLinks.findIndex(l => String(l._id) === String(id));
+          if (idx !== -1) {
+            this.state.visaLinks[idx] = { ...this.state.visaLinks[idx], ...payload, updatedAt: new Date() };
+          }
+        }
+        this.state.editingVisaLink = null;
+        this.app.showToast('Visa portal link updated successfully!', 'success');
+      } else {
+        try {
+          const created = await addVisaLink(payload);
+          this.state.visaLinks.unshift(created || { ...payload, _id: 'visa_' + Date.now() });
+        } catch {
+          // Local fallback
+          this.state.visaLinks.unshift({
+            _id: 'visa_' + Date.now(),
+            ...payload,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          });
+        }
+        this.app.showToast('Visa portal link saved successfully!', 'success');
+      }
+
+      this._persistLocalVisaLinks();
+      this._refresh();
+    } catch (err) {
+      this.app.showToast('Error saving visa link: ' + err.message, 'error');
+    }
+  }
+
+  _startEditVisaLink(linkId) {
+    const item = this.state.visaLinks.find(l => String(l._id) === String(linkId));
+    if (!item) return;
+    this.state.editingVisaLink = item;
+    this._refresh();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async _deleteVisaLink(linkId) {
+    const item = this.state.visaLinks.find(l => String(l._id) === String(linkId));
+    const title = item ? item.title : 'this portal';
+    if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+
+    try {
+      await deleteVisaLink(linkId).catch(() => {});
+      this.state.visaLinks = this.state.visaLinks.filter(l => String(l._id) !== String(linkId));
+      if (this.state.editingVisaLink && String(this.state.editingVisaLink._id) === String(linkId)) {
+        this.state.editingVisaLink = null;
+      }
+      this._persistLocalVisaLinks();
+      this.app.showToast(`Deleted "${title}"`, 'info');
+      this._refresh();
+    } catch (err) {
+      this.app.showToast('Error deleting visa link: ' + err.message, 'error');
+    }
+  }
+
+  async _seedDefaultVisaLinks() {
+    this.state.visaLinks = [...DEFAULT_INITIAL_VISA_LINKS];
+    this._persistLocalVisaLinks();
+    this.app.showToast('Loaded 8 verified official visa portals!', 'success');
+    this._refresh();
+  }
+
+  async _copyToClipboard(text, btnElement, title) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        textArea.remove();
+      }
+
+      if (btnElement) {
+        btnElement.classList.add('copied');
+        const label = btnElement.querySelector('.btn-copy-label');
+        const icon = btnElement.querySelector('.btn-copy-icon');
+        if (label) label.textContent = '✓ Copied!';
+        if (icon) icon.textContent = '✓';
+
+        setTimeout(() => {
+          btnElement.classList.remove('copied');
+          if (label) label.textContent = 'Copy Link';
+          if (icon) icon.textContent = '📋';
+        }, 2500);
+      }
+
+      this.app.showToast(`Copied ${title} link to clipboard!`, 'success');
+    } catch (err) {
+      console.error('Copy failed:', err);
+      this.app.showToast('Failed to copy link to clipboard', 'error');
+    }
+  }
+
+  _filterVisaCardsInPlace() {
+    const query = (this.state.visaSearchQuery || '').toLowerCase().trim();
+    const filterCountry = (this.state.visaFilterCountry || 'all').toLowerCase();
+    const cards = this.container.querySelectorAll('.visa-link-card');
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const title = (card.dataset.title || '').toLowerCase();
+      const url = (card.dataset.url || '').toLowerCase();
+      const country = (card.dataset.country || '').toLowerCase();
+      const notes = (card.dataset.notes || '').toLowerCase();
+
+      const matchesQuery = !query ||
+        title.includes(query) ||
+        url.includes(query) ||
+        country.includes(query) ||
+        notes.includes(query);
+
+      const matchesCountry = filterCountry === 'all' || country === filterCountry;
+
+      if (matchesQuery && matchesCountry) {
+        card.style.display = '';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    const emptyMsg = this.container.querySelector('#visaEmptySearchState');
+    if (emptyMsg) {
+      emptyMsg.style.display = visibleCount === 0 && cards.length > 0 ? 'block' : 'none';
+    }
+  }
+
   _esc(str) {
     if (!str) return '';
     return String(str)
@@ -1869,11 +2554,18 @@ export class AdminView {
   _refresh() {
     if (!this.container) return;
     const content = this.container.querySelector('#adminContent');
-    const breadcrumbs = this.container.querySelector('.admin-breadcrumb-bar');
+    const navSection = this.container.querySelector('#adminNavSection');
 
-    if (breadcrumbs) {
-      breadcrumbs.outerHTML = this._renderBreadcrumbs();
+    if (navSection) {
+      navSection.innerHTML = this._renderBreadcrumbs();
+    } else {
+      const breadcrumbs = this.container.querySelector('.admin-breadcrumb-bar') ||
+                          this.container.querySelector('.admin-module-bar');
+      if (breadcrumbs) {
+        breadcrumbs.outerHTML = this._renderBreadcrumbs();
+      }
     }
+
     if (content) {
       content.innerHTML = this._renderCurrentLevel();
     }

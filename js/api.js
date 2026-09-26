@@ -183,3 +183,10 @@ export const getRecentQuotes = (limit = 20)                      => request('GET
 
 // ── Health ───────────────────────────────────────────────────────────────────
 export const healthCheck     = ()                                => request('GET', '/health');
+
+// ── Visa Website Links ────────────────────────────────────────────────────────
+export const getVisaLinks    = ()                                => request('GET', '/visa-links');
+export const addVisaLink     = (linkData)                        => request('POST', '/visa-links', linkData);
+export const updateVisaLink  = (id, linkData)                    => request('PUT', `/visa-links/${id}`, linkData);
+export const deleteVisaLink  = (id)                              => request('DELETE', `/visa-links/${id}`);
+
