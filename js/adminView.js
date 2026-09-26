@@ -154,7 +154,8 @@ export class AdminView {
       visaLinks: [...DEFAULT_INITIAL_VISA_LINKS],
       visaFilterCountry: 'all',
       visaSearchQuery: '',
-      editingVisaLink: null
+      editingVisaLink: null,
+      isAddVisaFormOpen: false
     };
 
     this._loadSavedTemplates();
@@ -183,7 +184,7 @@ export class AdminView {
 
   // ── Render Entry ──────────────────────────────────────────────────────────
   render() {
-    if (!isAdminAuthenticated()) {
+    if (this.state.adminSection !== 'visa-links' && !isAdminAuthenticated()) {
       return this._renderLoginScreen();
     }
 
@@ -262,6 +263,7 @@ export class AdminView {
     const { level, selectedCompany, selectedPlan, adminSection = 'insurance' } = this.state;
     const isVisa = adminSection === 'visa-links';
     const visaCount = (this.state.visaLinks || []).length;
+    const isAuthed = isAdminAuthenticated();
 
     return `
       <div class="admin-module-bar">
@@ -278,8 +280,12 @@ export class AdminView {
         </div>
 
         <div class="admin-auth-indicator">
-          <span class="admin-auth-badge">🛡️ Admin Authenticated</span>
-          <button type="button" class="crumb-btn btn-admin-logout" id="btnAdminLogout" title="Sign out of admin portal">Sign Out</button>
+          ${isAuthed ? `
+            <span class="admin-auth-badge">🛡️ Admin Authenticated</span>
+            <button type="button" class="crumb-btn btn-admin-logout" id="btnAdminLogout" title="Sign out of admin portal">Sign Out</button>
+          ` : `
+            <button type="button" class="crumb-btn" id="btnAdminQuickLogin" title="Sign in as Administrator">Sign In to Admin</button>
+          `}
         </div>
       </div>
 
@@ -342,33 +348,35 @@ export class AdminView {
     const rawCountries = allLinks.map(l => (l.country || '').trim()).filter(Boolean);
     const uniqueCountries = ['all', ...Array.from(new Set(rawCountries))];
 
-    // Filtered links
+    // Filtered links with smart country and alias matching
     const filteredLinks = allLinks.filter(l => {
       const matchCountry = filterCountry === 'all' || 
         (l.country || '').toLowerCase() === filterCountry.toLowerCase();
-      const matchQuery = !query ||
-        (l.title || '').toLowerCase().includes(query) ||
-        (l.url || '').toLowerCase().includes(query) ||
-        (l.country || '').toLowerCase().includes(query) ||
-        (l.category || '').toLowerCase().includes(query) ||
-        (l.notes || '').toLowerCase().includes(query);
+      const matchQuery = !query || this._matchesCountryOrQuery(
+        l.country,
+        l.title,
+        l.url,
+        l.category,
+        l.notes,
+        query
+      );
       return matchCountry && matchQuery;
     });
 
     const editItem = this.state.editingVisaLink;
+    const isFormOpen = Boolean(this.state.isAddVisaFormOpen || editItem);
 
     return `
       <div class="visa-page-container">
         <!-- Header -->
         <div class="visa-page-header">
-          <div>
+          <div class="visa-header-text">
             <h1 class="page-title">🌐 Official Visa Website Portals</h1>
             <p class="page-subtitle">
-              Centralized repository for verified embassy, consulate &amp; government visa application links.
-              Add portal links, copy them to share with clients, or directly visit embassy pages with one click.
+              Verified official embassy, consulate &amp; government visa application links. Search by country, copy links, visit portals directly, or add custom visa links.
             </p>
           </div>
-          <div class="visa-header-stats">
+          <div class="visa-header-actions">
             <div class="visa-stat-pill">
               <span>Saved Portals:</span>
               <span class="visa-stat-num">${allLinks.length}</span>
@@ -378,201 +386,235 @@ export class AdminView {
                 ⚡ Load Common Portals
               </button>
             ` : ''}
+            <button type="button" class="btn btn-primary btn-add-visa-toggle" id="btnToggleAddVisa" title="${isFormOpen ? 'Close form' : 'Add new visa portal link'}">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+              <span>${isFormOpen ? '✕ Close Form' : '+ Add Visa Link'}</span>
+            </button>
           </div>
         </div>
 
-        <!-- Add / Edit Link Box -->
-        <div class="visa-add-card">
-          <div class="visa-add-header">
-            <div class="visa-add-header-title">
-              <span class="icon">${editItem ? '✏️' : '🔗'}</span>
-              <h3>${editItem ? 'Edit Visa Portal Link' : 'Add New Visa Website Link'}</h3>
+        <!-- Add / Edit Link Form (Expanded on + or Edit click) -->
+        ${isFormOpen ? `
+          <div class="visa-add-card animate-slide-down">
+            <div class="visa-add-header">
+              <div class="visa-add-header-title">
+                <span class="icon">${editItem ? '✏️' : '➕'}</span>
+                <h3>${editItem ? 'Edit Visa Portal Link' : 'Add New Visa Website Link'}</h3>
+              </div>
+              <button type="button" class="btn-close-form" id="btnCloseAddVisaForm" title="Close form">✕</button>
             </div>
-            ${editItem ? `
-              <button type="button" class="btn btn-secondary btn-sm" id="btnCancelEditVisaLink">
-                Cancel Edit
-              </button>
-            ` : ''}
-          </div>
 
-          <div class="visa-add-body">
-            <form id="formAddVisaLink" novalidate>
-              <div class="visa-form-grid">
-                <!-- 1. Name Box of what link is -->
-                <div class="form-group">
-                  <label class="form-label" for="vlinkTitle">
-                    Visa / Portal Name <span class="required">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="vlinkTitle"
-                    class="form-input"
-                    placeholder="e.g. Dubai / UAE Official eVisa (ICP Portal)"
-                    value="${this._esc(editItem ? editItem.title : '')}"
-                    required
-                  />
-                  <span class="form-hint">Name of the portal or embassy visa service</span>
-                </div>
-
-                <!-- 2. Link Adding Box -->
-                <div class="form-group">
-                  <label class="form-label" for="vlinkUrl">
-                    Website Link (URL) <span class="required">*</span>
-                  </label>
-                  <div class="url-input-wrapper">
-                    <span class="url-input-prefix">https://</span>
+            <div class="visa-add-body">
+              <form id="formAddVisaLink" novalidate>
+                <div class="visa-form-grid">
+                  <!-- 1. Name Box of what link is -->
+                  <div class="form-group">
+                    <label class="form-label" for="vlinkTitle">
+                      Visa / Portal Name <span class="required">*</span>
+                    </label>
                     <input
                       type="text"
-                      id="vlinkUrl"
-                      class="form-input url-input"
-                      placeholder="smartservices.icp.gov.ae or full URL"
-                      value="${this._esc(editItem ? editItem.url.replace(/^https?:\/\//i, '') : '')}"
+                      id="vlinkTitle"
+                      class="form-input"
+                      placeholder="e.g. Dubai / UAE Official eVisa (ICP Portal)"
+                      value="${this._esc(editItem ? editItem.title : '')}"
                       required
                     />
+                    <span class="form-hint">Name of the portal or embassy visa service</span>
                   </div>
-                  <span class="form-hint">Paste the website link here (click 'Save' to add)</span>
+
+                  <!-- 2. Link Adding Box -->
+                  <div class="form-group">
+                    <label class="form-label" for="vlinkUrl">
+                      Website Link (URL) <span class="required">*</span>
+                    </label>
+                    <div class="url-input-wrapper">
+                      <span class="url-input-prefix">https://</span>
+                      <input
+                        type="text"
+                        id="vlinkUrl"
+                        class="form-input url-input"
+                        placeholder="smartservices.icp.gov.ae or full URL"
+                        value="${this._esc(editItem ? editItem.url.replace(/^https?:\/\//i, '') : '')}"
+                        required
+                      />
+                    </div>
+                    <span class="form-hint">Paste the website link here (click 'Save' to add)</span>
+                  </div>
+
+                  <!-- 3. Country / Region Box -->
+                  <div class="form-group">
+                    <label class="form-label" for="vlinkCountry">
+                      Country / Region <span class="optional-tag">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="vlinkCountry"
+                      class="form-input"
+                      placeholder="e.g. UAE, USA, UK, Schengen, Thailand, Singapore"
+                      value="${this._esc(editItem ? (editItem.country || '') : '')}"
+                    />
+                    <span class="form-hint">Used for quick country search and filtering</span>
+                  </div>
+
+                  <!-- 4. Category / Type Box -->
+                  <div class="form-group">
+                    <label class="form-label" for="vlinkCategory">
+                      Category / Type <span class="optional-tag">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="vlinkCategory"
+                      class="form-input"
+                      placeholder="e.g. Official eVisa, Appointment Booking, VFS Application"
+                      value="${this._esc(editItem ? (editItem.category || '') : 'Official eVisa')}"
+                    />
+                  </div>
+
+                  <!-- 5. Notes / Instructions Box -->
+                  <div class="form-group full-width">
+                    <label class="form-label" for="vlinkNotes">
+                      Notes / Instructions <span class="optional-tag">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="vlinkNotes"
+                      class="form-input"
+                      placeholder="e.g. 30/60 Days Tourist Visa, require passport copy &amp; photo"
+                      value="${this._esc(editItem ? (editItem.notes || '') : '')}"
+                    />
+                  </div>
                 </div>
 
-                <!-- 3. Country / Region Box -->
-                <div class="form-group">
-                  <label class="form-label" for="vlinkCountry">
-                    Country / Region <span class="optional-tag">(Optional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="vlinkCountry"
-                    class="form-input"
-                    placeholder="e.g. UAE, USA, UK, Schengen, Thailand"
-                    value="${this._esc(editItem ? (editItem.country || '') : '')}"
-                  />
-                  <span class="form-hint">Used for quick country filtering</span>
-                </div>
-
-                <!-- 4. Category / Type Box -->
-                <div class="form-group">
-                  <label class="form-label" for="vlinkCategory">
-                    Category / Type <span class="optional-tag">(Optional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="vlinkCategory"
-                    class="form-input"
-                    placeholder="e.g. Official eVisa, Appointment Booking, Status Check"
-                    value="${this._esc(editItem ? (editItem.category || '') : 'Official eVisa')}"
-                  />
-                </div>
-
-                <!-- 5. Notes / Instructions Box -->
-                <div class="form-group full-width">
-                  <label class="form-label" for="vlinkNotes">
-                    Notes / Instructions <span class="optional-tag">(Optional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="vlinkNotes"
-                    class="form-input"
-                    placeholder="e.g. 30/60 Days Tourist Visa, require passport copy &amp; photo"
-                    value="${this._esc(editItem ? (editItem.notes || '') : '')}"
-                  />
-                </div>
-              </div>
-
-              <div class="visa-form-actions">
-                ${editItem ? `
+                <div class="visa-form-actions">
                   <button type="button" class="btn btn-secondary" id="btnCancelEditVisaLink">Cancel</button>
-                ` : ''}
-                <button type="submit" class="btn btn-primary" id="btnSaveVisaLink">
-                  <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-                  ${editItem ? 'Update Visa Link' : '💾 Save Visa Link'}
-                </button>
-              </div>
-            </form>
+                  <button type="submit" class="btn btn-primary" id="btnSaveVisaLink">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    ${editItem ? 'Update Visa Link' : '💾 Save Visa Link'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
+        ` : ''}
 
-        <!-- Search & Filter Toolbar -->
-        <div class="visa-toolbar">
-          <div class="visa-search-box">
-            <span class="search-icon">🔍</span>
-            <input
-              type="text"
-              id="visaSearchInput"
-              class="form-input search-input"
-              placeholder="Search by country, portal name, or URL..."
-              value="${this._esc(this.state.visaSearchQuery || '')}"
-            />
-            ${this.state.visaSearchQuery ? `
-              <button type="button" class="btn-clear-search" id="btnClearVisaSearch" title="Clear search">✕</button>
-            ` : ''}
+        <!-- Search & Filter Toolbar with Dedicated Search Button -->
+        <div class="visa-search-container">
+          <div class="visa-search-bar-row">
+            <div class="visa-search-box">
+              <span class="search-icon">🔍</span>
+              <input
+                type="text"
+                id="visaSearchInput"
+                class="form-input search-input"
+                placeholder="Search any country (e.g. Dubai, UAE, Thailand, UK, USA, Schengen, Singapore)..."
+                value="${this._esc(this.state.visaSearchQuery || '')}"
+              />
+              ${this.state.visaSearchQuery ? `
+                <button type="button" class="btn-clear-search" id="btnClearVisaSearch" title="Clear search">✕</button>
+              ` : ''}
+            </div>
+
+            <button type="button" class="btn btn-primary btn-visa-search" id="btnVisaSearch" title="Search country or portal name">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+              <span>Search</span>
+            </button>
           </div>
 
+          <!-- Country Filter Pills -->
           ${uniqueCountries.length > 1 ? `
-            <div class="visa-country-pills">
-              ${uniqueCountries.map(c => `
-                <button type="button" class="pill-btn ${filterCountry === c ? 'active' : ''}" data-visa-country="${c}">
-                  ${c === 'all' ? 'All Portals' : `${this._getCountryFlag(c)} ${c}`}
-                </button>
-              `).join('')}
+            <div class="visa-country-pills-row">
+              <span class="pills-label">Quick Countries:</span>
+              <div class="visa-country-pills">
+                ${uniqueCountries.map(c => `
+                  <button type="button" class="pill-btn ${filterCountry.toLowerCase() === c.toLowerCase() ? 'active' : ''}" data-visa-country="${this._esc(c)}">
+                    ${c === 'all' ? '🌍 All Countries' : `${this._getCountryFlag(c)} ${c}`}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Search Feedback Status Bar -->
+          ${(query || filterCountry !== 'all') ? `
+            <div class="visa-search-status">
+              <span class="status-text">
+                Showing results for: <strong>${this._esc(query || filterCountry)}</strong> (${filteredLinks.length} portal${filteredLinks.length === 1 ? '' : 's'} found)
+              </span>
+              <button type="button" class="btn-reset-filter" id="btnResetVisaFilter">✕ Clear Filter</button>
             </div>
           ` : ''}
         </div>
 
-        <!-- Search Empty State -->
-        <div id="visaEmptySearchState" style="display:none; text-align:center; padding:2rem; background:var(--white); border-radius:var(--radius-md); border:1px solid var(--gray-200);">
-          <p style="color:var(--gray-500); font-size:0.9rem;">No visa links match your search query.</p>
+        <!-- In-Place Search Empty State -->
+        <div id="visaEmptySearchState" style="display:none; text-align:center; padding:2.5rem; background:var(--white); border-radius:var(--radius-md); border:1px solid var(--gray-200);">
+          <div style="font-size:2rem; margin-bottom:0.5rem;">🔍</div>
+          <h4 style="color:var(--navy); font-size:1.05rem; font-weight:700; margin-bottom:0.25rem;">No matching visa portals found</h4>
+          <p style="color:var(--gray-500); font-size:0.875rem; margin-bottom:1rem;">No visa links found matching your country search. Try searching another country or add this country's link.</p>
+          <button type="button" class="btn btn-secondary btn-sm" id="btnResetVisaFilter">Show All Portals</button>
         </div>
 
-        <!-- Saved Links Grid -->
+        <!-- Saved Links in Bar Style -->
         ${filteredLinks.length > 0 ? `
-          <div class="visa-links-grid" id="visaLinksGrid">
+          <div class="visa-links-list" id="visaLinksList">
             ${filteredLinks.map(link => `
-              <div class="visa-link-card"
+              <div class="visa-link-bar"
                    data-link-id="${link._id}"
                    data-title="${this._esc(link.title)}"
                    data-url="${this._esc(link.url)}"
                    data-country="${this._esc(link.country || '')}"
                    data-notes="${this._esc(link.notes || '')}">
                 
-                <div class="vcard-top">
-                  <div class="vcard-badge-row">
-                    <span class="vcard-country-badge">
-                      ${this._getCountryFlag(link.country)} ${this._esc(link.country || 'Global')}
-                    </span>
-                    <span class="vcard-cat-badge">
-                      ${this._esc(link.category || 'Official Portal')}
-                    </span>
+                <!-- Left: Country Flag + Badge + Portal Name in Bar -->
+                <div class="vbar-main">
+                  <div class="vbar-country-badge" title="${this._esc(link.country || 'Global')}">
+                    <span class="vbar-flag">${this._getCountryFlag(link.country)}</span>
+                    <span class="vbar-country-name">${this._esc(link.country || 'Global')}</span>
                   </div>
-                  <div class="vcard-menu">
-                    <button type="button" class="btn-icon-action btn-edit-visa" data-id="${link._id}" title="Edit Portal Link">✏️</button>
-                    <button type="button" class="btn-icon-action btn-delete-visa" data-id="${link._id}" title="Delete Portal Link">🗑️</button>
+
+                  <div class="vbar-info">
+                    <div class="vbar-title-line">
+                      <h4 class="vbar-title" title="${this._esc(link.title)}">${this._esc(link.title)}</h4>
+                      ${link.category ? `
+                        <span class="vbar-cat-badge">${this._esc(link.category)}</span>
+                      ` : ''}
+                    </div>
+
+                    <div class="vbar-meta-line">
+                      <a href="${this._esc(link.url)}" target="_blank" rel="noopener noreferrer" class="vbar-url" title="Open website directly in new tab">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"/></svg>
+                        <span class="vbar-url-text">${this._esc(link.url)}</span>
+                      </a>
+                      ${link.notes ? `
+                        <span class="vbar-notes" title="${this._esc(link.notes)}">📝 ${this._esc(link.notes)}</span>
+                      ` : ''}
+                    </div>
                   </div>
                 </div>
 
-                <!-- Portal Name -->
-                <h4 class="vcard-title">${this._esc(link.title)}</h4>
-
-                ${link.notes ? `
-                  <p class="vcard-notes">📝 ${this._esc(link.notes)}</p>
-                ` : ''}
-
-                <!-- Clickable URL box that opens directly -->
-                <div class="vcard-url-box">
-                  <a href="${this._esc(link.url)}" target="_blank" rel="noopener noreferrer" class="vcard-url-link" title="Click to open ${this._esc(link.title)} directly in new tab">
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" style="flex-shrink:0;"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"/></svg>
-                    <span class="vcard-url-text">${this._esc(link.url)}</span>
-                    <span class="vcard-url-arrow">↗</span>
+                <!-- Right: Action Buttons (Visit Link, Copy Link, Edit Logo Only, Delete Logo) -->
+                <div class="vbar-actions">
+                  <!-- Visit Link -->
+                  <a href="${this._esc(link.url)}" target="_blank" rel="noopener noreferrer" class="btn-vbar-visit" title="Open ${this._esc(link.title)} directly in new tab">
+                    <span>Visit Link</span>
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
                   </a>
-                </div>
 
-                <!-- Actions: One-click Copy & Direct Visit -->
-                <div class="vcard-actions">
-                  <button type="button" class="btn-copy-visa" data-copy-url="${this._esc(link.url)}" data-title="${this._esc(link.title)}" title="Copy link to clipboard">
+                  <!-- Copy Link -->
+                  <button type="button" class="btn-vbar-copy" data-copy-url="${this._esc(link.url)}" data-title="${this._esc(link.title)}" title="Copy link to clipboard">
                     <span class="btn-copy-icon">📋</span>
                     <span class="btn-copy-label">Copy Link</span>
                   </button>
-                  <a href="${this._esc(link.url)}" target="_blank" rel="noopener noreferrer" class="btn-visit-visa" title="Open official website directly">
-                    <span>Visit Portal ↗</span>
-                  </a>
+
+                  <!-- Edit Logo ONLY (User requested: "or edit logo onli") -->
+                  <button type="button" class="btn-vbar-icon btn-edit-visa" data-id="${link._id}" title="Edit Link" aria-label="Edit Link">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                  </button>
+
+                  <!-- Delete Logo ONLY -->
+                  <button type="button" class="btn-vbar-icon btn-vbar-delete btn-delete-visa" data-id="${link._id}" title="Delete Link" aria-label="Delete Link">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                  </button>
                 </div>
               </div>
             `).join('')}
@@ -583,15 +625,24 @@ export class AdminView {
             <h3 class="visa-empty-title">No Visa Links Found</h3>
             <p class="visa-empty-text">
               ${query || filterCountry !== 'all'
-                ? 'No visa portals match your current filter criteria.'
-                : 'You have not added any official visa website links yet. Add your first link using the form above.'
+                ? `No visa portals match "${this._esc(query || filterCountry)}". Try searching another country or reset the filter.`
+                : 'You have not added any official visa website links yet. Click "+ Add Visa Link" to get started.'
               }
             </p>
-            ${allLinks.length === 0 ? `
-              <button type="button" class="btn btn-primary" id="btnSeedVisaLinks">
-                ⚡ Load 8 Popular Verified Visa Portals
+            ${(query || filterCountry !== 'all') ? `
+              <button type="button" class="btn btn-secondary" id="btnResetVisaFilter">
+                Show All Portals
               </button>
-            ` : ''}
+            ` : (allLinks.length === 0 ? `
+              <div style="display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;">
+                <button type="button" class="btn btn-primary" id="btnToggleAddVisa">
+                  + Add Visa Link
+                </button>
+                <button type="button" class="btn btn-secondary" id="btnSeedVisaLinks">
+                  ⚡ Load 8 Popular Verified Visa Portals
+                </button>
+              </div>
+            ` : '')}
           </div>
         `}
       </div>
@@ -1049,10 +1100,10 @@ export class AdminView {
         return;
       }
 
-      // Live search for Visa Portal Links (instant in-place card filtering)
+      // Live search for Visa Portal Links (instant in-place card/bar filtering)
       if (e.target.id === 'visaSearchInput') {
         this.state.visaSearchQuery = e.target.value.toLowerCase().trim();
-        this._filterVisaCardsInPlace();
+        this._filterVisaBarsInPlace();
         return;
       }
     });
@@ -1061,6 +1112,15 @@ export class AdminView {
     container.addEventListener('paste', (e) => {
       if (e.target.classList.contains('matrix-input')) {
         this._handleMatrixPaste(e);
+      }
+    });
+
+    // 6. Enter key for Visa Search
+    container.addEventListener('keydown', (e) => {
+      if (e.target.id === 'visaSearchInput' && e.key === 'Enter') {
+        e.preventDefault();
+        this.state.visaSearchQuery = e.target.value.toLowerCase().trim();
+        this._refresh();
       }
     });
   }
@@ -1073,6 +1133,13 @@ export class AdminView {
       if (pwdInput) {
         pwdInput.type = pwdInput.type === 'password' ? 'text' : 'password';
       }
+      return;
+    }
+
+    // Admin Quick Login (from View mode)
+    if (e.target.closest('#btnAdminQuickLogin')) {
+      this.state.adminSection = 'insurance';
+      this.container.innerHTML = this.render();
       return;
     }
 
@@ -1090,7 +1157,62 @@ export class AdminView {
       this.state.adminSection = moduleBtn.dataset.adminSection;
       if (this.state.adminSection === 'visa-links') {
         await this._loadVisaLinks();
+        location.hash = 'visa';
+      } else {
+        location.hash = 'admin';
       }
+      document.querySelectorAll('[data-view]').forEach(btn => {
+        if (btn.dataset.view === 'visa') {
+          btn.classList.toggle('active', this.state.adminSection === 'visa-links');
+        } else if (btn.dataset.view === 'admin') {
+          btn.classList.toggle('active', this.state.adminSection !== 'visa-links');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      this._refresh();
+      return;
+    }
+
+    // ── Visa Link: Search Button Click ──
+    if (e.target.closest('#btnVisaSearch')) {
+      const searchInput = this.container.querySelector('#visaSearchInput');
+      this.state.visaSearchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+      this._refresh();
+      return;
+    }
+
+    // ── Visa Link: Toggle Add Form (+ Add Visa Link) ──
+    if (e.target.closest('#btnToggleAddVisa')) {
+      this.state.isAddVisaFormOpen = !this.state.isAddVisaFormOpen;
+      if (!this.state.isAddVisaFormOpen) {
+        this.state.editingVisaLink = null;
+      }
+      this._refresh();
+      if (this.state.isAddVisaFormOpen) {
+        setTimeout(() => {
+          const titleInput = this.container.querySelector('#vlinkTitle');
+          if (titleInput) {
+            titleInput.focus();
+            titleInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 50);
+      }
+      return;
+    }
+
+    // ── Visa Link: Close Form / Cancel Edit ──
+    if (e.target.closest('#btnCloseAddVisaForm') || e.target.closest('#btnCancelEditVisaLink')) {
+      this.state.isAddVisaFormOpen = false;
+      this.state.editingVisaLink = null;
+      this._refresh();
+      return;
+    }
+
+    // ── Visa Link: Reset Filter / Clear Search ──
+    if (e.target.closest('#btnClearVisaSearch') || e.target.closest('#btnResetVisaFilter')) {
+      this.state.visaSearchQuery = '';
+      this.state.visaFilterCountry = 'all';
       this._refresh();
       return;
     }
@@ -1104,9 +1226,10 @@ export class AdminView {
       return;
     }
 
-    // ── Visa Link: Edit Portal ──
+    // ── Visa Link: Edit Portal (Edit logo only) ──
     const editVisaBtn = e.target.closest('.btn-edit-visa');
     if (editVisaBtn) {
+      this.state.isAddVisaFormOpen = true;
       this._startEditVisaLink(editVisaBtn.dataset.id);
       return;
     }
@@ -1122,20 +1245,6 @@ export class AdminView {
     const visaCountryBtn = e.target.closest('[data-visa-country]');
     if (visaCountryBtn) {
       this.state.visaFilterCountry = visaCountryBtn.dataset.visaCountry;
-      this._refresh();
-      return;
-    }
-
-    // ── Visa Link: Clear Search ──
-    if (e.target.closest('#btnClearVisaSearch')) {
-      this.state.visaSearchQuery = '';
-      this._refresh();
-      return;
-    }
-
-    // ── Visa Link: Cancel Edit ──
-    if (e.target.closest('#btnCancelEditVisaLink')) {
-      this.state.editingVisaLink = null;
       this._refresh();
       return;
     }
@@ -2305,6 +2414,59 @@ export class AdminView {
   }
 
   // ── Visa Links Helper Methods ─────────────────────────────────────────────
+  _matchesCountryOrQuery(country, title, url, category, notes, query) {
+    if (!query) return true;
+    const q = (query || '').toLowerCase().trim();
+    const c = (country || '').toLowerCase().trim();
+    const t = (title || '').toLowerCase().trim();
+    const u = (url || '').toLowerCase().trim();
+    const cat = (category || '').toLowerCase().trim();
+    const n = (notes || '').toLowerCase().trim();
+
+    // Direct text search matching in title, url, category, or notes
+    if (t.includes(q) || u.includes(q) || cat.includes(q) || n.includes(q)) {
+      return true;
+    }
+
+    // Direct country match
+    if (c.includes(q) || q.includes(c)) {
+      return true;
+    }
+
+    // Country synonyms and common aliases
+    const aliases = {
+      uae: ['dubai', 'abu dhabi', 'sharjah', 'emirates', 'united arab emirates', 'al ain', 'ras al khaimah', 'ajman', 'fujairah'],
+      usa: ['united states', 'america', 'us', 'new york', 'california', 'washington', 'florida'],
+      uk: ['united kingdom', 'britain', 'england', 'great britain', 'london', 'scotland', 'wales', 'british'],
+      schengen: ['europe', 'france', 'germany', 'italy', 'spain', 'switzerland', 'swiss', 'netherlands', 'austria', 'greece', 'portugal', 'belgium', 'sweden', 'norway', 'denmark', 'finland', 'poland', 'czech', 'hungary', 'paris', 'rome', 'berlin'],
+      thailand: ['thai', 'bangkok', 'phuket', 'pattaya'],
+      singapore: ['sg', 'changi'],
+      malaysia: ['kuala lumpur', 'kl', 'malay'],
+      canada: ['toronto', 'vancouver', 'ontario', 'canadian'],
+      australia: ['aus', 'sydney', 'melbourne', 'oz', 'aussie'],
+      saudi: ['ksa', 'saudi arabia', 'riyadh', 'jeddah', 'mecca', 'medina'],
+      oman: ['muscat'],
+      vietnam: ['hanoi', 'ho chi minh', 'saigon', 'da nang'],
+      indonesia: ['bali', 'jakarta'],
+      japan: ['tokyo', 'osaka', 'kyoto'],
+      turkey: ['turkiye', 'istanbul', 'ankara'],
+      qatar: ['doha'],
+      egypt: ['cairo', 'giza'],
+      'sri lanka': ['colombo'],
+      'new zealand': ['nz', 'auckland', 'wellington']
+    };
+
+    for (const [key, aliasList] of Object.entries(aliases)) {
+      const countryMatchesKey = c.includes(key) || aliasList.some(a => c.includes(a));
+      const queryMatchesKey = q.includes(key) || aliasList.some(a => q.includes(a));
+      if (countryMatchesKey && queryMatchesKey) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   _getCountryFlag(country) {
     const c = (country || '').toLowerCase();
     if (c.includes('uae') || c.includes('dubai') || c.includes('emirates')) return '🇦🇪';
@@ -2428,6 +2590,8 @@ export class AdminView {
         this.app.showToast('Visa portal link saved successfully!', 'success');
       }
 
+      this.state.isAddVisaFormOpen = false;
+      this.state.editingVisaLink = null;
       this._persistLocalVisaLinks();
       this._refresh();
     } catch (err) {
@@ -2439,8 +2603,16 @@ export class AdminView {
     const item = this.state.visaLinks.find(l => String(l._id) === String(linkId));
     if (!item) return;
     this.state.editingVisaLink = item;
+    this.state.isAddVisaFormOpen = true;
     this._refresh();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      const card = this.container.querySelector('.visa-add-card');
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      const titleInput = this.container.querySelector('#vlinkTitle');
+      if (titleInput) titleInput.focus();
+    }, 50);
   }
 
   async _deleteVisaLink(linkId) {
@@ -2453,6 +2625,7 @@ export class AdminView {
       this.state.visaLinks = this.state.visaLinks.filter(l => String(l._id) !== String(linkId));
       if (this.state.editingVisaLink && String(this.state.editingVisaLink._id) === String(linkId)) {
         this.state.editingVisaLink = null;
+        this.state.isAddVisaFormOpen = false;
       }
       this._persistLocalVisaLinks();
       this.app.showToast(`Deleted "${title}"`, 'info');
@@ -2506,38 +2679,42 @@ export class AdminView {
     }
   }
 
-  _filterVisaCardsInPlace() {
+  _filterVisaBarsInPlace() {
     const query = (this.state.visaSearchQuery || '').toLowerCase().trim();
     const filterCountry = (this.state.visaFilterCountry || 'all').toLowerCase();
-    const cards = this.container.querySelectorAll('.visa-link-card');
+    const items = this.container.querySelectorAll('.visa-link-bar, .visa-link-card');
     let visibleCount = 0;
 
-    cards.forEach(card => {
-      const title = (card.dataset.title || '').toLowerCase();
-      const url = (card.dataset.url || '').toLowerCase();
-      const country = (card.dataset.country || '').toLowerCase();
-      const notes = (card.dataset.notes || '').toLowerCase();
+    items.forEach(item => {
+      const title = item.dataset.title || '';
+      const url = item.dataset.url || '';
+      const country = item.dataset.country || '';
+      const notes = item.dataset.notes || '';
 
-      const matchesQuery = !query ||
-        title.includes(query) ||
-        url.includes(query) ||
-        country.includes(query) ||
-        notes.includes(query);
+      const matchCountry = filterCountry === 'all' || country.toLowerCase() === filterCountry;
+      const matchQuery = !query || this._matchesCountryOrQuery(country, title, url, '', notes, query);
 
-      const matchesCountry = filterCountry === 'all' || country === filterCountry;
-
-      if (matchesQuery && matchesCountry) {
-        card.style.display = '';
+      if (matchCountry && matchQuery) {
+        item.style.display = '';
         visibleCount++;
       } else {
-        card.style.display = 'none';
+        item.style.display = 'none';
       }
     });
 
     const emptyMsg = this.container.querySelector('#visaEmptySearchState');
     if (emptyMsg) {
-      emptyMsg.style.display = visibleCount === 0 && cards.length > 0 ? 'block' : 'none';
+      emptyMsg.style.display = visibleCount === 0 && items.length > 0 ? 'block' : 'none';
     }
+
+    const statusQueryStrong = this.container.querySelector('.visa-search-status .status-text strong');
+    if (statusQueryStrong) {
+      statusQueryStrong.textContent = query || filterCountry;
+    }
+  }
+
+  _filterVisaCardsInPlace() {
+    this._filterVisaBarsInPlace();
   }
 
   _esc(str) {

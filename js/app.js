@@ -20,7 +20,7 @@ class App {
 
     // Route on load
     const hash = location.hash.replace('#', '') || 'quote';
-    this.navigate(hash in this.views ? hash : 'quote');
+    this.navigate(['quote', 'admin', 'visa'].includes(hash) ? hash : 'quote');
   }
 
   _setupNav() {
@@ -40,18 +40,35 @@ class App {
   }
 
   navigate(viewId) {
-    if (!(viewId in this.views)) viewId = 'quote';
-    this.currentView = viewId;
-    location.hash = viewId;
+    let targetView = viewId;
+    if (viewId === 'visa') {
+      this.views.admin.state.adminSection = 'visa-links';
+      targetView = 'admin';
+      this.currentView = 'visa';
+      location.hash = 'visa';
+    } else {
+      if (!(targetView in this.views)) targetView = 'quote';
+      if (targetView === 'admin' && location.hash !== '#visa' && !this.views.admin.state.adminSection) {
+        this.views.admin.state.adminSection = 'insurance';
+      }
+      this.currentView = targetView;
+      location.hash = targetView;
+    }
 
     // Update active nav button
     document.querySelectorAll('[data-view]').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.view === viewId);
+      if (btn.dataset.view === 'visa') {
+        btn.classList.toggle('active', this.currentView === 'visa' || (this.currentView === 'admin' && this.views.admin.state.adminSection === 'visa-links'));
+      } else if (btn.dataset.view === 'admin') {
+        btn.classList.toggle('active', this.currentView === 'admin' && this.views.admin.state.adminSection !== 'visa-links');
+      } else {
+        btn.classList.toggle('active', btn.dataset.view === this.currentView);
+      }
     });
 
     // Render into #app
     const appEl = document.getElementById('app');
-    const view = this.views[viewId];
+    const view = this.views[targetView];
     appEl.innerHTML = view.render();
     view.attachEvents(appEl);
 
