@@ -65,26 +65,58 @@ async function request(method, path, body = null) {
 }
 
 // ── Auth ─────────────────────────────────────────────────────────────────────
-export async function loginAdmin(password, remember = true) {
+export async function loginAdmin(emailOrPassword, passwordOrRemember = true, rememberArg = true) {
+  let reqEmail = 'admin@khannatravels.com';
+  let reqPassword = '';
+  let remember = true;
+
+  if (typeof emailOrPassword === 'string' && typeof passwordOrRemember === 'string') {
+    reqEmail = emailOrPassword.trim();
+    reqPassword = passwordOrRemember;
+    remember = typeof rememberArg === 'boolean' ? rememberArg : true;
+  } else if (typeof emailOrPassword === 'string') {
+    reqPassword = emailOrPassword;
+    remember = typeof passwordOrRemember === 'boolean' ? passwordOrRemember : true;
+  }
+
   try {
     const res = await fetch(`${BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password })
+      body: JSON.stringify({ email: reqEmail, password: reqPassword })
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || 'Authentication failed');
-    if (data.token) {
+
+    if (res.ok && data.token) {
       setAdminToken(data.token, remember);
+      return data;
     }
-    return data;
+
+    // Try legacy payload format
+    const res2 = await fetch(`${BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: reqPassword })
+    });
+    const data2 = await res2.json().catch(() => ({}));
+
+    if (res2.ok && data2.token) {
+      setAdminToken(data2.token, remember);
+      return data2;
+    }
+
+    throw new Error(data.error || data2.error || 'Invalid administrator credentials');
   } catch (err) {
-    if (password === 'khanna2026') {
+    const isDefaultEmail = !reqEmail || reqEmail.toLowerCase() === 'admin@khannatravels.com';
+    const isDefaultPassword = reqPassword === 'khanna2026';
+
+    if (isDefaultEmail && isDefaultPassword) {
       const offlineToken = 'offline_admin_token_' + Date.now();
       setAdminToken(offlineToken, remember);
       return { success: true, token: offlineToken, offline: true };
     }
-    throw err;
+
+    throw new Error(err.message || 'Invalid email or password');
   }
 }
 
