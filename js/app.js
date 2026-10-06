@@ -4,7 +4,7 @@
  */
 import { QuoteView } from './quoteView.js';
 import { AdminView } from './adminView.js';
-import { healthCheck } from './api.js';
+import { healthCheck, isAdminAuthenticated, logoutAdmin } from './api.js';
 
 class App {
   constructor() {
@@ -24,11 +24,28 @@ class App {
   }
 
   _setupNav() {
+    this._updateHeaderUI();
+
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-view]');
       if (btn) {
         e.preventDefault();
         this.navigate(btn.dataset.view);
+        return;
+      }
+      const signInBtn = e.target.closest('#btnHeaderSignIn');
+      if (signInBtn) {
+        e.preventDefault();
+        this.navigate('admin');
+        return;
+      }
+      const logoutBtn = e.target.closest('#btnHeaderLogout');
+      if (logoutBtn) {
+        e.preventDefault();
+        logoutAdmin();
+        this.showToast('Logged out of admin portal', 'info');
+        this._updateHeaderUI();
+        this.navigate('quote');
         return;
       }
       const logo = e.target.closest('.header-logo');
@@ -39,8 +56,36 @@ class App {
     });
   }
 
+  _updateHeaderUI() {
+    const isAuthed = isAdminAuthenticated();
+    const navAdmin = document.getElementById('navAdmin');
+    if (navAdmin) {
+      navAdmin.style.display = isAuthed ? 'inline-flex' : 'none';
+    }
+
+    const agentLabel = document.getElementById('agentLabel');
+    if (agentLabel) {
+      if (isAuthed) {
+        agentLabel.innerHTML = `
+          <div class="agent-avatar" aria-hidden="true">KT</div>
+          <span>Khanna Admin</span>
+          <button type="button" class="nav-btn btn-admin-logout" id="btnHeaderLogout" style="margin-left:0.5rem; padding: 0.35rem 0.75rem; border: 1px solid var(--gray-300); font-size: 0.8125rem;">Logout</button>
+        `;
+      } else {
+        agentLabel.innerHTML = `
+          <button type="button" class="nav-btn btn-admin-signin" id="btnHeaderSignIn" style="background: var(--navy); color: #fff; border: 1px solid var(--navy-light, #1e293b); padding: 0.4rem 0.85rem; border-radius: var(--radius-md, 6px); font-weight: 600; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+            Sign In to Admin
+          </button>
+        `;
+      }
+    }
+  }
+
   navigate(viewId) {
     let targetView = viewId;
+    const isAuthed = isAdminAuthenticated();
+
     if (viewId === 'visa') {
       this.views.admin.state.adminSection = 'visa-links';
       targetView = 'admin';
@@ -54,6 +99,8 @@ class App {
       this.currentView = targetView;
       location.hash = targetView;
     }
+
+    this._updateHeaderUI();
 
     // Update active nav button
     document.querySelectorAll('[data-view]').forEach(btn => {

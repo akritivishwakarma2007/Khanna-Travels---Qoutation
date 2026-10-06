@@ -217,6 +217,22 @@ export class AdminView {
 
           <form id="adminLoginForm" class="admin-login-form" novalidate>
             <div class="form-group" style="margin-bottom:1.25rem;">
+              <label class="form-label" for="adminEmailInput">
+                Email Address <span class="required">*</span>
+              </label>
+              <input
+                type="email"
+                id="adminEmailInput"
+                class="form-input"
+                placeholder="admin@khannatravels.com"
+                value="admin@khannatravels.com"
+                required
+                autocomplete="username"
+                autofocus
+              />
+            </div>
+
+            <div class="form-group" style="margin-bottom:1.25rem;">
               <label class="form-label" for="adminPasswordInput">
                 Administrator Password <span class="required">*</span>
               </label>
@@ -228,7 +244,6 @@ export class AdminView {
                   placeholder="Enter admin password"
                   required
                   autocomplete="current-password"
-                  autofocus
                 />
                 <button type="button" class="btn-toggle-pwd" id="btnTogglePassword" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--gray-500); cursor:pointer; font-size:1rem;" title="Toggle show password">👁️</button>
               </div>
@@ -364,7 +379,8 @@ export class AdminView {
     });
 
     const editItem = this.state.editingVisaLink;
-    const isFormOpen = Boolean(this.state.isAddVisaFormOpen || editItem);
+    const isAuthed = isAdminAuthenticated();
+    const isFormOpen = Boolean((this.state.isAddVisaFormOpen || editItem) && isAuthed);
 
     return `
       <div class="visa-page-container">
@@ -373,7 +389,7 @@ export class AdminView {
           <div class="visa-header-text">
             <h1 class="page-title">🌐 Official Visa Website Portals</h1>
             <p class="page-subtitle">
-              Verified official embassy, consulate &amp; government visa application links. Search by country, copy links, visit portals directly, or add custom visa links.
+              Verified official embassy, consulate &amp; government visa application links. Search by country, copy links, or visit portals directly.
             </p>
           </div>
           <div class="visa-header-actions">
@@ -381,15 +397,17 @@ export class AdminView {
               <span>Saved Portals:</span>
               <span class="visa-stat-num">${allLinks.length}</span>
             </div>
-            ${allLinks.length === 0 ? `
+            ${(allLinks.length === 0 && isAuthed) ? `
               <button type="button" class="btn btn-secondary btn-sm" id="btnSeedVisaLinks">
                 ⚡ Load Common Portals
               </button>
             ` : ''}
-            <button type="button" class="btn btn-primary btn-add-visa-toggle" id="btnToggleAddVisa" title="${isFormOpen ? 'Close form' : 'Add new visa portal link'}">
-              <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-              <span>${isFormOpen ? '✕ Close Form' : '+ Add Visa Link'}</span>
-            </button>
+            ${isAuthed ? `
+              <button type="button" class="btn btn-primary btn-add-visa-toggle" id="btnToggleAddVisa" title="${isFormOpen ? 'Close form' : 'Add new visa portal link'}">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                <span>${isFormOpen ? '✕ Close Form' : '+ Add Visa Link'}</span>
+              </button>
+            ` : ''}
           </div>
         </div>
 
@@ -606,15 +624,17 @@ export class AdminView {
                     <span class="btn-copy-label">Copy Link</span>
                   </button>
 
-                  <!-- Edit Logo ONLY (User requested: "or edit logo onli") -->
-                  <button type="button" class="btn-vbar-icon btn-edit-visa" data-id="${link._id}" title="Edit Link" aria-label="Edit Link">
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
-                  </button>
+                  ${isAuthed ? `
+                    <!-- Edit Logo ONLY -->
+                    <button type="button" class="btn-vbar-icon btn-edit-visa" data-id="${link._id}" title="Edit Link" aria-label="Edit Link">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                    </button>
 
-                  <!-- Delete Logo ONLY -->
-                  <button type="button" class="btn-vbar-icon btn-vbar-delete btn-delete-visa" data-id="${link._id}" title="Delete Link" aria-label="Delete Link">
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                  </button>
+                    <!-- Delete Logo ONLY -->
+                    <button type="button" class="btn-vbar-icon btn-vbar-delete btn-delete-visa" data-id="${link._id}" title="Delete Link" aria-label="Delete Link">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                    </button>
+                  ` : ''}
                 </div>
               </div>
             `).join('')}

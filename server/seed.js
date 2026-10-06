@@ -14,8 +14,10 @@ const fs = require("fs");
 
 // Use existing Company model or define schema
 let Company;
+let VisaLink;
 try {
   Company = require("./models/Company");
+  VisaLink = require("./models/VisaLink");
 } catch {
   const RateSchema = new mongoose.Schema({
     coverage: { type: Number, required: true, enum: [50000, 100000, 200000, 250000, 500000, 750000, 1000000] },
@@ -43,6 +45,16 @@ try {
   }, { timestamps: true });
 
   Company = mongoose.models.Company || mongoose.model("Company", CompanySchema);
+
+  const VisaLinkSchema = new mongoose.Schema({
+    title: { type: String, required: true, trim: true },
+    url: { type: String, required: true, trim: true },
+    country: { type: String, default: '', trim: true },
+    category: { type: String, default: 'Official Portal', trim: true },
+    notes: { type: String, default: '', trim: true }
+  }, { timestamps: true });
+
+  VisaLink = mongoose.models.VisaLink || mongoose.model("VisaLink", VisaLinkSchema);
 }
 
 async function seed() {
@@ -56,30 +68,91 @@ async function seed() {
   console.log("Connected to MongoDB");
 
   const dataPath = path.join(__dirname, "khanna-travels-seed-data.json");
-  if (!fs.existsSync(dataPath)) {
-    console.error(`Seed data file not found at: ${dataPath}`);
-    process.exit(1);
-  }
-
-  const companies = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
   const force = process.argv.includes("--force") || process.argv.includes("-f");
 
-  for (const companyData of companies) {
-    const existing = await Company.findOne({ companyName: companyData.companyName });
-    if (existing) {
-      if (force) {
-        console.log(`"${companyData.companyName}" already exists — removing previous entry (--force)...`);
-        await Company.deleteOne({ _id: existing._id });
-      } else {
-        console.log(`"${companyData.companyName}" already exists — skipping (run with --force or delete it first if you want to re-seed).`);
-        continue;
+  if (fs.existsSync(dataPath)) {
+    const companies = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+    for (const companyData of companies) {
+      const existing = await Company.findOne({ companyName: companyData.companyName });
+      if (existing) {
+        if (force) {
+          console.log(`"${companyData.companyName}" already exists — removing previous entry (--force)...`);
+          await Company.deleteOne({ _id: existing._id });
+        } else {
+          console.log(`"${companyData.companyName}" already exists — skipping.`);
+          continue;
+        }
       }
-    }
 
-    const company = new Company(companyData);
-    await company.save();
-    const totalRates = companyData.plans.reduce((sum, p) => sum + (p.rates ? p.rates.length : 0), 0);
-    console.log(`✅ Inserted "${companyData.companyName}" with ${totalRates} rate rows across ${companyData.plans.length} plan(s).`);
+      const company = new Company(companyData);
+      await company.save();
+      const totalRates = companyData.plans.reduce((sum, p) => sum + (p.rates ? p.rates.length : 0), 0);
+      console.log(`✅ Inserted "${companyData.companyName}" with ${totalRates} rate rows across ${companyData.plans.length} plan(s).`);
+    }
+  }
+
+  // ── Seed Visa Links ────────────────────────────────────────────────────────
+  const possibleVisaFiles = [
+    path.join(__dirname, "visa-links.json"),
+    path.join(__dirname, "visa_links.json"),
+    path.join(__dirname, "..", "visa-links.json"),
+    path.join(__dirname, "..", "visa_links.json")
+  ];
+
+  let visaDataPath = possibleVisaFiles.find(p => fs.existsSync(p));
+  if (visaDataPath) {
+    console.log(`Loading visa links from: ${visaDataPath}`);
+    try {
+      const visaItems = JSON.parse(fs.readFileSync(visaDataPath, "utf-8"));
+      let seededCount = 0;
+      let skippedCount = 0;
+
+      for (const item of visaItems) {
+        const rawUrl = (item.url || '').trim();
+        if (!rawUrl) {
+          skippedCount++;
+          continue; // Skip entries with empty URL
+        }
+
+        let cleanUrl = rawUrl;
+        if (!/^https?:\/\//i.test(cleanUrl)) {
+          cleanUrl = 'https://' + cleanUrl;
+        }
+
+        const title = (item.title || item.name || 'Visa Portal').trim();
+        const country = (item.country || '').trim();
+        const category = (item.type || item.category || 'Official Portal').trim();
+        const notes = (item.description || item.notes || '').trim();
+
+        // Check duplicate by url or title
+        const existing = await VisaLink.findOne({
+          $or: [{ url: cleanUrl }, { title: title }]
+        });
+
+        if (existing) {
+          if (force) {
+            await VisaLink.deleteOne({ _id: existing._id });
+          } else {
+            skippedCount++;
+            continue;
+          }
+        }
+
+        const link = new VisaLink({
+          title,
+          url: cleanUrl,
+          country,
+          category,
+          notes
+        });
+        await link.save();
+        seededCount++;
+      }
+
+      console.log(`🌐 Visa Links seeding complete: ${seededCount} inserted, ${skippedCount} skipped (empty URL or duplicates).`);
+    } catch (vErr) {
+      console.error("Error reading visa links JSON:", vErr);
+    }
   }
 
   await mongoose.disconnect();
@@ -90,3 +163,4 @@ seed().catch((err) => {
   console.error("Seed failed:", err);
   process.exit(1);
 });
+

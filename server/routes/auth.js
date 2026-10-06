@@ -1,21 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const { ADMIN_PASSWORD, generateAdminToken, verifyAdminToken } = require('../middleware/auth');
+const { ADMIN_EMAIL, ADMIN_PASSWORD, generateAdminToken, verifyAdminToken, validateCredentials } = require('../middleware/auth');
 
 /**
  * POST /api/auth/login
- * Body: { password: string }
+ * Body: { email?: string, password: string }
  */
 router.post('/login', (req, res) => {
-  const { password } = req.body;
+  const { email, password } = req.body;
   if (!password) {
     return res.status(400).json({ error: 'Password is required' });
   }
 
-  const expectedPassword = process.env.ADMIN_PASSWORD || ADMIN_PASSWORD;
-
-  if (password === expectedPassword) {
-    const token = generateAdminToken();
+  if (validateCredentials(email, password)) {
+    const token = generateAdminToken({ email: email || process.env.ADMIN_EMAIL || ADMIN_EMAIL });
     return res.json({
       success: true,
       message: 'Admin authenticated successfully',

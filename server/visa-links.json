@@ -1,0 +1,58 @@
+[
+  {
+    "title": "Dubai / UAE Official eVisa (ICP Smart Services)",
+    "url": "https://smartservices.icp.gov.ae/",
+    "country": "UAE",
+    "type": "Official eVisa",
+    "description": "Official Federal Authority for Identity, Citizenship, Customs & Port Security (Tourist 30/60 Days)"
+  },
+  {
+    "title": "Dubai GDRFA eVisa Portal (General Directorate)",
+    "url": "https://www.gdrfad.gov.ae/",
+    "country": "UAE",
+    "type": "Official eVisa",
+    "description": "Dubai entry permit and residency visa application & status verification"
+  },
+  {
+    "title": "United States Visa Appointment Service (US Travel Docs / CGI)",
+    "url": "https://www.ustraveldocs.com/",
+    "country": "USA",
+    "type": "Appointment Portal",
+    "description": "Official US Visa appointment scheduling and fee payment for India"
+  },
+  {
+    "title": "US DS-160 Non-Immigrant Visa Application (CEAC)",
+    "url": "https://ceac.state.gov/genniv/",
+    "country": "USA",
+    "type": "Official Application",
+    "description": "Consular Electronic Application Center — submit nonimmigrant visa application"
+  },
+  {
+    "title": "UK Visa & Immigration Official Portal (GOV.UK)",
+    "url": "https://www.gov.uk/apply-to-come-to-the-uk",
+    "country": "United Kingdom",
+    "type": "Official Portal",
+    "description": "Official British Government portal for UK standard visitor visa applications"
+  },
+  {
+    "title": "Schengen Visa Booking & Tracking (VFS Global)",
+    "url": "https://visa.vfsglobal.com/",
+    "country": "Schengen / Europe",
+    "type": "VFS Application",
+    "description": "Official biometric appointment booking for France, Germany, Italy, Switzerland, Spain, etc."
+  },
+  {
+    "title": "Thailand Official eVisa Portal",
+    "url": "https://www.thaievisa.go.th/",
+    "country": "Thailand",
+    "type": "Official eVisa",
+    "description": "Official Ministry of Foreign Affairs of the Kingdom of Thailand online visa system"
+  },
+  {
+    "title": "Singapore Immigration & Checkpoints Authority (ICA e-Services)",
+    "url": "https://www.ica.gov.sg/",
+    "country": "Singapore",
+    "type": "Official Portal",
+    "description": "SG Arrival Card with electronic health declaration and eVisa processing"
+  }
+]
