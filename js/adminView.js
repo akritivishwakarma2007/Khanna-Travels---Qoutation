@@ -273,64 +273,39 @@ export class AdminView {
     `;
   }
 
-  // ── Breadcrumbs & Admin Module Switcher ────────────────────────────────────
+  // ── Breadcrumbs ────────────────────────────────────────────────────────────
   _renderBreadcrumbs() {
     const { level, selectedCompany, selectedPlan, adminSection = 'insurance' } = this.state;
     const isVisa = adminSection === 'visa-links';
-    const visaCount = (this.state.visaLinks || []).length;
-    const isAuthed = isAdminAuthenticated();
+
+    if (isVisa) return '';
 
     return `
-      <div class="admin-module-bar">
-        <div class="admin-module-tabs">
-          <button type="button" class="admin-tab-btn ${!isVisa ? 'active' : ''}" data-admin-section="insurance">
-            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
-            Insurance Plans &amp; Rates
-          </button>
-          <button type="button" class="admin-tab-btn tab-visa ${isVisa ? 'active' : ''}" data-admin-section="visa-links">
-            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"/></svg>
-            Official Visa Portal Links
-            <span class="admin-tab-badge" id="visaBadgeCount">${visaCount}</span>
-          </button>
-        </div>
-
-        <div class="admin-auth-indicator">
-          ${isAuthed ? `
-            <span class="admin-auth-badge">🛡️ Admin Authenticated</span>
-            <button type="button" class="crumb-btn btn-admin-logout" id="btnAdminLogout" title="Sign out of admin portal">Sign Out</button>
-          ` : `
-            <button type="button" class="crumb-btn" id="btnAdminQuickLogin" title="Sign in as Administrator">Sign In to Admin</button>
-          `}
-        </div>
-      </div>
-
-      ${!isVisa ? `
-        <div class="admin-breadcrumb-bar">
-          <ul class="admin-breadcrumbs">
-            <li class="breadcrumb-item ${level === 'companies' ? 'active' : ''}">
-              ${level === 'companies' 
-                ? '<span>Companies</span>' 
-                : '<button type="button" class="crumb-btn" data-nav-to="companies">Companies</button>'
+      <div class="admin-breadcrumb-bar">
+        <ul class="admin-breadcrumbs">
+          <li class="breadcrumb-item ${level === 'companies' ? 'active' : ''}">
+            ${level === 'companies' 
+              ? '<span>Companies</span>' 
+              : '<button type="button" class="crumb-btn" data-nav-to="companies">Companies</button>'
+            }
+          </li>
+          ${selectedCompany ? `
+            <li class="breadcrumb-separator">›</li>
+            <li class="breadcrumb-item ${level === 'plans' ? 'active' : ''}">
+              ${level === 'plans'
+                ? `<span>${selectedCompany.companyName}</span>`
+                : `<button type="button" class="crumb-btn" data-nav-to="plans">${selectedCompany.companyName}</button>`
               }
             </li>
-            ${selectedCompany ? `
-              <li class="breadcrumb-separator">›</li>
-              <li class="breadcrumb-item ${level === 'plans' ? 'active' : ''}">
-                ${level === 'plans'
-                  ? `<span>${selectedCompany.companyName}</span>`
-                  : `<button type="button" class="crumb-btn" data-nav-to="plans">${selectedCompany.companyName}</button>`
-                }
-              </li>
-            ` : ''}
-            ${selectedPlan && level === 'rates' ? `
-              <li class="breadcrumb-separator">›</li>
-              <li class="breadcrumb-item active">
-                <span>${selectedPlan.planName} (Rates)</span>
-              </li>
-            ` : ''}
-          </ul>
-        </div>
-      ` : ''}
+          ` : ''}
+          ${selectedPlan && level === 'rates' ? `
+            <li class="breadcrumb-separator">›</li>
+            <li class="breadcrumb-item active">
+              <span>${selectedPlan.planName} (Rates)</span>
+            </li>
+          ` : ''}
+        </ul>
+      </div>
     `;
   }
 
