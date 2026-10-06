@@ -64,68 +64,500 @@ const DEFAULT_TEMPLATES = {
 // Initial verified official visa portals for 1-click loading and initial state
 const DEFAULT_INITIAL_VISA_LINKS = [
   {
-    _id: 'default_uae_icp',
-    title: 'Dubai / UAE Official eVisa (ICP Smart Services)',
-    url: 'https://smartservices.icp.gov.ae/',
-    country: 'UAE',
-    category: 'Official eVisa',
-    notes: 'Federal Authority for Identity, Citizenship, Customs & Port Security (Tourist 30/60 Days)'
+    "_id": "default_vlink_1",
+    "title": "USA VISA",
+    "url": "https://www.usvisascheduling.com/en-US/",
+    "country": "USA",
+    "category": "Visa portal",
+    "notes": ""
   },
   {
-    _id: 'default_uae_gdrfa',
-    title: 'Dubai GDRFA eVisa Portal (General Directorate)',
-    url: 'https://www.gdrfad.gov.ae/',
-    country: 'UAE',
-    category: 'Official eVisa',
-    notes: 'Dubai entry permit and residency visa application & status verification'
+    "_id": "default_vlink_2",
+    "title": "BAJAJ",
+    "url": "https://partner.bajajallianz.com/",
+    "country": "",
+    "category": "Partner portal",
+    "notes": ""
   },
   {
-    _id: 'default_usa_ustraveldocs',
-    title: 'United States Visa Appointment Service (US Travel Docs / CGI)',
-    url: 'https://www.ustraveldocs.com/',
-    country: 'USA',
-    category: 'Appointment Portal',
-    notes: 'Official US Visa appointment scheduling and fee payment for India'
+    "_id": "default_vlink_3",
+    "title": "TBO",
+    "url": "https://www.travelboutiqueonline.com/",
+    "country": "",
+    "category": "Partner portal",
+    "notes": ""
   },
   {
-    _id: 'default_usa_ceac',
-    title: 'US DS-160 Non-Immigrant Visa Application (CEAC)',
-    url: 'https://ceac.state.gov/genniv/',
-    country: 'USA',
-    category: 'Official Application',
-    notes: 'Consular Electronic Application Center — submit nonimmigrant visa application'
+    "_id": "default_vlink_4",
+    "title": "UK VISA",
+    "url": "https://www.gov.uk/standard-visitor/apply-standard-visitor-visa",
+    "country": "United Kingdom",
+    "category": "Visa portal",
+    "notes": ""
   },
   {
-    _id: 'default_uk_gov',
-    title: 'UK Visa & Immigration Official Portal (GOV.UK)',
-    url: 'https://www.gov.uk/apply-to-come-to-the-uk',
-    country: 'United Kingdom',
-    category: 'Official Portal',
-    notes: 'Official British Government portal for UK standard visitor visa applications'
+    "_id": "default_vlink_5",
+    "title": "IRCC",
+    "url": "https://portal-portail.apps.cic.gc.ca/signin?lang=en",
+    "country": "Canada",
+    "category": "Visa portal",
+    "notes": ""
   },
   {
-    _id: 'default_schengen_vfs',
-    title: 'Schengen Visa Booking & Tracking (VFS Global)',
-    url: 'https://visa.vfsglobal.com/',
-    country: 'Schengen / Europe',
-    category: 'VFS Application',
-    notes: 'Official biometric appointment booking for France, Germany, Italy, Switzerland, Spain, etc.'
+    "_id": "default_vlink_6",
+    "title": "SHEETS",
+    "url": "https://docs.google.com/spreadsheets/u/0/",
+    "country": "",
+    "category": "Other",
+    "notes": ""
   },
   {
-    _id: 'default_thailand_evisa',
-    title: 'Thailand Official eVisa Portal',
-    url: 'https://www.thaievisa.go.th/',
-    country: 'Thailand',
-    category: 'Official eVisa',
-    notes: 'Official Ministry of Foreign Affairs of the Kingdom of Thailand online visa system'
+    "_id": "default_vlink_7",
+    "title": "UDHA",
+    "url": "https://uaevisa.tripdealskart.com/",
+    "country": "UAE",
+    "category": "Partner portal",
+    "notes": ""
   },
   {
-    _id: 'default_singapore_ica',
-    title: 'Singapore Immigration & Checkpoints Authority (ICA e-Services)',
-    url: 'https://www.ica.gov.sg/',
-    country: 'Singapore',
-    category: 'Official Portal',
-    notes: 'SG Arrival Card with electronic health declaration and eVisa processing'
+    "_id": "default_vlink_8",
+    "title": "CLTT",
+    "url": "https://visa.centurionluxurytravels.in/",
+    "country": "",
+    "category": "Partner portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_9",
+    "title": "COZMO",
+    "url": "https://globalvisa.cozmotravel.com/OtpVerification/Index",
+    "country": "",
+    "category": "Partner portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_10",
+    "title": "VFS",
+    "url": "https://www.vfsglobal.com/en/individuals/index.html",
+    "country": "",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_11",
+    "title": "DU DIGITAL",
+    "url": "https://partner.duvisas.com/",
+    "country": "UAE",
+    "category": "Partner portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_12",
+    "title": "DUBAI VISA",
+    "url": "https://www.visitdubai.com/en/account/top-picks",
+    "country": "UAE",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_13",
+    "title": "TURKEY E VISA",
+    "url": "https://www.evisa.gov.tr/en/",
+    "country": "Turkey",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_14",
+    "title": "AUSTRALIA VISA",
+    "url": "https://online.immi.gov.au/lusc/login",
+    "country": "Australia",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_15",
+    "title": "RELIANCE RGI",
+    "url": "https://smartzone.reliancegeneral.co.in/",
+    "country": "",
+    "category": "Partner portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_16",
+    "title": "FRANCE VISA",
+    "url": "https://france-visas.gouv.fr/",
+    "country": "France",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_17",
+    "title": "AZERBAIJAN VISA",
+    "url": "https://evisa.gov.az/en/",
+    "country": "Azerbaijan",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_18",
+    "title": "CANADA PASSPORT SUBMISSION",
+    "url": "https://cicforms.mioot.com/forms/PS/",
+    "country": "Canada",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_19",
+    "title": "IRCC BIOMETRICS REQUEST",
+    "url": "https://www.vfsglobal.ca/IRCC-AppointmentWave1/Account/RegisteredLogin",
+    "country": "Canada",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_20",
+    "title": "CANADA VISA",
+    "url": "https://www.canada.ca/en/services/immigration-citizenship.html",
+    "country": "Canada",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_21",
+    "title": "VIETNAM E VISA",
+    "url": "https://evisa.xuatnhapcanh.gov.vn/trang-chu-ttdt",
+    "country": "Vietnam",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_22",
+    "title": "VIETNAM E VISA (2nd link)",
+    "url": "https://evisa.gov.vn/",
+    "country": "Vietnam",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_23",
+    "title": "TANZANIA E VISA",
+    "url": "https://visa.immigration.go.tz/",
+    "country": "Tanzania",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_24",
+    "title": "SG ARRIVAL",
+    "url": "https://www.ica.gov.sg/enter-transit-depart/entering-singapore/sg-arrival-card",
+    "country": "Singapore",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_25",
+    "title": "MALAYSIA VISA",
+    "url": "https://malaysiavisa.imi.gov.my/evisa/evisa.jsp",
+    "country": "Malaysia",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_26",
+    "title": "BENIN E VISA",
+    "url": "https://evisa.bj/articles/costs-of-entry-visas-to-benin/8c948600-ca08-443e-bac9-33aae6583b54",
+    "country": "Benin",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_27",
+    "title": "BENIN E VISA (2nd link)",
+    "url": "https://evisa.bj/",
+    "country": "Benin",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_28",
+    "title": "RUSSIA VISA",
+    "url": "https://russia-visacentre.com/en/visa/india/russia/visa-types/tourist-visa#visa-fees",
+    "country": "Russia",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_29",
+    "title": "KENYA VISA",
+    "url": "https://accounts.ecitizen.go.ke/login",
+    "country": "Kenya",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_30",
+    "title": "IRELAND VISA FORM",
+    "url": "https://www.visas.inis.gov.ie/AVATS/OnlineHome.aspx",
+    "country": "Ireland",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_31",
+    "title": "OVERSEAS EDU LOGIN",
+    "url": "https://app.coursefinder.ai/kc-learning",
+    "country": "",
+    "category": "Partner portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_32",
+    "title": "GEORGIA E VISA",
+    "url": "https://www.evisa.gov.ge/GeoVisa/en/VisaApp",
+    "country": "Georgia",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_33",
+    "title": "THAILAND BLS VISA",
+    "url": "https://www.blsthailandvisa.com/mumbai/contact.php",
+    "country": "Thailand",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_34",
+    "title": "APPOSTILE ATTESTATION",
+    "url": "https://hrdattestation.in/",
+    "country": "India",
+    "category": "Other",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_35",
+    "title": "AKBAR ONLINE",
+    "url": "https://agents.akbartravelsonline.com/b2bplus/login",
+    "country": "",
+    "category": "Partner portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_36",
+    "title": "TRIPJACK",
+    "url": "https://tripjack.com/nav/",
+    "country": "",
+    "category": "Partner portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_37",
+    "title": "COLOMBIA VISA",
+    "url": "https://www.cancilleria.gov.co/tramites_servicios/visa",
+    "country": "Colombia",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_38",
+    "title": "CHINA VISA",
+    "url": "https://www.visaforchina.cn/#/guideNav/steps/step2",
+    "country": "China",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_39",
+    "title": "TURKEY VISA",
+    "url": "https://gatewayinternational.com.tr/en",
+    "country": "Turkey",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_40",
+    "title": "BANGLADESH VISA",
+    "url": "https://www.visa.gov.bd/",
+    "country": "Bangladesh",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_41",
+    "title": "GREECE VISA",
+    "url": "https://in-gr-services.gvcworld.eu/?lang=en_US",
+    "country": "Greece",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_42",
+    "title": "FINLAND LOGIN",
+    "url": "https://finlandvisa.fi/",
+    "country": "Finland",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_43",
+    "title": "SRI LANKA VISA",
+    "url": "https://eta.gov.lk/slvisa/visainfo/center.jsp",
+    "country": "Sri Lanka",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_44",
+    "title": "HONG KONG PAR",
+    "url": "https://www.immd.gov.hk/eng/services/visas/pre-arrival_registration_for_indian_nationals.html",
+    "country": "Hong Kong",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_45",
+    "title": "SOUTH KOREA VISA FORM",
+    "url": "https://www.visa.go.kr/openPage.do?MENU_ID=1020408",
+    "country": "South Korea",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_46",
+    "title": "TOGO VISA",
+    "url": "https://voyage.gouv.tg/auth/login",
+    "country": "Togo",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_47",
+    "title": "BALI VISA",
+    "url": "https://molina.imigrasi.go.id/front/register",
+    "country": "Indonesia",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_48",
+    "title": "CHINA VISA STEPS",
+    "url": "https://www.visaforchina.cn/BOM3_EN/tongzhigonggao/461480036227223552.html",
+    "country": "China",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_49",
+    "title": "CHINA VISA NEW DELHI",
+    "url": "https://www.visaforchina.cn/DEL3_EN/qianzhengyewu",
+    "country": "China",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_50",
+    "title": "US DS 160",
+    "url": "https://ceac.state.gov/genniv/",
+    "country": "USA",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_51",
+    "title": "PASSPORT SEVA",
+    "url": "https://www.passportindia.gov.in/psp",
+    "country": "India",
+    "category": "Other",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_52",
+    "title": "TCTT",
+    "url": "https://tctt.online/",
+    "country": "",
+    "category": "Partner portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_53",
+    "title": "REZLIV",
+    "url": "https://www.rezlive.com/",
+    "country": "",
+    "category": "Partner portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_54",
+    "title": "ISRAEL VISA",
+    "url": "https://mum.israelvisa.in/online/onlinevisaform.aspx",
+    "country": "Israel",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_55",
+    "title": "GRN CONNECT",
+    "url": "https://www.grnconnect.com/",
+    "country": "",
+    "category": "Partner portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_56",
+    "title": "MEA INDIAN WEBSITE",
+    "url": "https://meaprotocol.nic.in/?A1",
+    "country": "India",
+    "category": "Other",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_57",
+    "title": "CANADA VISA LOGIN",
+    "url": "https://ircc.canada.ca/visit-visiter/en/get-account-ircc-portal",
+    "country": "Canada",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_58",
+    "title": "SRI LANKA VISA (2nd link)",
+    "url": "https://www.srilankaevisa.lk/",
+    "country": "Sri Lanka",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_59",
+    "title": "IRELAND VISA STATUS",
+    "url": "https://www.ireland.ie/en/india/newdelhi/services/visas/processing-times-and-decisions/",
+    "country": "Ireland",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_60",
+    "title": "RUSSIA E VISA",
+    "url": "https://evisa.kdmid.ru/",
+    "country": "Russia",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_61",
+    "title": "CAMBODIA E VISA",
+    "url": "https://www.evisa.gov.kh/",
+    "country": "Cambodia",
+    "category": "Visa portal",
+    "notes": ""
+  },
+  {
+    "_id": "default_vlink_62",
+    "title": "BALI VISA (2nd link)",
+    "url": "https://evisa.imigrasi.go.id/",
+    "country": "Indonesia",
+    "category": "Visa portal",
+    "notes": ""
   }
 ];
 

@@ -1,73 +1,30 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const fs = require('fs');
+const path = require('path');
 const VisaLink = require('../models/VisaLink');
 const { requireAdminAuth } = require('../middleware/auth');
 
-// Default initial official visa portals
-const DEFAULT_INITIAL_LINKS = [
-  {
-    title: 'Dubai / UAE Official eVisa (ICP Smart Services)',
-    url: 'https://smartservices.icp.gov.ae/',
-    country: 'UAE',
-    category: 'Official eVisa',
-    notes: 'Official Federal Authority for Identity, Citizenship, Customs & Port Security (Tourist 30/60 Days)'
-  },
-  {
-    title: 'Dubai GDRFA eVisa Portal (General Directorate)',
-    url: 'https://www.gdrfad.gov.ae/',
-    country: 'UAE',
-    category: 'Official eVisa',
-    notes: 'Dubai entry permit and residency visa application & status verification'
-  },
-  {
-    title: 'United States Visa Appointment Service (US Travel Docs / CGI)',
-    url: 'https://www.ustraveldocs.com/',
-    country: 'USA',
-    category: 'Appointment Portal',
-    notes: 'Official US Visa appointment scheduling and fee payment for India'
-  },
-  {
-    title: 'US DS-160 Non-Immigrant Visa Application (CEAC)',
-    url: 'https://ceac.state.gov/genniv/',
-    country: 'USA',
-    category: 'Official Application',
-    notes: 'Consular Electronic Application Center — submit nonimmigrant visa application'
-  },
-  {
-    title: 'UK Visa & Immigration Official Portal (GOV.UK)',
-    url: 'https://www.gov.uk/apply-to-come-to-the-uk',
-    country: 'United Kingdom',
-    category: 'Official Portal',
-    notes: 'Official British Government portal for UK standard visitor visa applications'
-  },
-  {
-    title: 'Schengen Visa Booking & Tracking (VFS Global)',
-    url: 'https://visa.vfsglobal.com/',
-    country: 'Schengen / Europe',
-    category: 'VFS Application',
-    notes: 'Official biometric appointment booking for France, Germany, Italy, Switzerland, Spain, etc.'
-  },
-  {
-    title: 'Thailand Official eVisa Portal',
-    url: 'https://www.thaievisa.go.th/',
-    country: 'Thailand',
-    category: 'Official eVisa',
-    notes: 'Official Ministry of Foreign Affairs of the Kingdom of Thailand online visa system'
-  },
-  {
-    title: 'Singapore Immigration & Checkpoints Authority (ICA e-Services)',
-    url: 'https://www.ica.gov.sg/',
-    country: 'Singapore',
-    category: 'Official Portal',
-    notes: 'SG Arrival Card with electronic health declaration and eVisa processing'
+// Load full visa links list from server/visa-links.json
+let DEFAULT_INITIAL_LINKS = [];
+try {
+  const jsonPath = path.join(__dirname, '..', 'visa-links.json');
+  if (fs.existsSync(jsonPath)) {
+    DEFAULT_INITIAL_LINKS = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
   }
-];
+} catch (err) {
+  console.warn('Could not load server/visa-links.json:', err.message);
+}
 
-// In-memory fallback if MongoDB is in offline/demo mode
+// In-memory fallback if MongoDB is in offline mode
 let inMemoryLinks = [...DEFAULT_INITIAL_LINKS.map((item, idx) => ({
   _id: `mem_${Date.now()}_${idx}`,
-  ...item,
+  title: item.title,
+  url: item.url,
+  country: item.country || '',
+  category: item.category || item.type || 'Visa portal',
+  notes: item.notes || item.description || '',
   createdAt: new Date(),
   updatedAt: new Date()
 }))];
@@ -84,19 +41,47 @@ function normalizeUrl(rawUrl) {
   return url;
 }
 
+async function autoSeedVisaLinksToDb() {
+  if (!isDbConnected() || DEFAULT_INITIAL_LINKS.length === 0) return;
+  try {
+    for (const item of DEFAULT_INITIAL_LINKS) {
+      if (!item.url || !item.url.trim()) continue;
+      let cleanUrl = normalizeUrl(item.url);
+      const title = (item.title || 'Visa Link').trim();
+      const country = (item.country || '').trim();
+      const category = (item.category || item.type || 'Visa portal').trim();
+      const notes = (item.notes || item.description || '').trim();
+
+      const existing = await VisaLink.findOne({
+        $or: [{ url: cleanUrl }, { title: title }]
+      });
+
+      if (!existing) {
+        await VisaLink.create({
+          title,
+          url: cleanUrl,
+          country,
+          category,
+          notes
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Auto-seed visa links error:', err.message);
+  }
+}
+
 // ── GET /api/visa-links — List all visa portal links ──────────────────────────
 router.get('/', async (req, res) => {
   try {
     if (isDbConnected()) {
       let count = await VisaLink.countDocuments();
-      if (count === 0) {
-        // Seed default verified portals if DB is empty
-        await VisaLink.insertMany(DEFAULT_INITIAL_LINKS);
+      if (count === 0 || count < DEFAULT_INITIAL_LINKS.length) {
+        await autoSeedVisaLinksToDb();
       }
       const links = await VisaLink.find().sort({ country: 1, title: 1 });
       return res.json(links);
     } else {
-      // In-memory fallback
       return res.json(inMemoryLinks);
     }
   } catch (err) {
