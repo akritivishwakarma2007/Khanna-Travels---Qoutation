@@ -1017,7 +1017,9 @@ export class AdminView {
     container.addEventListener('submit', async (e) => {
       if (e.target.id === 'adminLoginForm') {
         e.preventDefault();
+        const emailInput = container.querySelector('#adminEmailInput');
         const pwdInput = container.querySelector('#adminPasswordInput');
+        const email = emailInput ? emailInput.value.trim() : '';
         const pwd = pwdInput ? pwdInput.value : '';
         const remember = container.querySelector('#rememberAdmin')?.checked || false;
         const errBox = container.querySelector('#adminLoginError');
@@ -1025,7 +1027,7 @@ export class AdminView {
 
         if (!pwd) {
           if (errBox) {
-            errBox.textContent = 'Please enter the administrator password';
+            errBox.textContent = 'Please enter password';
             errBox.style.display = 'block';
           }
           return;
@@ -1038,13 +1040,18 @@ export class AdminView {
           }
           if (errBox) errBox.style.display = 'none';
 
-          await loginAdmin(pwd, remember);
+          await loginAdmin(email, pwd, remember);
           this.app.showToast('Admin authenticated successfully', 'success');
 
           await this._loadCompanies();
           await this._loadVisaLinks();
-          this.container.innerHTML = this.render();
-          this._refresh();
+          if (this.app) {
+            this.app._updateHeaderUI();
+            this.app.navigate('quote');
+          } else {
+            this.container.innerHTML = this.render();
+            this._refresh();
+          }
         } catch (err) {
           if (errBox) {
             errBox.textContent = err.message || 'Invalid administrator credentials';

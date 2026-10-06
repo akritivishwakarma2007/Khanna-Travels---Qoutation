@@ -84,18 +84,19 @@ class App {
 
   navigate(viewId) {
     let targetView = viewId;
-    const isAuthed = isAdminAuthenticated();
 
     if (viewId === 'visa') {
       this.views.admin.state.adminSection = 'visa-links';
       targetView = 'admin';
       this.currentView = 'visa';
       location.hash = 'visa';
+    } else if (viewId === 'admin') {
+      this.views.admin.state.adminSection = 'insurance';
+      targetView = 'admin';
+      this.currentView = 'admin';
+      location.hash = 'admin';
     } else {
       if (!(targetView in this.views)) targetView = 'quote';
-      if (targetView === 'admin' && location.hash !== '#visa' && !this.views.admin.state.adminSection) {
-        this.views.admin.state.adminSection = 'insurance';
-      }
       this.currentView = targetView;
       location.hash = targetView;
     }
