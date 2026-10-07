@@ -15,8 +15,15 @@ const IS_LOCAL = typeof window !== 'undefined' && (
   window.location.hostname.startsWith('172.')
 );
 
+const protocol = (typeof window !== 'undefined' && window.location.protocol.startsWith('http'))
+  ? window.location.protocol
+  : 'http:';
+const hostname = (typeof window !== 'undefined' && window.location.hostname)
+  ? window.location.hostname
+  : 'localhost';
+
 export const BASE_URL = IS_LOCAL
-  ? `${window.location.protocol}//${window.location.hostname}:3000`
+  ? `${protocol}//${hostname}:3000`
   : RENDER_BACKEND_URL;
 
 const BASE = `${BASE_URL}/api`;

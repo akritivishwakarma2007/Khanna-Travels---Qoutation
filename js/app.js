@@ -124,18 +124,20 @@ class App {
   }
 
   async _checkDbStatus() {
+    const banner = document.getElementById('dbBanner');
     try {
       const health = await healthCheck();
-      const banner = document.getElementById('dbBanner');
-      if (banner && health.db !== 'connected') {
-        banner.textContent = '⚠️  Database not connected — running in offline mode. Add MONGODB_URI to server/.env and restart.';
-        banner.classList.add('show');
+      if (banner) {
+        if (health.status === 'ok' && health.db === 'connected') {
+          banner.classList.remove('show');
+        } else if (health.status === 'ok') {
+          banner.textContent = 'ℹ️  Running in local seed mode (all insurance quotes & admin functions active).';
+          banner.classList.add('show');
+        }
       }
     } catch {
-      // Server not running or offline — show banner
-      const banner = document.getElementById('dbBanner');
       if (banner) {
-        banner.textContent = '⚠️  API server not reachable. Start the server: cd server && node server.js';
+        banner.textContent = '⚠️  API server not reachable. Start local server: cd server && node server.js';
         banner.classList.add('show');
       }
     }
