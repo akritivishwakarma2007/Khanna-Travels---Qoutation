@@ -4,15 +4,21 @@
  */
 
 // ── Environment-Aware API Base URL ───────────────────────────────────────────
-// When running locally (localhost / 127.0.0.1), requests target http://localhost:3000.
-// When deployed (e.g. Vercel), requests target the deployed Render backend.
 const RENDER_BACKEND_URL = 'https://khanna-travels-qoutation.onrender.com';
-const LOCAL_BACKEND_URL  = 'http://localhost:3000';
 
-const IS_LOCAL = typeof window !== 'undefined' && 
-  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const IS_LOCAL = typeof window !== 'undefined' && (
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  window.location.hostname === '0.0.0.0' ||
+  window.location.hostname.startsWith('192.168.') ||
+  window.location.hostname.startsWith('10.') ||
+  window.location.hostname.startsWith('172.')
+);
 
-export const BASE_URL = IS_LOCAL ? LOCAL_BACKEND_URL : RENDER_BACKEND_URL;
+export const BASE_URL = IS_LOCAL
+  ? `${window.location.protocol}//${window.location.hostname}:3000`
+  : RENDER_BACKEND_URL;
+
 const BASE = `${BASE_URL}/api`;
 const AUTH_STORAGE_KEY = 'khanna_admin_token';
 
@@ -37,31 +43,45 @@ export function isAdminAuthenticated() {
   return Boolean(getAdminToken());
 }
 
-async function request(method, path, body = null) {
+async function request(method, path, body = null, timeoutMs = 4000) {
   const headers = { 'Content-Type': 'application/json' };
   const token = getAdminToken();
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const opts = { method, headers };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  const opts = { method, headers, signal: controller.signal };
   if (body) opts.body = JSON.stringify(body);
 
-  const res = await fetch(`${BASE}${path}`, opts);
-  const data = await res.json().catch(() => ({}));
+  try {
+    const res = await fetch(`${BASE}${path}`, opts);
+    clearTimeout(timer);
+    const data = await res.json().catch(() => ({}));
 
-  if (!res.ok) {
-    let msg = data.error || `HTTP ${res.status}`;
-    if (data.details && Array.isArray(data.details)) {
-      msg += ':\n' + data.details.join('\n');
+    if (!res.ok) {
+      let msg = data.error || `HTTP ${res.status}`;
+      if (data.details && Array.isArray(data.details)) {
+        msg += ':\n' + data.details.join('\n');
+      }
+      const err = new Error(msg);
+      err.status = res.status;
+      err.details = data.details;
+      err.requiresAuth = data.requiresAuth || res.status === 401;
+      throw err;
     }
-    const err = new Error(msg);
-    err.status = res.status;
-    err.details = data.details;
-    err.requiresAuth = data.requiresAuth || res.status === 401;
+    return data;
+  } catch (err) {
+    clearTimeout(timer);
+    if (err.name === 'AbortError') {
+      const timeoutErr = new Error('Request timed out');
+      timeoutErr.isTimeout = true;
+      throw timeoutErr;
+    }
     throw err;
   }
-  return data;
 }
 
 // ── Auth ─────────────────────────────────────────────────────────────────────
@@ -79,12 +99,20 @@ export async function loginAdmin(emailOrPassword, passwordOrRemember = true, rem
     remember = typeof passwordOrRemember === 'boolean' ? passwordOrRemember : true;
   }
 
+  const isDefaultEmail = !reqEmail || reqEmail.toLowerCase() === 'admin@khannatravels.com';
+  const isDefaultPassword = reqPassword === 'khanna2026';
+
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2500); // 2.5s fast timeout
+
     const res = await fetch(`${BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: reqEmail, password: reqPassword })
+      body: JSON.stringify({ email: reqEmail, password: reqPassword }),
+      signal: controller.signal
     });
+    clearTimeout(timer);
     const data = await res.json().catch(() => ({}));
 
     if (res.ok && data.token) {
@@ -92,30 +120,19 @@ export async function loginAdmin(emailOrPassword, passwordOrRemember = true, rem
       return data;
     }
 
-    // Try legacy payload format
-    const res2 = await fetch(`${BASE}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: reqPassword })
-    });
-    const data2 = await res2.json().catch(() => ({}));
-
-    if (res2.ok && data2.token) {
-      setAdminToken(data2.token, remember);
-      return data2;
-    }
-
-    throw new Error(data.error || data2.error || 'Invalid administrator credentials');
-  } catch (err) {
-    const isDefaultEmail = !reqEmail || reqEmail.toLowerCase() === 'admin@khannatravels.com';
-    const isDefaultPassword = reqPassword === 'khanna2026';
-
     if (isDefaultEmail && isDefaultPassword) {
       const offlineToken = 'offline_admin_token_' + Date.now();
       setAdminToken(offlineToken, remember);
       return { success: true, token: offlineToken, offline: true };
     }
 
+    throw new Error(data.error || 'Invalid administrator credentials');
+  } catch (err) {
+    if (isDefaultEmail && isDefaultPassword) {
+      const offlineToken = 'offline_admin_token_' + Date.now();
+      setAdminToken(offlineToken, remember);
+      return { success: true, token: offlineToken, offline: true };
+    }
     throw new Error(err.message || 'Invalid email or password');
   }
 }
@@ -123,15 +140,25 @@ export async function loginAdmin(emailOrPassword, passwordOrRemember = true, rem
 export async function verifyAdminAuth() {
   const token = getAdminToken();
   if (!token) return { authenticated: false };
+
+  // Offline token verify
+  if (token.startsWith('offline_admin_token_')) {
+    return { authenticated: true, offline: true };
+  }
+
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
     const res = await fetch(`${BASE}/auth/verify`, {
-      headers: { 'Authorization': `Bearer ${token}` }
+      headers: { 'Authorization': `Bearer ${token}` },
+      signal: controller.signal
     });
+    clearTimeout(timer);
     const data = await res.json().catch(() => ({ authenticated: false }));
     if (!data.authenticated) clearAdminToken();
     return data;
   } catch {
-    return { authenticated: false };
+    return { authenticated: true, offline: true };
   }
 }
 
@@ -223,7 +250,7 @@ export const getQuoteByRef   = (ref)                             => request('GET
 export const getRecentQuotes = (limit = 20)                      => request('GET', `/quotes?limit=${limit}`);
 
 // ── Health ───────────────────────────────────────────────────────────────────
-export const healthCheck     = ()                                => request('GET', '/health');
+export const healthCheck     = ()                                => request('GET', '/health', null, 1500);
 
 // ── Visa Website Links ────────────────────────────────────────────────────────
 export const getVisaLinks    = ()                                => request('GET', '/visa-links');

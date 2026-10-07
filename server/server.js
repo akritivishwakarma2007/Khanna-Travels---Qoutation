@@ -65,24 +65,24 @@ app.get('*', (req, res) => {
 });
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
-(async () => {
-  await connectDB();
+const server = app.listen(PORT, () => {
+  console.log(`\n🚀  Khanna Travels API running at http://localhost:${PORT}`);
+  console.log(`    Frontend  → http://localhost:${PORT}`);
+  console.log(`    API health → http://localhost:${PORT}/api/health\n`);
+});
 
-  const server = app.listen(PORT, () => {
-    console.log(`\n🚀  Khanna Travels API running at http://localhost:${PORT}`);
-    console.log(`    Frontend  → http://localhost:${PORT}`);
-    console.log(`    API health → http://localhost:${PORT}/api/health\n`);
-  });
+connectDB().catch(err => {
+  console.warn('Background MongoDB connection error:', err.message);
+});
 
-  server.on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-      console.error(`\n⚠️  Port ${PORT} is already in use by another running process.`);
-      console.error(`👉  To free port ${PORT} in PowerShell, run:`);
-      console.error(`    Stop-Process -Id (Get-NetTCPConnection -LocalPort ${PORT}).OwningProcess -Force\n`);
-    } else {
-      console.error('Server error:', err);
-    }
-  });
-})();
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n⚠️  Port ${PORT} is already in use by another running process.`);
+    console.error(`👉  To free port ${PORT} in PowerShell, run:`);
+    console.error(`    Stop-Process -Id (Get-NetTCPConnection -LocalPort ${PORT}).OwningProcess -Force\n`);
+  } else {
+    console.error('Server error:', err);
+  }
+});
 
 module.exports = app;

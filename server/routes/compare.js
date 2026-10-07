@@ -1,8 +1,36 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
+const fs = require('fs');
+const path = require('path');
 const Company = require('../models/Company');
 
 const ALL_COVERAGE_AMOUNTS = [50000, 100000, 200000, 250000, 500000, 750000, 1000000];
+
+function getSeedCompanies() {
+  try {
+    const seedPath = path.join(__dirname, '..', 'khanna-travels-seed-data.json');
+    if (fs.existsSync(seedPath)) {
+      const data = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+      return data.map((c, idx) => ({
+        _id: c._id || `seed_${idx}`,
+        companyName: c.companyName,
+        isActive: c.isActive !== false,
+        plans: (c.plans || []).map((p, pIdx) => ({
+          _id: p._id || `plan_${idx}_${pIdx}`,
+          planName: p.planName,
+          productLine: p.productLine,
+          medicalCover: p.medicalCover,
+          isActive: p.isActive !== false,
+          rates: p.rates || []
+        }))
+      }));
+    }
+  } catch (err) {
+    console.error('Error reading seed data:', err.message);
+  }
+  return [];
+}
 
 /**
  * POST /api/quote/compare & POST /api/compare
@@ -68,8 +96,13 @@ router.post('/', async (req, res) => {
     const normalizedRegion = region.toLowerCase().includes('inc') ? 'Including' : 'Excluding';
     const numRequestedCoverage = coverage ? Number(coverage) : 50000;
 
-    // ── Query all companies and active plans in MongoDB ───────────────────────
-    const companies = await Company.find({});
+    // ── Query all companies and active plans in MongoDB or local seed JSON ───
+    let companies = [];
+    if (mongoose.connection.readyState === 1) {
+      companies = await Company.find({});
+    } else {
+      companies = getSeedCompanies();
+    }
     const totalCompaniesCount = companies.length;
 
     // Grouped results dictionary: { 50000: [...], 100000: [...], ... }

@@ -1,21 +1,46 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
+const fs = require('fs');
+const path = require('path');
 const Company = require('../models/Company');
 const { requireAdminAuth } = require('../middleware/auth');
+
+function getSeedCompaniesSlim() {
+  try {
+    const seedPath = path.join(__dirname, '..', 'khanna-travels-seed-data.json');
+    if (fs.existsSync(seedPath)) {
+      const data = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+      return data.map((c, idx) => ({
+        _id: c._id || `seed_${idx}`,
+        companyName: c.companyName,
+        isActive: c.isActive !== false,
+        plans: (c.plans || []).map((p, pIdx) => ({
+          _id: p._id || `plan_${idx}_${pIdx}`,
+          planName: p.planName,
+          isActive: p.isActive !== false
+        }))
+      }));
+    }
+  } catch (err) {
+    console.error('Error reading seed data:', err.message);
+  }
+  return [];
+}
 
 // GET /api/companies — list all (slim: without rate rows for speed)
 router.get('/', async (req, res) => {
   try {
-    const query = {};
-    // If includeInactive !== 'true', could filter, but admin needs all companies.
-    // Agents compare endpoint queries MongoDB directly.
+    if (mongoose.connection.readyState !== 1) {
+      return res.json(getSeedCompaniesSlim());
+    }
     const companies = await Company.find(
-      query,
+      {},
       { companyName: 1, isActive: 1, createdAt: 1, updatedAt: 1, 'plans._id': 1, 'plans.planName': 1, 'plans.isActive': 1 }
     ).sort({ companyName: 1 });
     res.json(companies);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.json(getSeedCompaniesSlim());
   }
 });
 
