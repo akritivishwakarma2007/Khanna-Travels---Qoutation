@@ -4,9 +4,9 @@
  */
 
 // ── Environment-Aware API Base URL ───────────────────────────────────────────
-const RENDER_BACKEND_URL = 'https://khanna-travels-qoutation.onrender.com';
+export const RENDER_BACKEND_URL = 'https://khanna-travels-qoutation.onrender.com';
 
-const IS_LOCAL = typeof window !== 'undefined' && (
+export const IS_LOCAL = typeof window !== 'undefined' && (
   window.location.hostname === 'localhost' ||
   window.location.hostname === '127.0.0.1' ||
   window.location.hostname === '0.0.0.0' ||
@@ -22,11 +22,21 @@ const hostname = (typeof window !== 'undefined' && window.location.hostname)
   ? window.location.hostname
   : 'localhost';
 
-export const BASE_URL = IS_LOCAL
-  ? `${protocol}//${hostname}:3000`
-  : RENDER_BACKEND_URL;
+export const LOCAL_BACKEND_URL = `${protocol}//${hostname}:3000`;
 
-const BASE = `${BASE_URL}/api`;
+// Active base URL starts with local if on localhost, otherwise Render
+let activeBaseUrl = IS_LOCAL ? LOCAL_BACKEND_URL : RENDER_BACKEND_URL;
+
+export function getBaseUrl() {
+  return activeBaseUrl;
+}
+
+export function setBaseUrl(url) {
+  activeBaseUrl = url;
+}
+
+export const BASE_URL = activeBaseUrl;
+const getApiBase = () => `${activeBaseUrl}/api`;
 const AUTH_STORAGE_KEY = 'khanna_admin_token';
 
 export function getAdminToken() {
@@ -57,31 +67,49 @@ async function request(method, path, body = null, timeoutMs = 4000) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const send = async (baseUrl) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    const opts = { method, headers, signal: controller.signal };
+    if (body) opts.body = JSON.stringify(body);
 
-  const opts = { method, headers, signal: controller.signal };
-  if (body) opts.body = JSON.stringify(body);
+    try {
+      const res = await fetch(`${baseUrl}/api${path}`, opts);
+      clearTimeout(timer);
+      const data = await res.json().catch(() => ({}));
 
-  try {
-    const res = await fetch(`${BASE}${path}`, opts);
-    clearTimeout(timer);
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      let msg = data.error || `HTTP ${res.status}`;
-      if (data.details && Array.isArray(data.details)) {
-        msg += ':\n' + data.details.join('\n');
+      if (!res.ok) {
+        let msg = data.error || `HTTP ${res.status}`;
+        if (data.details && Array.isArray(data.details)) {
+          msg += ':\n' + data.details.join('\n');
+        }
+        const err = new Error(msg);
+        err.status = res.status;
+        err.details = data.details;
+        err.requiresAuth = data.requiresAuth || res.status === 401;
+        throw err;
       }
-      const err = new Error(msg);
-      err.status = res.status;
-      err.details = data.details;
-      err.requiresAuth = data.requiresAuth || res.status === 401;
+      return data;
+    } catch (err) {
+      clearTimeout(timer);
       throw err;
     }
-    return data;
+  };
+
+  try {
+    return await send(activeBaseUrl);
   } catch (err) {
-    clearTimeout(timer);
+    // If local request failed due to connection error or timeout on localhost, auto-fallback to Render
+    if (IS_LOCAL && activeBaseUrl === LOCAL_BACKEND_URL) {
+      try {
+        console.warn('⚠️ Local API at :3000 unreachable, auto-falling back to Render backend:', RENDER_BACKEND_URL);
+        const fallbackData = await send(RENDER_BACKEND_URL);
+        activeBaseUrl = RENDER_BACKEND_URL;
+        return fallbackData;
+      } catch (fallbackErr) {
+        // Both failed
+      }
+    }
     if (err.name === 'AbortError') {
       const timeoutErr = new Error('Request timed out');
       timeoutErr.isTimeout = true;
@@ -113,7 +141,7 @@ export async function loginAdmin(emailOrPassword, passwordOrRemember = true, rem
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 2500); // 2.5s fast timeout
 
-    const res = await fetch(`${BASE}/auth/login`, {
+    const res = await fetch(`${getApiBase()}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: reqEmail, password: reqPassword }),
@@ -156,7 +184,7 @@ export async function verifyAdminAuth() {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 2000);
-    const res = await fetch(`${BASE}/auth/verify`, {
+    const res = await fetch(`${getApiBase()}/auth/verify`, {
       headers: { 'Authorization': `Bearer ${token}` },
       signal: controller.signal
     });
@@ -171,7 +199,7 @@ export async function verifyAdminAuth() {
 
 export function logoutAdmin() {
   clearAdminToken();
-  fetch(`${BASE}/auth/logout`, { method: 'POST' }).catch(() => {});
+  fetch(`${getApiBase()}/auth/logout`, { method: 'POST' }).catch(() => {});
 }
 
 // ── Companies ────────────────────────────────────────────────────────────────
@@ -208,8 +236,8 @@ export const saveRateGrid    = (companyId, planId, gridData)    => request('POST
 export const bulkEditRates   = (companyId, planId, params)      => request('POST',   `/companies/${companyId}/plans/${planId}/rates/bulk-edit`, params);
 
 // CSV Import / Export & Template
-export const exportRatesCsvUrl   = (companyId, planId) => `${BASE}/companies/${companyId}/plans/${planId}/rates/export`;
-export const downloadTemplateUrl = (companyId, planId) => `${BASE}/companies/${companyId}/plans/${planId}/rates/template`;
+export const exportRatesCsvUrl   = (companyId, planId) => `${getApiBase()}/companies/${companyId}/plans/${planId}/rates/export`;
+export const downloadTemplateUrl = (companyId, planId) => `${getApiBase()}/companies/${companyId}/plans/${planId}/rates/template`;
 
 export async function previewImportCsv(companyId, planId, file) {
   const fd = new FormData();
@@ -218,7 +246,7 @@ export async function previewImportCsv(companyId, planId, file) {
   const token = getAdminToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${BASE}/companies/${companyId}/plans/${planId}/rates/preview-import`, {
+  const res = await fetch(`${getApiBase()}/companies/${companyId}/plans/${planId}/rates/preview-import`, {
     method: 'POST',
     headers,
     body: fd
@@ -235,7 +263,7 @@ export async function importRatesCsv(companyId, planId, file) {
   const token = getAdminToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${BASE}/companies/${companyId}/plans/${planId}/rates/import`, {
+  const res = await fetch(`${getApiBase()}/companies/${companyId}/plans/${planId}/rates/import`, {
     method: 'POST',
     headers,
     body: fd
@@ -256,8 +284,49 @@ export const selectPlan      = (quoteId, payload)                => request('PAT
 export const getQuoteByRef   = (ref)                             => request('GET', `/quotes/${ref}`);
 export const getRecentQuotes = (limit = 20)                      => request('GET', `/quotes?limit=${limit}`);
 
-// ── Health ───────────────────────────────────────────────────────────────────
-export const healthCheck     = ()                                => request('GET', '/health', null, 1500);
+// ── Health Check with Smart Fallback ─────────────────────────────────────────
+export async function healthCheck() {
+  if (IS_LOCAL) {
+    // 1. Check local server first (1200ms quick check)
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 1200);
+      const res = await fetch(`${LOCAL_BACKEND_URL}/api/health`, { signal: controller.signal });
+      clearTimeout(timer);
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (data.status === 'ok') {
+          activeBaseUrl = LOCAL_BACKEND_URL;
+          return data;
+        }
+      }
+    } catch {
+      // Local server is down / not started
+    }
+
+    // 2. Local is down, auto-check and switch to live cloud Render backend
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(`${RENDER_BACKEND_URL}/api/health`, { signal: controller.signal });
+      clearTimeout(timer);
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (data.status === 'ok') {
+          activeBaseUrl = RENDER_BACKEND_URL;
+          return data;
+        }
+      }
+    } catch {
+      // Both unreachable
+    }
+
+    throw new Error('Neither local API server nor cloud backend is reachable.');
+  }
+
+  // Non-local deployment: query activeBaseUrl directly
+  return request('GET', '/health', null, 3000);
+}
 
 // ── Visa Website Links ────────────────────────────────────────────────────────
 export const getVisaLinks    = ()                                => request('GET', '/visa-links');

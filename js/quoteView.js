@@ -4,6 +4,7 @@
  */
 
 import { compareQuotes, saveQuote, selectPlan } from './api.js';
+import { QuotationExporter } from './pdf-export.js';
 
 export const STANDARD_COVERAGES = [
   { value: 50000, label: '50k', sublabel: '$50,000' },
@@ -1631,8 +1632,9 @@ export class QuoteView {
       btn.disabled = true;
       btn.innerHTML = '⏳ Copying…';
       try {
-        const target = document.getElementById('printQuotationDoc');
-        const res = await this._copyQuoteImage(target);
+        const blocks = this._getAllInsurersQuoteBlocks();
+        if (blocks.length === 0) throw new Error('No quote tables available to export.');
+        const res = await QuotationExporter.copyAllInsurersImage(blocks);
         if (res.method === 'clipboard') {
           this.app.showToast('✓ All combined quote images copied to clipboard! Paste (Ctrl+V) directly into WhatsApp or Email.', 'success');
         } else {
@@ -1653,13 +1655,10 @@ export class QuoteView {
       btn.disabled = true;
       btn.innerHTML = '⏳ Saving…';
       try {
-        const target = document.getElementById('printQuotationDoc');
-        const canvas = await this._generateQuoteCanvas(target);
-        canvas.toBlob((blob) => {
-          if (!blob) throw new Error('Failed to create PNG blob');
-          this._triggerDownloadBlob(blob, `Khanna-Travels-Quotes-Combined.png`);
-          this.app.showToast('✓ Combined quote images downloaded as PNG!', 'success');
-        }, 'image/png');
+        const blocks = this._getAllInsurersQuoteBlocks();
+        if (blocks.length === 0) throw new Error('No quote tables available to export.');
+        await QuotationExporter.downloadAllInsurersImage(blocks, 'Khanna-Travels-Quotes-Combined.png');
+        this.app.showToast('✓ Combined quote images downloaded as PNG!', 'success');
       } catch (err) {
         this.app.showToast('Could not save images: ' + err.message, 'error');
       } finally {
@@ -1830,6 +1829,32 @@ export class QuoteView {
     }
   }
 
+  _getAllInsurersQuoteBlocks() {
+    // 1. If modal is open in DOM with company cards, clone only the quote table block from each
+    const modalCards = document.querySelectorAll('#printQuotationDoc .company-quote-card');
+    if (modalCards.length > 0) {
+      const blocks = [];
+      modalCards.forEach(card => {
+        const tableBlock = card.querySelector('.print-quote-block') || card.querySelector('.print-quote-table');
+        if (tableBlock) {
+          blocks.push(tableBlock.cloneNode(true));
+        }
+      });
+      if (blocks.length > 0) return blocks;
+    }
+
+    // 2. Otherwise generate from selected plans
+    const companiesMap = this._getCompaniesMap(this.state.selectedPlans);
+    const blocks = [];
+    for (const compGroup of companiesMap.values()) {
+      const temp = document.createElement('div');
+      temp.innerHTML = this._buildSingleCompanyTableHtml(compGroup);
+      const tableBlock = temp.querySelector('.print-quote-block') || temp.querySelector('.print-quote-table');
+      if (tableBlock) blocks.push(tableBlock);
+    }
+    return blocks;
+  }
+
   async _copyQuoteImageFromDock() {
     if (this.state.selectedPlans.length === 0) {
       this.app.showToast('Please select at least 1 rate plan first', 'warning');
@@ -1838,22 +1863,10 @@ export class QuoteView {
 
     this.app.showToast('Generating quote image for clipboard…', 'info');
 
-    // Create an off-screen render container
-    const tempEl = document.createElement('div');
-    tempEl.style.position = 'fixed';
-    tempEl.style.left = '-9999px';
-    tempEl.style.top = '0';
-    tempEl.style.width = '580px';
-    tempEl.style.background = '#ffffff';
-    tempEl.style.padding = '16px';
-    tempEl.style.borderRadius = '8px';
-    tempEl.style.boxShadow = 'none';
-    tempEl.style.zIndex = '-1';
-    tempEl.innerHTML = this._buildPrintQuotationBlocksHtml();
-    document.body.appendChild(tempEl);
-
     try {
-      const res = await this._copyQuoteImage(tempEl);
+      const blocks = this._getAllInsurersQuoteBlocks();
+      if (blocks.length === 0) throw new Error('No quote tables available to export.');
+      const res = await QuotationExporter.copyAllInsurersImage(blocks);
       if (res.method === 'clipboard') {
         this.app.showToast('✓ Quote images copied to clipboard! Paste (Ctrl+V) directly into WhatsApp or Email.', 'success');
       } else {
@@ -1861,8 +1874,6 @@ export class QuoteView {
       }
     } catch (err) {
       this.app.showToast('Failed to copy image: ' + err.message, 'error');
-    } finally {
-      tempEl.remove();
     }
   }
 

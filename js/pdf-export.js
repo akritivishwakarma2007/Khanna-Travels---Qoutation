@@ -272,4 +272,295 @@ ${settings.brokerAgencyName}
 ${settings.brokerAddress}`
     };
   }
+
+  // ── High-Resolution HTML2Canvas Quote Card Exporter ───────────────────────
+
+  /**
+   * Lazily loads html2canvas library if not already present on window
+   */
+  static async loadHtml2Canvas() {
+    if (typeof window !== 'undefined' && window.html2canvas) {
+      return window.html2canvas;
+    }
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'js/vendor/html2canvas.min.js';
+      script.onload = () => resolve(window.html2canvas);
+      script.onerror = () => reject(new Error('Could not load html2canvas library.'));
+      document.head.appendChild(script);
+    });
+  }
+
+  /**
+   * Renders any target DOM element to a sharp 2x retina canvas via html2canvas
+   */
+  static async generateQuoteCanvas(targetEl, options = {}) {
+    await QuotationExporter.loadHtml2Canvas();
+    return await window.html2canvas(targetEl, {
+      scale: 2, // 2x crisp retina clarity
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      logging: false,
+      scrollY: 0,
+      scrollX: 0,
+      ...options
+    });
+  }
+
+  /**
+   * Triggers download of a Blob as a PNG image
+   */
+  static triggerDownloadBlob(blob, filename = 'Khanna-Travels-Quote.png') {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  /**
+   * Writes canvas PNG blob to OS clipboard (with fallback download)
+   */
+  static async copyCanvasToClipboard(canvas, fallbackFilename = 'Khanna-Travels-Quotes-Combined.png') {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(async (blob) => {
+        if (!blob) return reject(new Error('Failed to create PNG blob from canvas'));
+        try {
+          if (navigator.clipboard && window.ClipboardItem) {
+            await navigator.clipboard.write([
+              new ClipboardItem({ 'image/png': blob })
+            ]);
+            resolve({ method: 'clipboard', blob });
+          } else {
+            QuotationExporter.triggerDownloadBlob(blob, fallbackFilename);
+            resolve({ method: 'download', blob });
+          }
+        } catch (err) {
+          QuotationExporter.triggerDownloadBlob(blob, fallbackFilename);
+          resolve({ method: 'download', blob });
+        }
+      }, 'image/png');
+    });
+  }
+
+  /**
+   * Builds an off-screen container for exporting multiple insurer quote tables:
+   * 1. Extracts only the quote table (.print-quote-block / table) from each insurer card.
+   * 2. Excludes UI controls (header strip, building icon, 'N options' badge, Copy/Save/Text buttons).
+   * 3. Arranges cards in a clean 2-column grid (564px each + 24px gap + 24px outer padding = 1200px width).
+   * 4. Equal height per row: stretches the shorter card so bottoms line up, absorbing space in premium rows.
+   * 5. If an odd number of cards, the last card stays at 564px width and aligns to the left.
+   * 6. Fixed 1200px width with white background.
+   */
+  static buildCombinedQuotesExportContainer(tableBlocks) {
+    const container = document.createElement('div');
+    container.id = 'khannaCombinedQuotesExportContainer';
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '1200px';
+    container.style.background = '#ffffff';
+    container.style.padding = '24px';
+    container.style.boxSizing = 'border-box';
+    container.style.fontFamily = 'Arial, sans-serif';
+
+    const normalizedCards = [];
+    tableBlocks.forEach(item => {
+      let cardEl = null;
+      if (typeof item === 'string') {
+        const temp = document.createElement('div');
+        temp.innerHTML = item;
+        cardEl = temp.querySelector('.print-quote-block') || temp.querySelector('.print-quote-table') || temp.firstElementChild;
+      } else if (item instanceof HTMLElement) {
+        // Clone only the quote block / table, never the company header toolbar
+        const block = item.querySelector('.print-quote-block');
+        if (block) {
+          cardEl = block.cloneNode(true);
+        } else if (item.matches('.print-quote-block')) {
+          cardEl = item.cloneNode(true);
+        } else {
+          const tbl = item.querySelector('.print-quote-table') || item.querySelector('table');
+          if (tbl) {
+            const blockWrap = document.createElement('div');
+            blockWrap.className = 'print-quote-block';
+            blockWrap.style.cssText = 'border:1.5px solid #1B3A6B; border-radius:6px; overflow:hidden; background:#ffffff; box-shadow:0 1px 4px rgba(0,0,0,0.08);';
+            blockWrap.appendChild(tbl.cloneNode(true));
+            cardEl = blockWrap;
+          } else {
+            cardEl = item.cloneNode(true);
+          }
+        }
+      }
+
+      if (!cardEl) return;
+
+      // Ensure standard card styling
+      cardEl.style.width = '100%';
+      cardEl.style.height = '100%';
+      cardEl.style.boxSizing = 'border-box';
+      cardEl.style.display = 'block';
+      cardEl.style.margin = '0';
+      cardEl.style.background = '#ffffff';
+      cardEl.style.border = '1.5px solid #1B3A6B';
+      cardEl.style.borderRadius = '6px';
+      cardEl.style.overflow = 'hidden';
+      cardEl.style.boxShadow = '0 1px 4px rgba(0,0,0,0.08)';
+
+      // Strip any accidental .no-print controls inside if present
+      cardEl.querySelectorAll('.no-print').forEach(el => el.remove());
+
+      // Prepare table and rows
+      const table = cardEl.matches('table') ? cardEl : cardEl.querySelector('table');
+      if (table) {
+        table.style.width = '100%';
+        table.style.height = '100%';
+        table.style.borderCollapse = 'collapse';
+
+        // Keep title and header rows at natural content height by locking height: 1px
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(tr => {
+          const text = (tr.textContent || '').trim();
+          const isTitleRow = text.includes('Travel Insurance Quote');
+          const isInsurerRow = text.includes('Insurance from');
+          const isCountryRow = text.includes('Country');
+          const isDaysRow = text.includes('No. of Days');
+          const isPlanRow = tr.classList.contains('plan-highlight-band') || text.startsWith('Plan:');
+          const isSumInsuredHeader = text.includes('Sum Insured & Premium Options');
+
+          if (isTitleRow || isInsurerRow || isCountryRow || isDaysRow || isPlanRow || isSumInsuredHeader) {
+            tr.style.height = '1px';
+            tr.querySelectorAll('td, th').forEach(cell => {
+              cell.style.height = '1px';
+            });
+          } else {
+            // Premium row: absorbs extra height in stretched cards
+            tr.style.height = 'auto';
+          }
+        });
+      }
+
+      normalizedCards.push(cardEl);
+    });
+
+    if (normalizedCards.length === 0) {
+      container.remove();
+      throw new Error('No valid insurer quote tables found to export.');
+    }
+
+    // Two-column layout: 1200px container - 48px padding (24px each side) = 1152px
+    // 1152px - 24px gap = 1128px / 2 = 564px per card column
+    const colWidth = 564;
+    const gap = 24;
+
+    const rowPairs = [];
+    for (let i = 0; i < normalizedCards.length; i += 2) {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'quote-export-row';
+      rowEl.style.display = 'flex';
+      rowEl.style.gap = `${gap}px`;
+      rowEl.style.width = '100%';
+      rowEl.style.boxSizing = 'border-box';
+      if (i + 2 < normalizedCards.length) {
+        rowEl.style.marginBottom = `${gap}px`;
+      }
+
+      const cardA = normalizedCards[i];
+      const colA = document.createElement('div');
+      colA.className = 'quote-export-col';
+      colA.style.width = `${colWidth}px`;
+      colA.style.flex = `0 0 ${colWidth}px`;
+      colA.style.boxSizing = 'border-box';
+      colA.style.display = 'flex';
+      colA.style.flexDirection = 'column';
+      colA.appendChild(cardA);
+      rowEl.appendChild(colA);
+
+      let cardB = null;
+      let colB = null;
+      if (i + 1 < normalizedCards.length) {
+        cardB = normalizedCards[i + 1];
+        colB = document.createElement('div');
+        colB.className = 'quote-export-col';
+        colB.style.width = `${colWidth}px`;
+        colB.style.flex = `0 0 ${colWidth}px`;
+        colB.style.boxSizing = 'border-box';
+        colB.style.display = 'flex';
+        colB.style.flexDirection = 'column';
+        colB.appendChild(cardB);
+        rowEl.appendChild(colB);
+      }
+
+      container.appendChild(rowEl);
+      rowPairs.push({ colA, colB, cardA, cardB });
+    }
+
+    // Append to DOM to calculate natural geometry
+    document.body.appendChild(container);
+
+    // Make the two boxes in each row the same height by matching to the taller box
+    rowPairs.forEach(({ colA, colB, cardA, cardB }) => {
+      if (cardA && cardB && colB) {
+        const hA = cardA.offsetHeight;
+        const hB = cardB.offsetHeight;
+        const maxH = Math.max(hA, hB);
+
+        colA.style.height = `${maxH}px`;
+        colB.style.height = `${maxH}px`;
+        cardA.style.height = `${maxH}px`;
+        cardB.style.height = `${maxH}px`;
+      }
+    });
+
+    return {
+      container,
+      cleanup: () => {
+        if (container.parentNode) {
+          container.parentNode.removeChild(container);
+        }
+      }
+    };
+  }
+
+  /**
+   * Generates a sharp canvas of all insurer quote tables in a clean 2-column grid
+   */
+  static async exportAllInsurersCanvas(tableBlocks) {
+    const { container, cleanup } = QuotationExporter.buildCombinedQuotesExportContainer(tableBlocks);
+    try {
+      // Allow browser layout and font rendering reflow
+      await new Promise(resolve => setTimeout(resolve, 50));
+      return await QuotationExporter.generateQuoteCanvas(container, {
+        scale: 2,
+        backgroundColor: '#ffffff'
+      });
+    } finally {
+      cleanup();
+    }
+  }
+
+  /**
+   * Copies all combined insurer quote tables to clipboard
+   */
+  static async copyAllInsurersImage(tableBlocks) {
+    const canvas = await QuotationExporter.exportAllInsurersCanvas(tableBlocks);
+    return await QuotationExporter.copyCanvasToClipboard(canvas, 'Khanna-Travels-Quotes-Combined.png');
+  }
+
+  /**
+   * Downloads all combined insurer quote tables as PNG image
+   */
+  static async downloadAllInsurersImage(tableBlocks, filename = 'Khanna-Travels-Quotes-Combined.png') {
+    const canvas = await QuotationExporter.exportAllInsurersCanvas(tableBlocks);
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (!blob) return reject(new Error('Failed to create PNG blob'));
+        QuotationExporter.triggerDownloadBlob(blob, filename);
+        resolve({ method: 'download', blob });
+      }, 'image/png');
+    });
+  }
 }
+
