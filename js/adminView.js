@@ -710,7 +710,7 @@ export class AdminView {
     const { level, selectedCompany, selectedPlan, adminSection = 'insurance' } = this.state;
     const isVisa = adminSection === 'visa-links';
 
-    if (isVisa) return '';
+    if (isVisa || level === 'companies') return '';
 
     return `
       <div class="admin-breadcrumb-bar">
@@ -1096,7 +1096,7 @@ export class AdminView {
       <div class="admin-page-container">
         <div class="admin-page-header">
           <div class="admin-page-title-group">
-            <h1 class="admin-page-title">Insurance Companies</h1>
+            <h1 class="admin-page-title">Companies</h1>
             <span class="admin-badge-count">${displayedCompanies.length}</span>
           </div>
           <div class="admin-page-actions" style="display:flex; align-items:center; gap:0.75rem;">
@@ -1124,7 +1124,7 @@ export class AdminView {
             ${filter === 'all' ? '<button class="btn btn-primary" id="btnEmptyAddCompany">+ Add Company</button>' : ''}
           </div>
         ` : `
-          <div class="admin-table-wrapper">
+          <div class="admin-table-wrapper companies-pc-table">
             <table class="admin-table">
               <thead>
                 <tr>
@@ -1149,7 +1149,7 @@ export class AdminView {
                     <td>${c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '—'}</td>
                     <td class="col-actions">
                       <div class="actions-cell">
-                        <button class="btn-action btn-action-primary" data-view-plans="${c._id}">View Plans</button>
+                        <button class="btn-action btn-action-primary" data-view-plans="${c._id}">View Plans &amp; Rates</button>
                         <button class="btn-action" data-edit-company="${c._id}" title="Rename">Edit</button>
                         ${c.isActive !== false ? `
                           <button class="btn-action btn-action-archive" data-toggle-company-status="${c._id}" data-current-status="true" title="Deactivate / Soft delete company">Deactivate</button>
@@ -1163,6 +1163,40 @@ export class AdminView {
                 `).join('')}
               </tbody>
             </table>
+          </div>
+
+          <!-- Mobile Cards Grid (<768px) -->
+          <div class="companies-mobile-cards-grid">
+            ${displayedCompanies.map(c => `
+              <div class="company-mobile-card ${c.isActive === false ? 'card-archived' : ''}" data-company-id="${c._id}">
+                <div class="cmc-header">
+                  <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-bottom:8px;">
+                    <strong style="font-size:16px; color:var(--navy); font-weight:800;">${c.companyName}</strong>
+                    <span class="status-badge ${c.isActive !== false ? 'status-active' : 'status-archived'}">
+                      ${c.isActive !== false ? 'Active' : 'Archived'}
+                    </span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:0.75rem; font-size:13px; color:var(--muted);">
+                    <span class="admin-badge-count">${(c.plans || []).length} Plans</span>
+                    <span>Date Added: ${c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '—'}</span>
+                  </div>
+                </div>
+
+                <div class="cmc-actions-row" style="display:flex; align-items:center; gap:8px; margin: 14px 0 12px 0;">
+                  <button class="btn-action" data-edit-company="${c._id}" style="flex:1; height:38px; justify-content:center;">Edit</button>
+                  ${c.isActive !== false ? `
+                    <button class="btn-action btn-action-archive" data-toggle-company-status="${c._id}" data-current-status="true" style="flex:1; height:38px; justify-content:center;">Deactivate</button>
+                  ` : `
+                    <button class="btn-action btn-action-restore" data-toggle-company-status="${c._id}" data-current-status="false" style="flex:1; height:38px; justify-content:center;">Restore</button>
+                  `}
+                  <button class="btn-action btn-action-danger" data-delete-company="${c._id}" style="flex:1; height:38px; justify-content:center;">Delete</button>
+                </div>
+
+                <button class="btn btn-primary btn-full-width" data-view-plans="${c._id}" style="width:100%; height:44px; min-height:44px; justify-content:center; font-weight:700;">
+                  View Plans &amp; Rates
+                </button>
+              </div>
+            `).join('')}
           </div>
         `}
       </div>

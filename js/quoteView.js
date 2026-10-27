@@ -67,10 +67,29 @@ export class QuoteView {
     return this.state.selectedPlans.findIndex(sp => this._getPlanKey(sp) === key);
   }
 
+  _formatDate(dateStr) {
+    if (!dateStr) return '';
+    try {
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const day = parseInt(parts[2], 10);
+        const month = months[parseInt(parts[1], 10) - 1];
+        const year = parts[0];
+        if (day && month && year) {
+          return `${day} ${month} ${year}`;
+        }
+      }
+      return dateStr;
+    } catch {
+      return dateStr;
+    }
+  }
+
   // ── Render Entry: Always renders Form + (if active) Results on the Same Page ──
   render() {
     return `
-      <div class="quote-single-page">
+      <div class="quote-single-page ${this.state.hasResults ? 'has-results' : ''}">
         <!-- TOP SECTION: QUOTE FORM -->
         ${this._renderQuoteFormSection()}
 
@@ -96,8 +115,13 @@ export class QuoteView {
     return `
       <div class="quote-page-container" id="quoteFormContainer">
         <div class="quote-page-header">
-          <h1 class="page-title">Travel Insurance Quote &amp; Comparison</h1>
+          <h1 class="page-title">Travel Insurance Quotation &amp; Comparison</h1>
           <p class="page-subtitle">Enter travel details to compare plans instantly across all insurers across every coverage tier.</p>
+        </div>
+
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <h2 class="step-title">Enter trip details</h2>
         </div>
 
         <div class="quote-form-card" id="quoteFormCard">
@@ -294,116 +318,185 @@ export class QuoteView {
 
     const selectedCount = this.state.selectedForCompare.size;
 
+    // Lowest premium in the sorted set
+    const minPremium = sortedPlans.length > 0 ? Math.min(...sortedPlans.map(p => p.premium)) : null;
+
+    // Quick select all status
+    const allPlans = this._getAllMatchingPlans();
+    const areAllSelected = allPlans.length > 0 && allPlans.every(p => this._isPlanSelected(p));
+
+    // Status chips
+    const isSenior = q && q.age >= 70;
+    const isWithin30 = q && (q.travelDays || 0) <= 30;
+
+    const formattedDept = this._formatDate(q.departureDate);
+    const formattedRet = this._formatDate(q.returnDate);
+    const originCountry = this._esc(q.departureCountry || 'India');
+    const destCountry = this._esc(q.arrivalCountry || q.travellingCountry || 'Worldwide');
+    const regionText = q.region === 'Including' ? 'incl. USA/Canada' : 'excl. USA/Canada';
+    const medFilter = this.state.superAgeMedicalFilter || 'all';
+
     return `
       <div class="comparison-results-section" id="comparisonResultsSection">
 
-        <!-- STICKY HEADER (Customer Summary Strip + Coverage Navigation) -->
-        <div class="sticky-comparison-header">
-          <!-- 1. SUMMARY STRIP -->
-          <div class="sticky-summary-bar">
-            <div class="summary-meta-left">
-              <div class="quote-ref-badge" title="Saved Quote Reference">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
-                ${q.quoteReference}
-              </div>
-              <span class="summary-cust-name">${this._esc(q.customerName || 'Customer')}</span>
-              <div class="summary-details-pills">
-                <span class="summary-pill">${q.age} yrs</span>
-                <span class="summary-pill">${q.travelDays} days</span>
-                <span class="summary-pill">${q.departureDate} → ${q.returnDate}</span>
-                <span class="summary-pill">📍 ${this._esc(q.departureCountry || 'India')} → ${this._esc(q.arrivalCountry || q.travellingCountry || 'Worldwide')}</span>
-                <span class="summary-pill">${q.region === 'Including' ? 'Incl. USA/Canada' : 'Excl. USA/Canada'}</span>
-                ${q.age > 70 ? `
-                  <span class="summary-pill" style="background:#eff6ff; color:#1B3A6B; border:1px solid #bfdbfe; font-weight:700;">👴 Senior (70+)</span>
-                  <span class="summary-pill" style="background:#fef2f2; color:#E03A3A; border:1px solid #fecaca; font-weight:700;">⚡ ${q.travelDays <= 30 ? 'Within 30 Days' : 'More Than 30 Days'}</span>
-                  ${this.state.superAgeMedicalFilter !== 'all' ? `<span class="summary-pill" style="background:#eff6ff; color:#1B3A6B; border:1px solid #bfdbfe; font-weight:700;">${this.state.superAgeMedicalFilter === 'with_medical' ? '🩺 With Medical' : '📋 Without Medical'}</span>` : ''}
-                ` : ''}
-              </div>
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <h2 class="step-title">Compare plans</h2>
+        </div>
+
+        <!-- 2. TRIP SUMMARY CARD -->
+        <div class="trip-summary-card" id="tripSummaryCard">
+          <!-- Row 1: Quote ID chip on left, Customer name on right -->
+          <div class="tsc-row-1">
+            <div class="quote-id-chip" id="quoteRefBadge">${this._esc(q.quoteReference)}</div>
+            <div class="tsc-cust-name">${this._esc(q.customerName || 'Customer')}</div>
+          </div>
+
+          <!-- Row 2: Status chips, wrapping (only show chips that apply) -->
+          ${(isSenior || isWithin30) ? `
+            <div class="tsc-chips-row">
+              ${isSenior ? '<span class="status-chip chip-senior">Senior (70+)</span>' : ''}
+              ${isWithin30 ? '<span class="status-chip chip-within30">Within 30 days</span>' : ''}
             </div>
-            <div class="summary-actions">
-              <button class="btn-action" id="btnEditThisQuote" title="Scroll up to edit parameters">
-                ✏️ Edit Details
-              </button>
-              <button class="btn-action btn-action-primary" id="btnNewQuote" title="Clear and start fresh quote">
-                ＋ New Quote
-              </button>
+          ` : ''}
+
+          <!-- Facts Grid -->
+          <div class="tsc-facts-grid">
+            <div class="tsc-fact-col">
+              <div class="tsc-fact-label">TRAVELLER</div>
+              <div class="tsc-fact-val">${q.age} yrs</div>
+            </div>
+            <div class="tsc-fact-col">
+              <div class="tsc-fact-label">DURATION</div>
+              <div class="tsc-fact-val">${q.travelDays} days</div>
+            </div>
+            <div class="tsc-fact-full">
+              <div class="tsc-fact-label">TRAVEL DATES</div>
+              <div class="tsc-fact-val">${formattedDept} → ${formattedRet}</div>
+            </div>
+            <div class="tsc-fact-full">
+              <div class="tsc-fact-label">ROUTE</div>
+              <div class="tsc-fact-val">${originCountry} → ${destCountry}, ${regionText}</div>
             </div>
           </div>
 
-          <!-- 2. COVERAGE AMOUNT NAVIGATION (Tabs: 50k to 1M) -->
-          <div class="coverage-nav-bar" id="coverageNavBar">
-            <div class="coverage-nav-grid-7">
-              ${STANDARD_COVERAGES.map(c => {
-                const list = this.state.groupedResults[c.value] || [];
-                const count = list.length;
-                const isActive = c.value === activeCoverage;
-                return `
-                  <button class="cov-nav-btn ${isActive ? 'active' : ''}" data-coverage-tab="${c.value}" title="${c.sublabel} Coverage (${count} plan${count !== 1 ? 's' : ''})">
-                    <span class="cov-nav-amount">${c.label}</span>
-                    <span class="cov-nav-sublabel">${c.sublabel}</span>
-                    <span class="cov-nav-badge">
-                      <span class="cov-badge-count">${count}</span><span class="cov-badge-text"> plan${count !== 1 ? 's' : ''}</span>
-                    </span>
-                  </button>
-                `;
-              }).join('')}
-            </div>
+          <!-- Action Buttons -->
+          <div class="tsc-actions-row">
+            <button type="button" class="btn-tsc-edit" id="btnEditThisQuote" title="Edit trip details">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+              </svg>
+              <span>Edit Details</span>
+            </button>
+            <button type="button" class="btn-tsc-new" id="btnNewQuote" title="Start fresh new quote">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+              </svg>
+              <span>New Quote</span>
+            </button>
           </div>
         </div>
 
-        <!-- 3. RESULTS TOOLBAR -->
-        <div class="results-toolbar">
-          <div class="results-stats-note">
-            ${selectedCompanyFilter === 'all'
-              ? `Showing <strong>${sortedPlans.length}</strong> matching plan${sortedPlans.length !== 1 ? 's' : ''} for <strong>$${activeCoverage.toLocaleString()}</strong> coverage`
-              : `Showing <strong>${sortedPlans.length}</strong> matching plan${sortedPlans.length !== 1 ? 's' : ''} for <strong style="color:var(--navy); font-weight:800;">${this._esc(selectedCompanyFilter)}</strong> at <strong>$${activeCoverage.toLocaleString()}</strong> coverage`
-            }
-            ${statsForTab.unmatchedCompaniesCount > 0 ? `• <span class="unmatched-note">(${statsForTab.unmatchedCompaniesCount} insurer(s) had no matching rate)</span>` : ''}
+        <!-- 3. SUM INSURED SELECTOR -->
+        <div class="sum-insured-section">
+          <div class="sum-insured-label">SUM INSURED</div>
+          <div class="sum-insured-row" role="tablist" aria-label="Coverage Amounts">
+            ${STANDARD_COVERAGES.map(c => {
+              const list = this.state.groupedResults[c.value] || [];
+              const count = list.length;
+              const isActive = c.value === activeCoverage;
+              const isZero = count === 0;
+              return `
+                <button type="button"
+                        class="si-pill ${isActive ? 'active' : ''} ${isZero ? 'zero-plans' : ''}"
+                        data-coverage-tab="${c.value}"
+                        role="tab"
+                        aria-selected="${isActive ? 'true' : 'false'}"
+                        title="${c.sublabel} Coverage (${count} plan${count !== 1 ? 's' : ''})">
+                  <span class="si-pill-amount">${c.label}</span>
+                  <span class="si-pill-count">${count} plan${count !== 1 ? 's' : ''}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- 4. FILTER CARD -->
+        <div class="filter-card">
+          <!-- Row 1: Two dropdowns side by side -->
+          <div class="fc-dropdowns-row">
+            <div class="fc-dropdown-wrap">
+              <label for="filterCompanySelect" class="fc-dropdown-label">COMPANY</label>
+              <div class="fc-select-box">
+                <select class="fc-select ${selectedCompanyFilter !== 'all' ? 'has-filter' : ''}" id="filterCompanySelect">
+                  <option value="all" ${selectedCompanyFilter === 'all' ? 'selected' : ''}>All Companies (${availableCompanies.length})</option>
+                  ${availableCompanies.map(comp => {
+                    const compCountInTab = allPlansForTab.filter(p => p.companyName === comp).length;
+                    return `
+                      <option value="${this._esc(comp)}" ${selectedCompanyFilter === comp ? 'selected' : ''}>
+                        ${this._esc(comp)} (${compCountInTab})
+                      </option>
+                    `;
+                  }).join('')}
+                </select>
+                <svg class="fc-chevron" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="fc-dropdown-wrap">
+              <label for="sortResultsSelect" class="fc-dropdown-label">SORT</label>
+              <div class="fc-select-box">
+                <select class="fc-select" id="sortResultsSelect">
+                  <option value="lowest" ${this.state.sortBy === 'lowest' ? 'selected' : ''}>Lowest Premium</option>
+                  <option value="highest" ${this.state.sortBy === 'highest' ? 'selected' : ''}>Highest Premium</option>
+                  <option value="name" ${this.state.sortBy === 'name' ? 'selected' : ''}>Company Name A-Z</option>
+                </select>
+                <svg class="fc-chevron" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+            </div>
           </div>
 
-          <div class="results-sort-group">
+          <!-- Row 2: 3-option toggle inside tint container -->
+          <div class="fc-toggle-container" role="group" aria-label="Medical Cover Option">
+            <button type="button" class="fc-toggle-btn ${medFilter === 'all' ? 'active' : ''}" data-super-medical="all">
+              Show Both
+            </button>
+            <button type="button" class="fc-toggle-btn ${medFilter === 'with_medical' ? 'active' : ''}" data-super-medical="with_medical">
+              With Medical
+            </button>
+            <button type="button" class="fc-toggle-btn ${medFilter === 'without_medical' ? 'active' : ''}" data-super-medical="without_medical">
+              Without Medical
+            </button>
+          </div>
+
+          <!-- Row 3: Horizontally scrolling quick select row -->
+          <div class="fc-quick-select-row" id="companyQuickSelectBar">
+            ${this._renderCompanyQuickSelectBarHtml()}
+          </div>
+        </div>
+
+        <!-- 5. RESULT SUMMARY LINE -->
+        <div class="result-summary-block">
+          <div class="rs-header-row">
+            <div class="rs-title">${sortedPlans.length} plan${sortedPlans.length !== 1 ? 's' : ''} for $${activeCoverage.toLocaleString()} coverage</div>
             ${selectedCount >= 2 ? `
-              <button class="btn btn-primary btn-sm" id="btnOpenCompareSelected">
+              <button type="button" class="btn btn-primary btn-sm" id="btnOpenCompareSelected">
                 Compare Selected (${selectedCount})
               </button>
             ` : ''}
-
-            <!-- COMPANY FILTER DROPDOWN -->
-            <div class="company-filter-wrapper" title="Filter to view plans from a specific company only">
-              <label for="filterCompanySelect" class="company-filter-label">🏢 Company:</label>
-              <select class="form-select company-filter-select ${selectedCompanyFilter !== 'all' ? 'has-filter' : ''}" id="filterCompanySelect">
-                <option value="all" ${selectedCompanyFilter === 'all' ? 'selected' : ''}>All Companies (${allPlansForTab.length})</option>
-                ${availableCompanies.map(comp => {
-                  const compCountInTab = allPlansForTab.filter(p => p.companyName === comp).length;
-                  return `
-                    <option value="${this._esc(comp)}" ${selectedCompanyFilter === comp ? 'selected' : ''}>
-                      ${this._esc(comp)} (${compCountInTab} plan${compCountInTab !== 1 ? 's' : ''})
-                    </option>
-                  `;
-                }).join('')}
-              </select>
-            </div>
-
-            <!-- SORT DROPDOWN -->
-            <select class="form-select" id="sortResultsSelect" style="padding:0.4rem 0.8rem; font-size:0.825rem; font-weight:600;">
-              <option value="lowest" ${this.state.sortBy === 'lowest' ? 'selected' : ''}>Sort: Lowest Premium</option>
-              <option value="highest" ${this.state.sortBy === 'highest' ? 'selected' : ''}>Sort: Highest Premium</option>
-              <option value="name" ${this.state.sortBy === 'name' ? 'selected' : ''}>Sort: Company Name A-Z</option>
-            </select>
           </div>
+          ${statsForTab.unmatchedCompaniesCount > 0 ? `
+            <div class="rs-unmatched">${statsForTab.unmatchedCompaniesCount} insurer${statsForTab.unmatchedCompaniesCount !== 1 ? 's' : ''} had no matching rate for this trip.</div>
+          ` : ''}
         </div>
 
-        <!-- QUICK COMPANY SELECTOR (Select All per Company or All Companies) -->
-        <div class="company-quick-select-bar" id="companyQuickSelectBar">
-          ${this._renderCompanyQuickSelectBarHtml()}
-        </div>
-
-        <!-- SMALL SUPER AGE 70+ BOX (ONLY IF AGE > 70) -->
-        ${this._renderSuperAgeSmallBox(q)}
-
-        <!-- 4. RESULTS CARDS GRID -->
+        <!-- 6. PLAN CARDS GRID -->
         ${sortedPlans.length === 0 ? `
-          <div class="guided-empty-state" style="border-radius:var(--radius-lg); border:1px solid var(--gray-200); margin-bottom:2rem; padding: 2.5rem 1.5rem; text-align: center;">
+          <div class="guided-empty-state" style="background:#fff; border-radius:16px; border:1px solid var(--line); margin-bottom:2rem; padding: 2.5rem 1.5rem; text-align: center;">
             <div class="empty-state-icon" style="font-size: 2.2rem; margin-bottom: 0.5rem;">${selectedCompanyFilter !== 'all' ? '🏢' : '🔍'}</div>
             <div class="empty-state-title" style="font-size: 1.1rem; font-weight: 700; color: var(--navy);">
               ${selectedCompanyFilter !== 'all'
@@ -411,14 +504,14 @@ export class QuoteView {
                 : `No plans available for this coverage amount`
               }
             </div>
-            <div class="empty-state-desc" style="max-width: 600px; margin: 0.5rem auto 1rem; color: var(--gray-500); font-size: 0.875rem;">
+            <div class="empty-state-desc" style="max-width: 600px; margin: 0.5rem auto 1rem; color: var(--muted); font-size: 0.875rem;">
               ${selectedCompanyFilter !== 'all'
                 ? `${this._esc(selectedCompanyFilter)} does not offer plans for ${q.age} yrs, ${q.travelDays} days under $${activeCoverage.toLocaleString()} sum insured.`
                 : `None of the active insurance companies offer a plan matching this exact age (${q.age} yrs), duration (${q.travelDays} days), and region for <strong>$${activeCoverage.toLocaleString()}</strong> coverage.`
               }
             </div>
             ${selectedCompanyFilter !== 'all' ? `
-              <button class="btn btn-outline btn-sm" id="btnResetCompanyFilter" style="font-weight: 700; margin-top: 0.5rem;">
+              <button type="button" class="btn btn-outline btn-sm" id="btnResetCompanyFilter" style="font-weight: 700; margin-top: 0.5rem;">
                 ✕ Clear Company Filter (Show All Companies)
               </button>
             ` : `
@@ -427,18 +520,18 @@ export class QuoteView {
           </div>
         ` : `
           <div class="results-grid">
-            ${sortedPlans.map((plan, idx) => this._renderPlanQuoteCard(plan, idx)).join('')}
+            ${sortedPlans.map((plan, idx) => this._renderPlanQuoteCard(plan, idx, minPremium)).join('')}
           </div>
         `}
 
-        <!-- 5. FLOATING BOTTOM DOCK: FORWARD SELECTED PLANS TO CUSTOMER (ALWAYS MOUNTED) -->
+        <!-- FLOATING BOTTOM DOCK: FORWARD SELECTED PLANS TO CUSTOMER -->
         ${this._renderSelectedPlansDock()}
 
       </div>
     `;
   }
 
-  _renderPlanQuoteCard(p, idx) {
+  _renderPlanQuoteCard(p, idx, minPremium = null) {
     const planKey = this._getPlanKey(p);
     if (!this.currentPlanMap) this.currentPlanMap = new Map();
     this.currentPlanMap.set(planKey, p);
@@ -446,63 +539,80 @@ export class QuoteView {
     const selIndex = this._getSelectedPlanIndex(p);
     const isSelectedPlan = selIndex !== -1;
     const isChecked = this.state.selectedForCompare.has(`${p.companyName}_${p.planName}`);
+    const isBestPrice = minPremium !== null ? p.premium === minPremium : Boolean(p.isBestPrice);
+
+    // Determine medical tag
+    const planNameLower = (p.planName || '').toLowerCase();
+    let medTagHtml = '';
+    if (p.medicalCover === true || (planNameLower.includes('with medical') && !planNameLower.includes('without medical'))) {
+      medTagHtml = '<span class="qrc-med-tag med-with">With Medical</span>';
+    } else if (p.medicalCover === false || planNameLower.includes('without medical')) {
+      medTagHtml = '<span class="qrc-med-tag med-without">Without Medical</span>';
+    } else {
+      medTagHtml = '<span class="qrc-med-tag med-standard">Standard</span>';
+    }
 
     return `
-      <div class="quote-result-card ${p.isBestPrice ? 'best-price' : ''} ${isSelectedPlan ? 'is-selected-plan' : ''}">
-        ${p.isBestPrice ? '<div class="best-price-badge">⭐ Best Price</div>' : ''}
-        ${isSelectedPlan ? `<div class="selected-badge">✓ Selected Option #${selIndex + 1}</div>` : ''}
-
-        <div class="qrc-top-row">
-          <div>
-            <div class="qrc-company-title">${this._esc(p.companyName)}</div>
-            <div class="qrc-plan-subtitle">${this._esc(p.planName)}</div>
+      <div class="quote-result-card ${isBestPrice ? 'best-price' : ''} ${isSelectedPlan ? 'is-selected-plan' : ''}">
+        ${isBestPrice ? `
+          <div class="qrc-best-price-strip">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            <span>✓ BEST PRICE • LOWEST PREMIUM</span>
           </div>
-          <div style="display:flex; align-items:center; gap:0.6rem;">
-            <label class="qrc-select-checkbox" title="Select this plan for customer forwarding" style="${isSelectedPlan ? 'color:#1B3A6B; font-weight:800;' : ''}">
-              <input type="checkbox" data-select-plan-key="${this._esc(planKey)}" ${isSelectedPlan ? 'checked' : ''} />
-              <span>Select</span>
+        ` : ''}
+
+        <div class="qrc-card-inner">
+          <!-- Header Row -->
+          <div class="qrc-header-row">
+            <div class="qrc-header-left">
+              <div class="qrc-rank">#${idx + 1}</div>
+              <div class="qrc-company-name">${this._esc(p.companyName)}</div>
+              <div class="qrc-plan-title">${this._esc(p.planName)}</div>
+            </div>
+            <label class="qrc-compare-label">
+              <input type="checkbox" data-compare-check="${p.companyName}_${p.planName}" ${isChecked ? 'checked' : ''} class="qrc-compare-input">
+              <span class="qrc-compare-text">Compare</span>
             </label>
-            <label class="qrc-select-checkbox" title="Select to compare side by side">
-              <input type="checkbox" data-compare-check="${p.companyName}_${p.planName}" ${isChecked ? 'checked' : ''} />
-              <span>Compare</span>
-            </label>
           </div>
-        </div>
 
-        <!-- Premium Display -->
-        <div class="qrc-premium-box">
-          <div class="qrc-premium-val">₹${p.premium.toLocaleString('en-IN')}</div>
-          <div class="qrc-premium-unit">/ traveller</div>
-        </div>
+          <!-- Premium Box -->
+          <div class="qrc-premium-box">
+            <div class="qrc-premium-left">
+              <div class="qrc-price">₹${p.premium.toLocaleString('en-IN')}</div>
+              <div class="qrc-per-traveller">per traveller</div>
+            </div>
+            <div class="qrc-premium-right">
+              ${medTagHtml}
+            </div>
+          </div>
 
-        <!-- Specs breakdown -->
-        <div class="qrc-specs-list">
-          <div class="qrc-spec-item">
-            <span class="qrc-spec-label">Coverage</span>
-            <span class="qrc-spec-val">$${Number(p.coverage).toLocaleString()} USD</span>
+          <!-- Details Row: 3 equal cols -->
+          <div class="qrc-details-row">
+            <div class="qrc-detail-col">
+              <div class="qrc-detail-label">COVERAGE</div>
+              <div class="qrc-detail-val">$${Number(p.coverage).toLocaleString()}</div>
+            </div>
+            <div class="qrc-detail-col">
+              <div class="qrc-detail-label">AGE BAND</div>
+              <div class="qrc-detail-val">${p.ageFrom}–${p.ageTo} yrs</div>
+            </div>
+            <div class="qrc-detail-col">
+              <div class="qrc-detail-label">DAYS SLAB</div>
+              <div class="qrc-detail-val">${p.daysFrom}–${p.daysTo} days</div>
+            </div>
           </div>
-          <div class="qrc-spec-item">
-            <span class="qrc-spec-label">Region</span>
-            <span class="qrc-spec-val">${p.region === 'Including' ? 'Incl. USA/Canada' : 'Excl. USA/Canada'}</span>
-          </div>
-          <div class="qrc-spec-item">
-            <span class="qrc-spec-label">Matched Age Band</span>
-            <span class="qrc-spec-val">${p.ageFrom}–${p.ageTo} yrs</span>
-          </div>
-          <div class="qrc-spec-item">
-            <span class="qrc-spec-label">Matched Days Slab</span>
-            <span class="qrc-spec-val">${p.daysFrom}–${p.daysTo} days</span>
-          </div>
-        </div>
 
-        <!-- Card Actions -->
-        <div class="qrc-card-actions">
-          <button class="btn-select-plan ${isSelectedPlan ? 'selected' : ''}" data-select-plan-key="${this._esc(planKey)}">
-            ${isSelectedPlan ? `✓ Selected (#${selIndex + 1})` : '＋ Select Plan'}
-          </button>
-          <button class="btn-view-details" data-view-plan-key="${this._esc(planKey)}">
-            View Details
-          </button>
+          <!-- Buttons Row -->
+          <div class="qrc-buttons-row">
+            <button type="button" class="btn-select-plan ${isSelectedPlan ? 'selected' : ''}" data-select-plan-key="${this._esc(planKey)}">
+              ${isSelectedPlan ? `✓ Selected (#${selIndex + 1})` : 'Select Plan'}
+            </button>
+            <button type="button" class="btn-view-details" data-view-plan-key="${this._esc(planKey)}">
+              Details
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -561,27 +671,18 @@ export class QuoteView {
     const areAllSelected = allPlans.length > 0 && allPlans.every(p => this._isPlanSelected(p));
 
     return `
-      <div class="cqs-label">
-        <span>⚡ Quick Select:</span>
-      </div>
-      <div class="cqs-buttons">
-        <button class="btn-cqs-all ${areAllSelected ? 'active' : ''}" id="btnToggleAllCompanies" title="${areAllSelected ? 'Deselect all plans & rates across all companies' : 'Select all plans & rates across all companies in 1 click'}">
-          ${areAllSelected ? '✓ All Companies Selected' : '⚡ Select All Companies'}
-        </button>
-        ${availableCompanies.map(compName => {
-          const compPlans = this._getAllPlansForCompany(compName);
-          const selectedForComp = this.state.selectedPlans.filter(sp => sp.companyName === compName);
-          const isAllSelected = compPlans.length > 0 && compPlans.every(p => this._isPlanSelected(p));
-          const isPartSelected = selectedForComp.length > 0 && !isAllSelected;
-          return `
-            <button class="btn-cqs-company ${isAllSelected ? 'all-selected' : (isPartSelected ? 'part-selected' : '')}"
-                    data-toggle-company="${this._esc(compName)}"
-                    title="${isAllSelected ? `Deselect all ${compName} rates` : `Select all ${compName} plans & rates (${compPlans.length} rates)`}">
-              ${isAllSelected ? '✓' : (isPartSelected ? '◑' : '＋')} ${this._esc(compName)} (${compPlans.length} rate${compPlans.length !== 1 ? 's' : ''})
-            </button>
-          `;
-        }).join('')}
-      </div>
+      <button type="button" class="btn-qs-all ${areAllSelected ? 'all-selected' : ''}" id="btnToggleAllCompanies">
+        ${areAllSelected ? '✓ All Companies' : 'Select all companies'}
+      </button>
+      ${availableCompanies.map(compName => {
+        const compPlans = this._getAllPlansForCompany(compName);
+        const isCompAllSelected = compPlans.length > 0 && compPlans.every(p => this._isPlanSelected(p));
+        return `
+          <button type="button" class="btn-qs-comp ${isCompAllSelected ? 'selected' : ''}" data-toggle-company="${this._esc(compName)}">
+            ${isCompAllSelected ? '✓' : '+'} ${this._esc(compName)} (${compPlans.length} rate${compPlans.length !== 1 ? 's' : ''})
+          </button>
+        `;
+      }).join('')}
     `;
   }
 
@@ -829,8 +930,12 @@ export class QuoteView {
       return;
     }
 
-    // Edit Details: Smooth scroll back to form
+    // Edit Details: Reveal form container on mobile if hidden & smooth scroll to form
     if (e.target.closest('#btnEditThisQuote')) {
+      const formContainer = this.container.querySelector('#quoteFormContainer');
+      if (formContainer) {
+        formContainer.classList.add('mobile-form-visible');
+      }
       const formCard = this.container.querySelector('#quoteFormCard');
       if (formCard) {
         formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1129,7 +1234,7 @@ export class QuoteView {
           btn.textContent = `✓ Selected (#${selIdx + 1})`;
         } else {
           btn.classList.remove('selected');
-          btn.textContent = '＋ Select Plan';
+          btn.textContent = 'Select Plan';
         }
       });
     } else {
@@ -1158,7 +1263,7 @@ export class QuoteView {
           btn.textContent = `✓ Selected (#${selIdx + 1})`;
         } else {
           btn.classList.remove('selected');
-          btn.textContent = '＋ Select Plan';
+          btn.textContent = 'Select Plan';
         }
       });
     }

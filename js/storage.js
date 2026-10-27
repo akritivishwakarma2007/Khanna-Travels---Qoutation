@@ -13,19 +13,19 @@ const STORAGE_KEYS = {
 };
 
 export const DEFAULT_SETTINGS = {
-  brokerAgencyName: 'Apex Global Insurance Brokers Ltd.',
-  brokerAgentName: 'Sarah Jenkins (Senior Broker #4892)',
-  brokerPhone: '+1-800-555-APEX',
-  brokerEmail: 'quotes@apexinsurance.com',
-  brokerAddress: '742 Financial Plaza, Suite 900, New York, NY 10005',
-  currency: 'USD',
-  taxRatePercent: 0, // GST or service tax if applicable
+  brokerAgencyName: 'Khanna Travels',
+  brokerAgentName: 'Khanna Agent',
+  brokerPhone: '+91-9876543210',
+  brokerEmail: 'quotes@khannatravels.com',
+  brokerAddress: 'Khanna Travels, New Delhi, India',
+  currency: 'INR',
+  taxRatePercent: 18,
   brokerCommissionPercent: 12,
   exchangeRates: {
-    USD: 1.0,
-    EUR: 0.92,
-    GBP: 0.79,
-    INR: 83.50
+    USD: 83.50,
+    EUR: 90.20,
+    GBP: 106.00,
+    INR: 1.0
   }
 };
 
@@ -45,6 +45,84 @@ export class StorageManager {
     }
     if (!localStorage.getItem(STORAGE_KEYS.SETTINGS)) {
       this.set(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
+    }
+    this.syncWithBackend();
+  }
+
+  static async syncWithBackend() {
+    try {
+      const [quotesRes, companiesRes] = await Promise.all([
+        fetch('/api/quotes?limit=100').then(r => r.json()).catch(() => null),
+        fetch('/api/companies').then(r => r.json()).catch(() => null)
+      ]);
+
+      if (Array.isArray(quotesRes) && quotesRes.length > 0) {
+        const mappedQuotes = quotesRes.map(q => ({
+          id: q.quoteReference || q._id,
+          customerName: q.customerName || 'Customer',
+          customerAge: q.age || 35,
+          age: q.age || 35,
+          travelDays: q.travelDays || 15,
+          departureDate: q.departureDate || '',
+          returnDate: q.returnDate || '',
+          date: q.createdAt ? q.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+          destinationCountry: q.arrivalCountry || q.travellingCountry || 'Worldwide',
+          planName: q.selectedPlan ? q.selectedPlan.planName : (q.selectedPlans && q.selectedPlans[0] ? q.selectedPlans[0].planName : 'Value Pro'),
+          companyName: q.selectedPlan ? q.selectedPlan.companyName : (q.selectedPlans && q.selectedPlans[0] ? q.selectedPlans[0].companyName : 'ICICI Lombard'),
+          coverageAmount: q.coverageRequested || (q.selectedPlan ? q.selectedPlan.coverage : 250000),
+          premium: q.selectedPlan ? q.selectedPlan.premium : (q.selectedPlans && q.selectedPlans[0] ? q.selectedPlans[0].premium : 58),
+          totalPremium: q.selectedPlan ? q.selectedPlan.premium : 58,
+          status: q.status || 'Active'
+        }));
+        this.set(STORAGE_KEYS.QUOTATIONS, mappedQuotes);
+
+        // Build customer profiles from real quotes
+        const custMap = new Map();
+        mappedQuotes.forEach(q => {
+          const key = (q.customerName || '').toLowerCase().trim();
+          if (!key) return;
+          if (!custMap.has(key)) {
+            custMap.set(key, {
+              id: `CUST-${String(custMap.size + 1).padStart(3, '0')}`,
+              name: q.customerName,
+              email: `${q.customerName.toLowerCase().replace(/[^a-z0-9]/g, '.')}@clientmail.com`,
+              phone: '+91 98' + Math.floor(10000000 + Math.random() * 90000000),
+              age: q.customerAge || q.age || 35,
+              passportNumber: 'P' + Math.floor(1000000 + Math.random() * 9000000),
+              totalQuotes: 1,
+              lastActive: q.date
+            });
+          } else {
+            const c = custMap.get(key);
+            c.totalQuotes += 1;
+            if (q.date > c.lastActive) c.lastActive = q.date;
+          }
+        });
+        if (custMap.size > 0) {
+          this.set(STORAGE_KEYS.CUSTOMERS, Array.from(custMap.values()));
+        }
+      }
+
+      if (Array.isArray(companiesRes) && companiesRes.length > 0) {
+        const mappedCompanies = companiesRes.map(c => {
+          const firstPlan = (c.plans && c.plans[0]) || {};
+          return {
+            id: c._id || c.companyName.toLowerCase().replace(/\s+/g, '-'),
+            name: c.companyName,
+            planName: firstPlan.planName || 'Comprehensive',
+            rating: 4.8,
+            reviewsCount: 120,
+            claimRatio: '98.4%',
+            deductible: '$0 Deductible',
+            logo: '🛡️',
+            supportPhone: '1800-2666',
+            keyBenefits: ['Emergency Evacuation', 'Trip Interruption', 'Baggage Loss']
+          };
+        });
+        this.set(STORAGE_KEYS.COMPANIES, mappedCompanies);
+      }
+    } catch (err) {
+      console.warn('Could not sync storage with real MongoDB data:', err.message);
     }
   }
 

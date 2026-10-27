@@ -24,8 +24,15 @@ const hostname = (typeof window !== 'undefined' && window.location.hostname)
 
 export const LOCAL_BACKEND_URL = `${protocol}//${hostname}:3000`;
 
-// Active base URL starts with local if on localhost, otherwise Render
-let activeBaseUrl = IS_LOCAL ? LOCAL_BACKEND_URL : RENDER_BACKEND_URL;
+// Active base URL:
+// 1. On localhost / private LAN dev: use local backend at :3000
+// 2. On custom production domain (cPanel / custom host): default to same-origin window.location.origin
+// 3. Auto-fallback to Render cloud backend if same-origin is unreachable
+let activeBaseUrl = IS_LOCAL
+  ? LOCAL_BACKEND_URL
+  : (typeof window !== 'undefined' && window.location && window.location.origin && !window.location.origin.includes('vercel.app')
+      ? window.location.origin
+      : RENDER_BACKEND_URL);
 
 export function getBaseUrl() {
   return activeBaseUrl;
@@ -99,10 +106,10 @@ async function request(method, path, body = null, timeoutMs = 4000) {
   try {
     return await send(activeBaseUrl);
   } catch (err) {
-    // If local request failed due to connection error or timeout on localhost, auto-fallback to Render
-    if (IS_LOCAL && activeBaseUrl === LOCAL_BACKEND_URL) {
+    // If primary request failed due to connection error or timeout, auto-fallback to Render
+    if (activeBaseUrl !== RENDER_BACKEND_URL) {
       try {
-        console.warn('⚠️ Local API at :3000 unreachable, auto-falling back to Render backend:', RENDER_BACKEND_URL);
+        console.warn('⚠️ Primary API unreachable, attempting fallback to Render backend:', RENDER_BACKEND_URL);
         const fallbackData = await send(RENDER_BACKEND_URL);
         activeBaseUrl = RENDER_BACKEND_URL;
         return fallbackData;
@@ -212,8 +219,9 @@ export const deleteCompany       = (id, permanent = false)       => request('DEL
 
 // ── Plans ────────────────────────────────────────────────────────────────────
 export const getCompanyPlans  = (companyId)                      => request('GET',    `/companies/${companyId}/plans`);
-export const addPlan          = (companyId, planName)             => request('POST',   `/companies/${companyId}/plans`, { planName });
-export const renamePlan       = (companyId, planId, planName)     => request('PUT',    `/companies/${companyId}/plans/${planId}`, { planName });
+export const addPlan          = (companyId, planData)            => request('POST',   `/companies/${companyId}/plans`, typeof planData === 'string' ? { planName: planData } : planData);
+export const renamePlan       = (companyId, planId, planName)     => request('PUT',    `/companies/${companyId}/plans/${planId}`, typeof planName === 'string' ? { planName } : planName);
+export const updatePlan       = (companyId, planId, planData)     => request('PUT',    `/companies/${companyId}/plans/${planId}`, typeof planData === 'string' ? { planName: planData } : planData);
 export const togglePlanStatus = (companyId, planId, isActive)    => request('PATCH',  `/companies/${companyId}/plans/${planId}/status`, { isActive });
 export const duplicatePlan    = (companyId, planId, newPlanName) => request('POST',   `/companies/${companyId}/plans/${planId}/duplicate`, { newPlanName });
 export const deletePlan       = (companyId, planId, permanent = false) => request('DELETE', `/companies/${companyId}/plans/${planId}${permanent ? '?permanent=true' : ''}`);

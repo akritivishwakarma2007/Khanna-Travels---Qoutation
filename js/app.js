@@ -1,16 +1,25 @@
 /**
- * Khanna Travels — Application Router
- * Manages 2 views: 'quote' and 'admin'
+ * Khanna Travels — Application Router & Access Controller
+ * Public Views: 'quote', 'visa', 'login'
+ * Admin Views: 'quote', 'visa', 'documents', 'admin'
  */
 import { QuoteView } from './quoteView.js';
-import { AdminView } from './adminView.js';
+import { VisaLinksView } from './views/visaLinksView.js';
+import { DocumentDetailsView } from './views/documentDetailsView.js';
+import { PlansRatesView } from './views/plansRatesView.js';
+import { LoginView } from './views/loginView.js';
 import { healthCheck, isAdminAuthenticated, logoutAdmin } from './api.js';
+import { StorageManager } from './storage.js';
 
 class App {
   constructor() {
+    StorageManager.init();
     this.views = {
       quote: new QuoteView(this),
-      admin: new AdminView(this)
+      visa: new VisaLinksView(this),
+      documents: new DocumentDetailsView(this),
+      admin: new PlansRatesView(this),
+      login: new LoginView(this)
     };
     this.currentView = null;
     this.toastContainer = document.getElementById('toastContainer');
@@ -18,9 +27,9 @@ class App {
     this._setupNav();
     this._checkDbStatus();
 
-    // Route on load
-    const hash = location.hash.replace('#', '') || 'quote';
-    this.navigate(['quote', 'admin', 'visa'].includes(hash) ? hash : 'quote');
+    // Route on initial load
+    const hash = (location.hash.replace('#', '') || 'quote').toLowerCase();
+    this.navigate(hash);
   }
 
   _setupNav() {
@@ -36,7 +45,7 @@ class App {
       const signInBtn = e.target.closest('#btnHeaderSignIn');
       if (signInBtn) {
         e.preventDefault();
-        this.navigate('admin');
+        this.navigate('login');
         return;
       }
       const logoutBtn = e.target.closest('#btnHeaderLogout');
@@ -54,27 +63,51 @@ class App {
         this.navigate('quote');
       }
     });
+
+    // Handle back/forward navigation and URL changes
+    window.addEventListener('hashchange', () => {
+      const hash = (location.hash.replace('#', '') || 'quote').toLowerCase();
+      if (hash !== this.currentView) {
+        this.navigate(hash);
+      }
+    });
   }
 
   _updateHeaderUI() {
     const isAuthed = isAdminAuthenticated();
+
+    // Desktop navbar items
+    const navDocs = document.getElementById('navDocs');
+    if (navDocs) {
+      navDocs.style.display = isAuthed ? 'inline-flex' : 'none';
+    }
     const navAdmin = document.getElementById('navAdmin');
     if (navAdmin) {
       navAdmin.style.display = isAuthed ? 'inline-flex' : 'none';
     }
 
+    // Mobile bottom tabs
+    const mobNavDocs = document.getElementById('mobNavDocs');
+    if (mobNavDocs) {
+      mobNavDocs.style.display = isAuthed ? 'flex' : 'none';
+    }
+    const mobNavAdmin = document.getElementById('mobNavAdmin');
+    if (mobNavAdmin) {
+      mobNavAdmin.style.display = isAuthed ? 'flex' : 'none';
+    }
+
+    // Top logo band (right side auth controls)
     const agentLabel = document.getElementById('agentLabel');
     if (agentLabel) {
       if (isAuthed) {
         agentLabel.innerHTML = `
-          <div class="agent-avatar" aria-hidden="true">KT</div>
-          <span>Khanna Admin</span>
-          <button type="button" class="nav-btn btn-admin-logout" id="btnHeaderLogout" style="margin-left:0.5rem; padding: 0.35rem 0.75rem; border: 1px solid var(--gray-300); font-size: 0.8125rem;">Logout</button>
+          <div class="agent-avatar" aria-hidden="true" title="Khanna Travels Admin">KT</div>
+          <span class="agent-name">Khanna Agent</span>
+          <button type="button" class="btn-header-logout" id="btnHeaderLogout" aria-label="Logout of admin">Logout</button>
         `;
       } else {
         agentLabel.innerHTML = `
-          <button type="button" class="nav-btn btn-admin-signin" id="btnHeaderSignIn" style="background: var(--navy); color: #fff; border: 1px solid var(--navy-light, #1e293b); padding: 0.4rem 0.85rem; border-radius: var(--radius-md, 6px); font-weight: 600; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
-            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+          <button type="button" class="btn-header-signin" id="btnHeaderSignIn">
             Sign In to Admin
           </button>
         `;
@@ -83,34 +116,31 @@ class App {
   }
 
   navigate(viewId) {
-    let targetView = viewId;
+    let targetView = (viewId || 'quote').toLowerCase();
 
-    if (viewId === 'visa') {
-      this.views.admin.state.adminSection = 'visa-links';
-      targetView = 'admin';
-      this.currentView = 'visa';
-      location.hash = 'visa';
-    } else if (viewId === 'admin') {
-      this.views.admin.state.adminSection = 'insurance';
-      targetView = 'admin';
-      this.currentView = 'admin';
-      location.hash = 'admin';
-    } else {
-      if (!(targetView in this.views)) targetView = 'quote';
-      this.currentView = targetView;
-      location.hash = targetView;
+    // Public users cannot reach Document Details or Insurance Plans & Rates
+    const adminOnlyViews = ['documents', 'admin'];
+    if (adminOnlyViews.includes(targetView) && !isAdminAuthenticated()) {
+      targetView = 'login';
     }
+
+    if (!(targetView in this.views)) {
+      targetView = 'quote';
+    }
+
+    this.currentView = targetView;
+    location.hash = targetView;
 
     this._updateHeaderUI();
 
-    // Update active nav button
+    // Update active nav button for both desktop and mobile bottom tabs
     document.querySelectorAll('[data-view]').forEach(btn => {
-      if (btn.dataset.view === 'visa') {
-        btn.classList.toggle('active', this.currentView === 'visa' || (this.currentView === 'admin' && this.views.admin.state.adminSection === 'visa-links'));
-      } else if (btn.dataset.view === 'admin') {
-        btn.classList.toggle('active', this.currentView === 'admin' && this.views.admin.state.adminSection !== 'visa-links');
+      const isActive = btn.dataset.view === this.currentView;
+      btn.classList.toggle('active', isActive);
+      if (isActive) {
+        btn.setAttribute('aria-current', 'page');
       } else {
-        btn.classList.toggle('active', btn.dataset.view === this.currentView);
+        btn.removeAttribute('aria-current');
       }
     });
 
@@ -118,9 +148,46 @@ class App {
     const appEl = document.getElementById('app');
     const view = this.views[targetView];
     appEl.innerHTML = view.render();
-    view.attachEvents(appEl);
+    if (typeof view.attachEvents === 'function') {
+      view.attachEvents(appEl);
+    }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  render() {
+    const appEl = document.getElementById('app');
+    if (!appEl || !this.currentView) return;
+    const view = this.views[this.currentView];
+    if (view) {
+      appEl.innerHTML = view.render();
+      if (typeof view.attachEvents === 'function') {
+        view.attachEvents(appEl);
+      }
+    }
+  }
+
+  navigateTo(viewId, params = null) {
+    const mapped = (viewId || '').toLowerCase();
+    if (mapped === 'quotation' || mapped === 'quote') {
+      this.navigate('quote');
+    } else if (mapped === 'rates' || mapped === 'rate-tables') {
+      if (this.views.admin) {
+        this.views.admin.activeTab = 'rate-tables';
+      }
+      this.navigate('admin');
+    } else if (mapped === 'companies') {
+      if (this.views.admin) {
+        this.views.admin.activeTab = 'companies';
+      }
+      this.navigate('admin');
+    } else {
+      this.navigate(viewId);
+    }
+  }
+
+  updateTopBar() {
+    this._updateHeaderUI();
   }
 
   async _checkDbStatus() {
@@ -131,13 +198,18 @@ class App {
         if (health.status === 'ok' && health.db === 'connected') {
           banner.classList.remove('show');
         } else if (health.status === 'ok') {
-          banner.textContent = 'ℹ️  Running in local seed mode (all insurance quotes & admin functions active).';
-          banner.classList.add('show');
+          // Local seed mode - keep unobtrusive
+          banner.classList.remove('show');
         }
       }
     } catch {
       if (banner) {
-        banner.textContent = '⚠️  API server not reachable. Start local server: cd server && node server.js';
+        banner.innerHTML = `
+          <div class="db-banner-inner">
+            <span>⚠️ API server not reachable. Start local server: <code>cd server &amp;&amp; node server.js</code></span>
+            <button type="button" class="db-banner-close" aria-label="Dismiss banner" onclick="document.getElementById('dbBanner')?.classList.remove('show')">✕</button>
+          </div>
+        `;
         banner.classList.add('show');
       }
     }

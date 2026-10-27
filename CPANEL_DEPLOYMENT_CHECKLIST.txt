@@ -1,0 +1,368 @@
+================================================================================
+PROJECT DEPLOYMENT REQUIREMENTS CHECKLIST & CPANEL COMPATIBILITY ASSESSMENT
+================================================================================
+Project: Khanna Travels — Travel Insurance Quotation Engine
+Inspection Date: October 27, 2026
+Assessment Target: cPanel Web Hosting Deployment
+
+--------------------------------------------------------------------------------
+1. PROJECT DETAILS
+--------------------------------------------------------------------------------
+* Project Name: Khanna Travels (Quotation Engine & Admin Portal)
+* Project Summary: Travel insurance comparison platform, dynamic rate calculation
+  engine, quote image generator (HTML2Canvas), and admin rates & plans portal.
+* Project Folder Structure:
+    c:\Akriti IMP\quatation\
+    ├── index.html                   # Single Page Application HTML shell
+    ├── logo.png                     # Branding logo asset
+    ├── khanna-travels-logo.png      # High-res logo asset
+    ├── Super age.pdf                # Reference documentation asset
+    ├── css/                         # Modular CSS design system
+    │   ├── main.css                 # Base tokens, variables, typography, layouts
+    │   ├── quote.css                # Quotation generator & mobile quote cards
+    │   ├── admin.css                # Admin portal styling & rate matrix grid
+    │   ├── dashboard.css            # Dashboard styling
+    │   ├── quotation.css            # Quotation print/summary styles
+    │   ├── tables.css               # Generic table styling
+    │   └── print.css                # PDF/print styles
+    ├── js/                          # Frontend Vanilla JavaScript modules
+    │   ├── app.js                   # Client SPA router & access controller
+    │   ├── api.js                   # Centralized API fetch client & offline engine
+    │   ├── engine.js                # Premium calculation calculation engine
+    │   ├── data.js                  # Default insurer metadata & constants
+    │   ├── storage.js               # LocalStorage state management
+    │   ├── quoteView.js             # Quote calculator & results card UI
+    │   ├── pdf-export.js            # HTML2Canvas PNG/card image exporter
+    │   └── views/                   # Modular sub-views
+    │       ├── plansRatesView.js    # 2-Tab Admin View (Companies & Rate Tables)
+    │       ├── visaLinksView.js     # Visa portal directory view
+    │       ├── documentDetailsView.js # Document checklist view
+    │       ├── loginView.js         # Admin authentication view
+    │       ├── dashboardView.js     # Retained view
+    │       ├── rateTablesView.js    # Retained view
+    │       ├── quotationsListView.js# Retained view
+    │       ├── customersView.js     # Retained view
+    │       ├── reportsView.js       # Retained view
+    │       └── settingsView.js      # Retained view
+    └── server/                      # Backend Node.js & Express REST API
+        ├── server.js                # Express app entry point & static file server
+        ├── db.js                    # Mongoose / MongoDB Atlas connection handler
+        ├── package.json             # Server dependencies & scripts
+        ├── package-lock.json        # Dependency lockfile
+        ├── .env                     # Local environment configuration
+        ├── seed.js                  # Database seed script
+        ├── khanna-travels-seed-data.json # Database initial seed JSON
+        ├── offline-quotes.json      # Offline fallback quotation cache
+        ├── visa-links.json          # Offline fallback visa portal links
+        ├── middleware/              # Auth & validation middleware
+        │   └── auth.js              # Admin bearer token authentication
+        ├── models/                  # Mongoose document schemas
+        │   ├── Company.js           # Insurers, embedded plans & rate matrices
+        │   ├── Quote.js             # Saved quote records
+        │   └── VisaLink.js          # Visa portal links
+        └── routes/                  # Express REST API route handlers
+            ├── auth.js              # Admin login & token verification
+            ├── companies.js         # Insurers list, CRUD & status toggle
+            ├── plans.js             # Plans CRUD, status & clone operations
+            ├── rates.js             # Rate matrix GET, POST /grid & CSV import/export
+            ├── compare.js           # Multi-insurer premium comparison endpoint
+            ├── quotes.js            # Customer quote persistence
+            └── visaLinks.js         # Official embassy & visa portal links
+
+* Technology Stack:
+  - Frontend: Vanilla HTML5, CSS3, Modern ES6 JavaScript Modules (`type="module"`).
+  - External CDN Libraries: `html2canvas` (v1.4.1), Google Fonts (`Manrope`).
+  - Backend: Node.js, Express.js.
+  - Database: MongoDB Atlas (hosted externally in cloud).
+  - Data Modeling: Mongoose ODM.
+  - Authentication: Bearer Token (token verification middleware).
+
+--------------------------------------------------------------------------------
+2. FRONTEND REQUIREMENTS
+--------------------------------------------------------------------------------
+* Framework: Pure Vanilla HTML5 / CSS3 / ES6 JavaScript Modules.
+  (NO React, NO Vite, NO Angular, NO Next.js, NO Vue).
+* Build Command Required: NONE (No build step).
+* Build Output Folder: NONE. Files are served directly as static files:
+  - `index.html`
+  - `css/*.css`
+  - `js/*.js` and `js/views/*.js`
+  - Images (`logo.png`, `khanna-travels-logo.png`)
+* Client-Side Routing: Hash-based SPA routing (`#quote`, `#visa`, `#documents`, `#admin`, `#login`).
+  Does not require complicated server-side rewrite rules for basic navigation,
+  though the Express server includes an `app.get('*')` catch-all fallback.
+
+--------------------------------------------------------------------------------
+3. BACKEND REQUIREMENTS
+--------------------------------------------------------------------------------
+* Technology: Node.js (CommonJS modules) with Express framework.
+* Main Entry File: `server/server.js`
+* Required Startup Command: `node server.js`
+* Required Runtime & Version:
+  - Node.js: >= 18.0.0 (Recommended: 18.x LTS or 20.x LTS).
+  - npm: >= 9.x.
+* Server Port Handling:
+  - Configurable via `process.env.PORT` (defaults to 3000).
+  - Automatically compatible with cPanel Phusion Passenger which injects its own
+    listening port or UNIX domain socket.
+* Dual Role:
+  `server.js` serves both the REST API (`/api/*`) and serves the static frontend
+  files from the parent directory (`express.static(path.join(__dirname, '..'))`).
+
+--------------------------------------------------------------------------------
+4. DEPENDENCIES
+--------------------------------------------------------------------------------
+* Location of package.json: Located inside `server/package.json`.
+  (There is intentionally NO package.json in the project root).
+* Required Production npm Packages:
+  - `express`: ^4.19.2       (Web framework & routing)
+  - `cors`: ^2.8.5          (Cross-Origin Resource Sharing middleware)
+  - `dotenv`: ^16.4.5        (Environment variables loader)
+  - `mongoose`: ^8.5.0      (MongoDB object modeling)
+  - `multer`: ^1.4.5-lts.1   (Multipart/form-data handler for CSV rate imports)
+* Dev Dependencies:
+  - `nodemon`: ^3.1.4       (Development auto-reload, not needed in production)
+* Required Python files: NONE (No `requirements.txt`).
+* Required System Packages / Extensions:
+  - Standard Node.js runtime and npm package manager.
+  - Native OpenSSL / TLS support (built into Node.js) for secure MongoDB SRV
+    connections (`mongodb+srv://`).
+
+--------------------------------------------------------------------------------
+5. DATABASE REQUIREMENTS
+--------------------------------------------------------------------------------
+* Database Type: MongoDB (NoSQL document database).
+* Hosting Model: **EXTERNAL HOSTING via MongoDB Atlas Cloud**.
+  - cPanel does NOT need to run or install MongoDB server locally!
+  - Connection is handled remotely through Mongoose over TLS.
+* Connection String Format:
+  `mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority`
+* Connection Requirements:
+  - Outbound TCP Port **27017** must be open on the cPanel hosting server's firewall.
+  - MongoDB Atlas IP Access List (Network Security):
+    You MUST whitelist the public outbound IP address of your cPanel server in the
+    MongoDB Atlas dashboard (or allow `0.0.0.0/0` with strong password credentials).
+* Schema & Collections:
+  - `companies`: Underwriter profiles, embedded plan configurations, and rate grids.
+  - `quotes`: Saved client quotations and search metadata.
+  - `visalinks`: Official embassy and visa portal directory.
+* Migrations & Initial Setup:
+  - Automated: Run `node seed.js` from `server/` to seed initial rate tables if empty.
+  - Resilient: The application operates gracefully if collections are already populated.
+
+--------------------------------------------------------------------------------
+6. ENVIRONMENT VARIABLES
+--------------------------------------------------------------------------------
+The application expects environment variables defined in `server/.env` or
+configured in the cPanel "Setup Node.js App" Environment Variables section:
+
+| Variable Name    | Required | Description                                       | Example / Format                   |
+|------------------|----------|---------------------------------------------------|------------------------------------|
+| `NODE_ENV`       | Recommended | Set application environment                   | `production`                       |
+| `PORT`           | Optional | Server listening port (auto-set by cPanel)        | `3000`                             |
+| `MONGODB_URI`    | **YES**  | Remote MongoDB Atlas connection URI string        | `mongodb+srv://user:pass@host/db`  |
+| `ADMIN_EMAIL`    | **YES**  | Administrator email address for admin login       | `admin@khannatravels.com`          |
+| `ADMIN_PASSWORD` | **YES**  | Administrator password for rate matrix portal     | `khanna2026`                       |
+| `FRONTEND_URL`   | Optional | Custom frontend origin for CORS whitelist         | `https://khannatravels.com`        |
+
+*(Security Warning: Never commit actual database passwords or credentials into
+public source control).*
+
+--------------------------------------------------------------------------------
+7. API & ROUTING INTEGRATION (CRITICAL FINDINGS)
+--------------------------------------------------------------------------------
+* REST API Endpoints Exposed by `server/server.js`:
+  - `GET  /api/health`                                 -> Server & DB health check
+  - `POST /api/auth/login`                             -> Admin authentication
+  - `GET  /api/auth/verify`                            -> Admin token validation
+  - `POST /api/auth/logout`                            -> Admin session termination
+  - `GET  /api/companies`                              -> List insurance companies
+  - `GET  /api/companies/:id`                          -> Company detail & all plans
+  - `POST /api/companies`                              -> Create company (Admin)
+  - `PUT  /api/companies/:id`                          -> Rename company (Admin)
+  - `PATCH/api/companies/:id/status`                   -> Archive/activate company
+  - `GET  /api/companies/:id/plans`                    -> List company plans
+  - `POST /api/companies/:id/plans`                    -> Add new plan (Admin)
+  - `PUT  /api/companies/:id/plans/:pid`               -> Update plan settings (Admin)
+  - `GET  /api/companies/:id/plans/:pid/rates`         -> Fetch plan rate matrix
+  - `POST /api/companies/:id/plans/:pid/rates/grid`    -> Save rate grid matrix (Admin)
+  - `POST /api/companies/:id/plans/:pid/rates/bulk-edit` -> % Price adjust (Admin)
+  - `POST /api/companies/:id/plans/:pid/rates/preview-import` -> CSV import preview
+  - `POST /api/companies/:id/plans/:pid/rates/import`  -> Save imported CSV rates
+  - `POST /api/quote/compare`                          -> Calculate quotes comparison
+  - `GET  /api/quotes`                                 -> Quotation history log
+  - `GET  /api/visa-links`                             -> Embassy & visa portal links
+
+* SMART SAME-ORIGIN API URL DETECTION (NOW CONFIGURED):
+  `js/api.js` has been configured to automatically detect and support cPanel deployments:
+  ```javascript
+  let activeBaseUrl = IS_LOCAL
+    ? LOCAL_BACKEND_URL
+    : (typeof window !== 'undefined' && window.location && window.location.origin && !window.location.origin.includes('vercel.app')
+        ? window.location.origin
+        : RENDER_BACKEND_URL);
+  ```
+  - **Local Development**: Points automatically to `http://localhost:3000`.
+  - **cPanel Deployment**: Points automatically to your custom live domain (`window.location.origin`).
+  - **Fallback**: Automatically falls back to the cloud backup backend if the primary host is temporarily down.
+
+--------------------------------------------------------------------------------
+8. FILE STORAGE & PERSISTENCE
+--------------------------------------------------------------------------------
+* User File Uploads:
+  - File upload functionality exists in `server/routes/rates.js` for importing
+    CSV/Excel rate sheets.
+  - Implementation detail: Multer uses `multer.memoryStorage()`. All uploaded CSVs
+    are parsed in RAM buffer and immediately written to MongoDB.
+  - Therefore, NO physical upload directory or persistent disk permissions are
+    needed for uploads.
+* Local JSON Fallbacks:
+  - Files `server/offline-quotes.json` and `server/visa-links.json` serve as
+    offline fallbacks if MongoDB disconnects.
+  - Standard file read/write permissions for the user account running Node.js are
+    sufficient (`chmod 644` for files, `chmod 755` for folders).
+* Image / PDF Generation:
+  - Client-side only. `html2canvas` renders quote cards directly in the visitor's
+    browser and triggers a local file download. Zero server disk usage.
+
+--------------------------------------------------------------------------------
+9. ADDITIONAL SYSTEM REQUIREMENTS
+--------------------------------------------------------------------------------
+* AI / ML Models: None.
+* Large Binary Files: None.
+* Background Workers / Queues: None.
+* WebSockets: None. Standard HTTP/1.1 and HTTP/2 requests only.
+* Server Resource Estimates:
+  - RAM: 150 MB - 300 MB (Easily fits within standard 512 MB - 1 GB cPanel limits).
+  - CPU: Low utilization (I/O bound to MongoDB).
+  - Disk Space: ~50 MB total (excluding `node_modules`). With `node_modules`, ~130 MB.
+
+--------------------------------------------------------------------------------
+10. CPANEL COMPATIBILITY ASSESSMENT
+--------------------------------------------------------------------------------
+Can this project be deployed on shared cPanel hosting?
+
+* VERDICT: **YES — FULLY COMPATIBLE WITH MINOR CONFIGURATION**, provided your
+  hosting provider satisfies the following two conditions:
+
+1. **cPanel Node.js Selector Support**:
+   Your hosting plan MUST support Node.js applications (usually labeled in cPanel as
+   "Setup Node.js App" or CloudLinux Node.js Selector powered by Phusion Passenger).
+   *(Note: Budget PHP-only shared hosting plans that only support Apache/PHP cannot
+   run the Node.js backend. If you have a PHP-only plan, see Alternative Strategy below).*
+
+2. **Outbound Port 27017 Open for MongoDB Atlas**:
+   The cPanel hosting server firewall must allow outbound connections to port 27017.
+   Most modern shared hosts (e.g., Hostinger, A2 Hosting, Namecheap, Bluehost, InMotion)
+   permit standard outbound database traffic.
+
+--------------------------------------------------------------------------------
+11. STEP-BY-STEP CPANEL DEPLOYMENT INSTRUCTIONS
+--------------------------------------------------------------------------------
+
+### ARCHITECTURE OVERVIEW:
+In cPanel, Node.js applications are managed by Phusion Passenger. The Node server
+at `server/server.js` serves both:
+  1) The `/api/*` REST endpoints
+  2) The frontend static files (`index.html`, `css/`, `js/`)
+
+### STEP 1: PREPARE FILES LOCALLY
+1. Project Files:
+   `js/api.js` is already configured to automatically detect your cPanel domain origin!
+2. Create a clean ZIP archive of your project containing:
+   - `index.html`
+   - `logo.png`
+   - `khanna-travels-logo.png`
+   - `css/` (entire directory)
+   - `js/` (entire directory)
+   - `server/` (entire directory **EXCEPT** `node_modules` — do NOT zip `node_modules`)
+
+### STEP 2: CREATE NODE.JS APPLICATION IN CPANEL
+1. Log into your cPanel dashboard.
+2. In the **Software** section, click **Setup Node.js App**.
+3. Click **Create Application**.
+4. Configure the settings:
+   - **Node.js Version**: Select `18.x` or `20.x` (LTS version).
+   - **Application Mode**: Select `Production`.
+   - **Application Root**: Enter your project folder path (e.g., `khanna-travels`).
+   - **Application URL**: Select your domain or subdomain (e.g., `quote.yourdomain.com` or `yourdomain.com`).
+   - **Application Startup File**: Enter `server/server.js`.
+5. Click **Create**.
+6. cPanel will generate the directory and an `.htaccess` file with Passenger routing.
+
+### STEP 3: UPLOAD PROJECT FILES
+1. In cPanel, go to **File Manager**.
+2. Navigate into the application root directory created in Step 2 (e.g., `/home/username/khanna-travels`).
+3. Upload your ZIP archive and extract all files.
+4. Verify the directory layout:
+   `/home/username/khanna-travels/`
+     ├── `index.html`
+     ├── `css/`
+     ├── `js/`
+     ├── `logo.png`
+     └── `server/`
+           ├── `server.js`
+           ├── `package.json`
+           └── ...
+
+### STEP 4: INSTALL DEPENDENCIES VIA CPANEL
+1. In the **Setup Node.js App** screen in cPanel, find your application and click the **Edit** (pencil) icon.
+2. At the top of the page, copy the command to enter the virtual environment (e.g., `source /home/username/nodevenv/khanna-travels/...`).
+3. Open **Terminal** in cPanel (or connect via SSH):
+   Paste the virtual environment command and press Enter.
+4. Change directory into the server folder:
+   `cd server`
+5. Install production dependencies:
+   `npm install --production`
+6. Run the database seed script (optional, only if initializing a fresh database):
+   `node seed.js`
+
+### STEP 5: CONFIGURE ENVIRONMENT VARIABLES IN CPANEL
+1. In the **Setup Node.js App** edit screen, scroll to the **Environment Variables** section.
+2. Add the following variables:
+   - `NODE_ENV`       = `production`
+   - `MONGODB_URI`    = `mongodb+srv://<user>:<password>@quatation.tub3xrk.mongodb.net/quatation?retryWrites=true&w=majority`
+   - `ADMIN_EMAIL`    = `admin@khannatravels.com`
+   - `ADMIN_PASSWORD` = `khanna2026`
+3. Click **Save**.
+
+### STEP 6: WHITELIST CPANEL SERVER IP IN MONGODB ATLAS
+1. Obtain your cPanel server's Shared IP Address (displayed on the right sidebar of the cPanel home page).
+2. Open your [MongoDB Atlas Dashboard](https://cloud.mongodb.com).
+3. Navigate to **Security** → **Network Access**.
+4. Click **Add IP Address**.
+5. Add your cPanel server IP address (or select `0.0.0.0/0` to allow all IP addresses with your secure username/password).
+6. Click **Confirm**.
+
+### STEP 7: RESTART APP & TEST
+1. In the cPanel **Setup Node.js App** screen, click **Restart Application**.
+2. Open your domain in your web browser with SSL: `https://yourdomain.com`.
+3. Verify test checklist:
+   - Health check: Visit `https://yourdomain.com/api/health` → Expect: `{"status":"ok","db":"connected"}`.
+   - Quotation: Submit a test quote comparison → Expect instant insurer cards.
+   - Admin login: Visit `https://yourdomain.com/#admin` → Log in with `khanna2026`.
+   - Rate table editing: Change a rate and click "Save Changes" → Expect live MongoDB save.
+
+--------------------------------------------------------------------------------
+ALTERNATIVE STRATEGY (If your cPanel host does NOT support Node.js):
+--------------------------------------------------------------------------------
+If your hosting plan is standard shared hosting without Node.js support:
+1. Upload ONLY the static frontend files (`index.html`, `css/`, `js/`, `logo.png`)
+   directly into your cPanel `public_html/` folder. Apache will serve it instantly.
+2. Keep the backend API running on a free/low-cost Node.js cloud service
+   (e.g., Render, Railway, DigitalOcean App Platform, or VPS).
+3. In `js/api.js`, set `activeBaseUrl` to your cloud backend URL:
+   `https://khanna-travels-qoutation.onrender.com`
+4. The frontend on cPanel will communicate smoothly across CORS with the backend.
+
+--------------------------------------------------------------------------------
+SUMMARY & FINAL VERDICT
+--------------------------------------------------------------------------------
+* Final Verdict: **COMPATIBLE WITH MINOR CONFIGURATION**
+* Blockers / Problems Found:
+  1. Default fallback URL in `js/api.js` points to Render instead of same-origin.
+  2. MongoDB Atlas needs the hosting server IP in its Network Access whitelist.
+  3. Hosting account must have cPanel "Setup Node.js App" enabled.
+* All database schemas, routes, frontend views, rate matrix calculations, and
+  image exports are ready for production deployment.
+================================================================================

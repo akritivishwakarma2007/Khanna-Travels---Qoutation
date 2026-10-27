@@ -11,7 +11,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
 
   <!-- Favicon -->
@@ -32,44 +32,55 @@
   <!-- ── Header ─────────────────────────────────────────────────────────── -->
   <header class="app-header" role="banner">
 
-    <!-- Logo -->
-    <div class="header-logo" aria-label="Khanna Travels">
-      <img src="logo.png" alt="Khanna Travels" class="header-logo-img">
+    <!-- Logo Band (Top) -->
+    <div class="header-logo-band">
+      <div class="header-logo" aria-label="Khanna Travels">
+        <img src="logo.png" alt="Khanna Travels" class="header-logo-img">
+        <div class="header-logo-text">
+          <div class="logo-title"><span class="logo-khanna">KHANNA</span> <span class="logo-travels">TRAVELS</span></div>
+          <div class="logo-subtitle">HOLIDAYS REDEFINED</div>
+        </div>
+      </div>
+
+      <!-- Agent / Auth Area -->
+      <div class="header-agent" id="agentLabel" aria-label="Current agent">
+        <!-- Dynamically rendered by app.js based on auth state -->
+      </div>
     </div>
 
-    <div class="header-divider" aria-hidden="true"></div>
-
-    <!-- Navigation -->
-    <nav class="header-nav" role="navigation" aria-label="Main navigation">
-      <button class="nav-btn active" data-view="quote" id="navQuote" aria-current="page">
-        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path fill-rule="evenodd"
-            d="M10 2a8 8 0 100 16A8 8 0 0010 2zm1 5a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V7z"
-            clip-rule="evenodd" />
-        </svg>
-        Insurance Quote
-      </button>
-      <button class="nav-btn" data-view="visa" id="navVisa">
-        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path fill-rule="evenodd"
-            d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"
-            clip-rule="evenodd" />
-        </svg>
-        Links
-      </button>
-      <button class="nav-btn" data-view="admin" id="navAdmin" style="display:none;">
-        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-          <path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-        </svg>
-        Insurance Plans &amp; Rates
-      </button>
+    <!-- Navbar directly below logo band (PC: 56px tall, 1px borders top and bottom; hidden on mobile) -->
+    <nav class="header-navbar" id="desktopNavbar" role="navigation" aria-label="Main navigation">
+      <div class="navbar-container">
+        <button class="nav-btn active" data-view="quote" id="navQuote" aria-current="page">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18" aria-hidden="true">
+            <path fill-rule="evenodd"
+              d="M10 2a8 8 0 100 16A8 8 0 0010 2zm1 5a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V7z"
+              clip-rule="evenodd" />
+          </svg>
+          <span>Insurance Quotation</span>
+        </button>
+        <button class="nav-btn" data-view="visa" id="navVisa">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18" aria-hidden="true">
+            <path fill-rule="evenodd"
+              d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"
+              clip-rule="evenodd" />
+          </svg>
+          <span>Visa Links</span>
+        </button>
+        <button class="nav-btn admin-only-item" data-view="documents" id="navDocs" style="display:none;">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18" aria-hidden="true">
+            <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+          </svg>
+          <span>Document Details</span>
+        </button>
+        <button class="nav-btn admin-only-item" data-view="admin" id="navAdmin" style="display:none;">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18" aria-hidden="true">
+            <path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+          </svg>
+          <span>Insurance Plans &amp; Rates</span>
+        </button>
+      </div>
     </nav>
-
-    <!-- Agent label -->
-    <div class="header-agent" id="agentLabel" aria-label="Current agent">
-      <div class="agent-avatar" aria-hidden="true">KT</div>
-      <span>Khanna Agent</span>
-    </div>
 
   </header>
 
@@ -77,6 +88,42 @@
   <main id="app" role="main" aria-live="polite">
     <!-- Rendered by app.js router -->
   </main>
+
+  <!-- ── Small Footer ────────────────────────────────────────────────────── -->
+  <footer class="app-footer">
+    <p>© Khanna Travels • Holidays Redefined</p>
+  </footer>
+
+  <!-- ── Mobile Bottom Tab Bar ────────────────────────────────────────────── -->
+  <nav class="mobile-bottom-nav" id="mobileBottomNav" role="navigation" aria-label="Mobile Navigation">
+    <button class="mobile-tab-btn active" data-view="quote" id="mobNavQuote" aria-label="Insurance Quotation" aria-current="page">
+      <svg class="mobile-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <span class="mobile-tab-label">Quote</span>
+    </button>
+    <button class="mobile-tab-btn" data-view="visa" id="mobNavVisa" aria-label="Visa Links">
+      <svg class="mobile-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+      </svg>
+      <span class="mobile-tab-label">Visa Links</span>
+    </button>
+    <button class="mobile-tab-btn admin-only-item" data-view="documents" id="mobNavDocs" style="display:none;" aria-label="Document Details">
+      <svg class="mobile-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span class="mobile-tab-label">Documents</span>
+    </button>
+    <button class="mobile-tab-btn admin-only-item" data-view="admin" id="mobNavAdmin" style="display:none;" aria-label="Plans & Rates">
+      <svg class="mobile-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+        <line x1="3" y1="9" x2="21" y2="9"/>
+        <line x1="9" y1="21" x2="9" y2="9"/>
+      </svg>
+      <span class="mobile-tab-label">Plans</span>
+    </button>
+  </nav>
 
   <!-- ── Toast Notifications ────────────────────────────────────────────── -->
   <div class="toast-container" id="toastContainer" aria-live="assertive" aria-atomic="true"></div>

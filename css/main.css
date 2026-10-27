@@ -8,37 +8,44 @@
 
 /* ── CSS Custom Properties ───────────────────────────────────────────────── */
 :root {
-  --navy:       #1B3A6B;
-  --navy-dark:  #122850;
-  --navy-light: #2a4f8e;
-  --red:        #E03A3A;
-  --red-dark:   #c22e2e;
-  --red-light:  #f5adad;
+  --navy:       #17325f;
+  --navy-dark:  #0f2240;
+  --navy-light: #20417a;
+  --red:        #d92d27;
+  --red-dark:   #b8221d;
+  --red-light:  #fdeceb;
+  --ink:        #14233f;
+  --muted:      #566883;
+  --line:       #dbe3ee;
+  --tint:       #f3f6fb;
+  --page:       #eef2f8;
+  --green:      #0d6b46;
+  --green-bg:   #e6f4ed;
+  --white:      #ffffff;
   --black:      #000000;
-  --white:      #FFFFFF;
 
-  --gray-50:    #f8fafc;
-  --gray-100:   #f1f5f9;
-  --gray-200:   #e2e8f0;
+  --gray-50:    #f3f6fb;
+  --gray-100:   #eef2f8;
+  --gray-200:   #dbe3ee;
   --gray-300:   #cbd5e1;
   --gray-400:   #94a3b8;
-  --gray-500:   #64748b;
+  --gray-500:   #566883;
   --gray-600:   #475569;
   --gray-700:   #334155;
-  --gray-800:   #1e293b;
+  --gray-800:   #14233f;
 
-  --shadow-sm:  0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-md:  0 4px 12px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
-  --shadow-lg:  0 10px 30px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
-  --shadow-xl:  0 20px 50px rgba(0,0,0,0.15);
+  --shadow-sm:  0 1px 3px rgba(20, 35, 63, 0.06), 0 1px 2px rgba(20, 35, 63, 0.04);
+  --shadow-md:  0 4px 12px rgba(20, 35, 63, 0.08), 0 2px 6px rgba(20, 35, 63, 0.04);
+  --shadow-lg:  0 10px 30px rgba(20, 35, 63, 0.10), 0 4px 12px rgba(20, 35, 63, 0.05);
+  --shadow-xl:  0 20px 50px rgba(20, 35, 63, 0.12);
 
-  --radius-sm:  6px;
+  --radius-sm:  8px;
   --radius-md:  10px;
   --radius-lg:  16px;
   --radius-xl:  24px;
 
   --transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-  --font:       'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font:       'Manrope', system-ui, -apple-system, sans-serif;
 }
 
 /* ── Reset ───────────────────────────────────────────────────────────────── */
@@ -58,8 +65,8 @@ body {
   font-family: var(--font);
   font-size: 0.9375rem;
   font-weight: 400;
-  color: var(--gray-800);
-  background: var(--gray-50);
+  color: var(--ink);
+  background: var(--page);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
@@ -72,48 +79,50 @@ input, select, textarea { font-family: var(--font); }
 
 /* ── Header ──────────────────────────────────────────────────────────────── */
 .app-header {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 100;
   background: var(--white);
-  border-bottom: 1px solid var(--gray-200);
-  height: 68px;
+  box-shadow: none;
+}
+
+/* 1. Top Logo Band */
+.header-logo-band {
+  background: var(--white);
   display: flex;
   align-items: center;
-  padding: 0 2rem;
-  gap: 2rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  justify-content: space-between;
+  padding: 22px 32px;
+  box-sizing: border-box;
 }
 
 /* Logo */
 .header-logo {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
   flex-shrink: 0;
   user-select: none;
+  cursor: pointer;
 }
 
 .header-logo-img {
-  height: 46px;
-  max-height: 50px;
+  height: 40px;
+  max-height: 42px;
   width: auto;
   object-fit: contain;
   display: block;
 }
 
-.logo-block {
+.header-logo-text {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
 }
 
-.logo-main {
-  display: flex;
-  align-items: baseline;
-  gap: 0;
+.logo-title {
+  font-size: 20px;
   font-weight: 800;
-  font-size: 1.6rem;
-  letter-spacing: -0.02em;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
 }
 
 .logo-khanna {
@@ -126,111 +135,281 @@ input, select, textarea { font-family: var(--font); }
   font-weight: 800;
 }
 
-.logo-tagline {
-  font-size: 0.55rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  color: var(--black);
+.logo-subtitle {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  color: var(--muted);
   text-transform: uppercase;
-  margin-top: 1px;
-  opacity: 0.75;
+  margin-top: 2px;
+  line-height: 1;
 }
 
-/* Divider */
-.header-divider {
-  width: 1px;
-  height: 30px;
-  background: var(--gray-200);
+/* Agent label / Header Auth Area */
+.header-agent {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   flex-shrink: 0;
 }
 
-/* Nav */
-.header-nav {
+.agent-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 800;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  flex: 1;
+  justify-content: center;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.agent-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.btn-header-logout {
+  height: 36px;
+  min-height: 36px;
+  padding: 0 16px;
+  background: var(--white);
+  color: var(--red);
+  border: 1px solid #f1b9b6;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-header-logout:hover {
+  background: #fdeceb;
+  border-color: var(--red);
+}
+
+.btn-header-signin {
+  height: 36px;
+  min-height: 36px;
+  padding: 0 16px;
+  background: transparent;
+  color: var(--navy);
+  border: 1.5px solid var(--navy);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+
+.btn-header-signin:hover {
+  background: var(--tint);
+}
+
+/* 2. PC Navbar (directly below logo band, 56px tall, 1px borders top and bottom) */
+.header-navbar {
+  background: var(--white);
+  height: 56px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+.navbar-container {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  height: 100%;
 }
 
 .nav-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 1rem;
-  border-radius: var(--radius-sm);
+  gap: 8px;
+  padding: 0 16px;
+  height: 100%;
   border: none;
   background: transparent;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--navy);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
   cursor: pointer;
-  transition: background var(--transition), color var(--transition);
+  transition: color 0.15s ease;
   position: relative;
   white-space: nowrap;
 }
 
 .nav-btn:hover {
-  background: var(--gray-100);
-  color: var(--navy-dark);
+  color: var(--navy);
 }
 
 .nav-btn.active {
-  color: var(--red);
-  font-weight: 600;
+  color: var(--red) !important;
 }
 
 .nav-btn.active::after {
   content: '';
   position: absolute;
-  bottom: -13px;
-  left: 0.5rem;
-  right: 0.5rem;
-  height: 2.5px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
   background: var(--red);
-  border-radius: 2px;
 }
 
 .nav-btn svg {
-  width: 15px;
-  height: 15px;
-  opacity: 0.75;
-}
-
-/* Agent label */
-.header-agent {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--gray-600);
-  background: var(--gray-100);
-  border-radius: var(--radius-xl);
-  padding: 0.3rem 0.85rem 0.3rem 0.5rem;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
 }
 
-.agent-avatar {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--navy);
-  color: var(--white);
-  font-size: 0.625rem;
-  font-weight: 700;
+/* ── Mobile Bottom Tab Bar ───────────────────────────────────────────────── */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(64px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--white);
+  border-top: 1px solid var(--line);
+  z-index: 1000;
+  align-items: stretch;
+  justify-content: space-around;
+  box-shadow: 0 -2px 10px rgba(20, 35, 63, 0.04);
+}
+
+.mobile-tab-btn {
+  flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  letter-spacing: 0.03em;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  position: relative;
+  padding: 6px 0;
+  min-height: 44px;
+  transition: color 0.15s ease;
+  user-select: none;
+}
+
+.mobile-tab-btn .mobile-tab-icon {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.mobile-tab-btn .mobile-tab-label {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mobile-tab-btn.active {
+  color: var(--red);
+}
+
+.mobile-tab-btn.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--red);
 }
 
 /* ── Main content area ───────────────────────────────────────────────────── */
 #app {
-  min-height: calc(100vh - 68px);
-  padding: 2rem;
-  max-width: 1280px;
+  min-height: calc(100vh - 160px);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1400px;
   margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.app-footer {
+  text-align: center;
+  padding: 24px 32px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  background: transparent;
+}
+
+@media (max-width: 767px) {
+  .app-header {
+    position: sticky;
+    top: 0;
+  }
+
+  .header-logo-band {
+    height: 60px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .header-logo-img {
+    height: 32px;
+  }
+
+  .logo-title {
+    font-size: 17px;
+  }
+
+  .logo-subtitle {
+    font-size: 8px;
+  }
+
+  .agent-name {
+    display: none;
+  }
+
+  .header-navbar {
+    display: none !important;
+  }
+
+  .mobile-bottom-nav {
+    display: flex !important;
+  }
+
+  #app {
+    padding: 16px;
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
+    gap: 16px;
+  }
+
+  .app-footer {
+    padding: 16px;
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* ── Page title ──────────────────────────────────────────────────────────── */
@@ -738,78 +917,107 @@ input, select, textarea { font-family: var(--font); }
 .fw-700 { font-weight: 700; }
 
 /* ── Connection status bar ───────────────────────────────────────────────── */
+/* ── DB Banner ───────────────────────────────────────────────────────────── */
 .db-banner {
-  background: #fffbeb;
-  border-bottom: 1px solid #fde68a;
-  color: #92400e;
-  font-size: 0.8rem;
-  font-weight: 500;
-  text-align: center;
-  padding: 0.4rem;
+  background: #fef2f2;
+  border-bottom: 1px solid #fecaca;
+  color: #991b1b;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
   display: none;
 }
-.db-banner.show { display: block; }
-
-/* ── Responsive ──────────────────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .app-header {
-    padding: 0 1rem;
-    gap: 0.75rem;
-    height: 60px;
-  }
-  .header-logo-img {
-    height: 38px;
-  }
-  .logo-main {
-    font-size: 1.3rem;
-  }
-  #app {
-    padding: 1rem 0.75rem;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  .header-divider {
-    display: none;
-  }
+.db-banner.show {
+  display: block;
+}
+.db-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 0.75rem;
+}
+.db-banner-close {
+  background: none;
+  border: none;
+  color: #991b1b;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 0.35rem;
+  line-height: 1;
 }
 
-@media (max-width: 480px) {
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: calc(64px + 16px + env(safe-area-inset-bottom, 0px));
+  }
   .app-header {
-    padding: 0 0.65rem;
-    gap: 0.4rem;
-    height: 54px;
+    height: auto;
+    padding: 0;
+    box-shadow: 0 1px 3px rgba(20, 35, 63, 0.05);
+  }
+  .header-logo-band {
+    padding: 12px 16px;
+    height: 56px;
+    box-sizing: border-box;
+  }
+  .header-navbar {
+    display: none !important;
   }
   .header-logo-img {
     height: 32px;
+    max-height: 34px;
   }
-  .header-nav {
-    gap: 0.15rem;
+  .logo-title {
+    font-size: 17px;
   }
-  .nav-btn {
-    padding: 0.35rem 0.5rem;
-    font-size: 0.78rem;
-    gap: 0.25rem;
+  .logo-subtitle {
+    font-size: 8px;
   }
-  .nav-btn svg {
-    width: 13px;
-    height: 13px;
+  .agent-name {
+    display: none !important;
   }
-  .header-agent {
-    padding: 0.2rem;
-    background: transparent;
-  }
-  .header-agent span {
-    display: none;
+  .btn-header-signin,
+  .btn-header-logout {
+    height: 34px;
+    min-height: 34px;
+    padding: 0 12px;
+    font-size: 12px;
   }
   #app {
-    padding: 0.65rem 0.45rem;
+    padding: 16px;
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    width: 100%;
+    box-sizing: border-box;
   }
-  .modal-overlay {
-    padding: 0.5rem;
+  .mobile-bottom-nav {
+    display: flex !important;
   }
-  .modal {
-    max-width: 100%;
-    margin: 0;
+}
+
+@media (min-width: 768px) {
+  body {
+    padding-bottom: 0;
+  }
+  .app-header {
+    height: auto;
+    padding: 0;
+  }
+  .header-logo-band {
+    padding: 22px 32px;
+  }
+  .header-navbar {
+    display: flex !important;
+  }
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+  #app {
+    padding: 32px;
+    gap: 20px;
   }
 }
 
