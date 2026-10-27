@@ -8,23 +8,35 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ── CORS Configuration ────────────────────────────────────────────────────────
-// Configured to allow local frontend development and production/preview Vercel deployments.
-const allowedOrigins = [
-  'http://localhost:5173',                          // Vite local dev server
-  'http://localhost:3000',                          // Express local dev server
-  'http://127.0.0.1:5173',
-  'http://127.0.0.1:3000',
-  'https://YOUR_VERCEL_APP_URL.vercel.app',         // 👈 PLACEHOLDER: Replace with your actual Vercel domain
-  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
-  /\.vercel\.app$/,                                 // Automatically matches all Vercel deployments (*.vercel.app)
-];
+// Configured to allow all local dev servers (Live Server :5500, Vite :5173, etc.),
+// private LAN testing, and production/preview Vercel & Render deployments.
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (e.g. mobile apps, curl, Postman, or same-origin)
+    if (!origin) return callback(null, true);
 
-app.use(cors({
-  origin: allowedOrigins,
+    // Allow all localhost, 127.0.0.1, 0.0.0.0 on ANY port (5500, 5173, 3000, 8080, etc.)
+    const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?$/.test(origin);
+    // Allow LAN IP addresses (e.g. 192.168.x.x, 10.x.x.x, 172.16-31.x.x) on any port
+    const isLan = /^https?:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?$/.test(origin);
+    // Allow Vercel & Render cloud deployments
+    const isCloud = /\.vercel\.app$/.test(origin) || /\.onrender\.com$/.test(origin);
+    // Allow explicit FRONTEND_URL if set in .env
+    const isCustomFrontend = Boolean(process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL);
+
+    if (isLocalhost || isLan || isCloud || isCustomFrontend || process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(express.json());

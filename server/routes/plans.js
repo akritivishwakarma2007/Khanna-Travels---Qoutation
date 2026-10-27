@@ -1,18 +1,30 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
+const mongoose = require('mongoose');
+const fs = require('fs');
+const path = require('path');
 const Company = require('../models/Company');
 const { requireAdminAuth } = require('../middleware/auth');
+
+const DB_ERROR_MSG = 'Cannot reach the database. Check MONGODB_URI in server/.env.';
 
 // GET /api/companies/:id/plans — get all plans for a company
 router.get('/', async (req, res) => {
   try {
     const companyId = req.params.companyId || req.params.id;
+
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ error: DB_ERROR_MSG });
+    }
+
     const company = await Company.findById(companyId);
     if (!company) return res.status(404).json({ error: 'Company not found' });
 
     const plansSummary = company.plans.map(p => ({
       _id: p._id,
       planName: p.planName,
+      productLine: p.productLine || '',
+      medicalCover: p.medicalCover,
       isActive: p.isActive !== false,
       rateCount: p.rates ? p.rates.length : 0,
       createdAt: p.createdAt,
@@ -25,15 +37,19 @@ router.get('/', async (req, res) => {
       plans: plansSummary
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(503).json({ error: DB_ERROR_MSG });
   }
 });
 
 // POST /api/companies/:id/plans — add a plan to a company (Admin protected)
 router.post('/', requireAdminAuth, async (req, res) => {
   try {
-    const { planName } = req.body;
+    const { planName, productLine, region, medicalCover, isActive = true } = req.body;
     if (!planName || !planName.trim()) return res.status(400).json({ error: 'planName is required' });
+
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ error: DB_ERROR_MSG });
+    }
 
     const companyId = req.params.companyId || req.params.id;
     const company = await Company.findById(companyId);
@@ -44,7 +60,18 @@ router.post('/', requireAdminAuth, async (req, res) => {
       return res.status(409).json({ error: 'Plan name already exists in this company' });
     }
 
-    company.plans.push({ planName: cleanName, isActive: true, rates: [] });
+    let medVal = false;
+    if (typeof medicalCover === 'boolean') medVal = medicalCover;
+    else if (medicalCover === 'with' || medicalCover === 'With') medVal = true;
+    else if (medicalCover === 'without' || medicalCover === 'Without') medVal = false;
+
+    company.plans.push({
+      planName: cleanName,
+      productLine: (productLine !== undefined ? productLine : region) || '',
+      medicalCover: medVal,
+      isActive: Boolean(isActive),
+      rates: []
+    });
     await company.save();
     res.status(201).json(company.plans[company.plans.length - 1]);
   } catch (err) {
@@ -52,10 +79,14 @@ router.post('/', requireAdminAuth, async (req, res) => {
   }
 });
 
-// PUT /api/companies/:id/plans/:pid — rename or update plan status (Admin protected)
+// PUT /api/companies/:id/plans/:pid — rename or update plan settings (Admin protected)
 router.put('/:pid', requireAdminAuth, async (req, res) => {
   try {
-    const { planName, isActive } = req.body;
+    const { planName, isActive, productLine, region, medicalCover } = req.body;
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ error: DB_ERROR_MSG });
+    }
+
     const companyId = req.params.companyId || req.params.id;
     const company = await Company.findById(companyId);
     if (!company) return res.status(404).json({ error: 'Company not found' });
@@ -77,6 +108,22 @@ router.put('/:pid', requireAdminAuth, async (req, res) => {
 
     if (isActive !== undefined) {
       plan.isActive = Boolean(isActive);
+    }
+
+    if (productLine !== undefined || region !== undefined) {
+      plan.productLine = (productLine !== undefined ? productLine : region) || '';
+    }
+
+    if (medicalCover !== undefined) {
+      if (typeof medicalCover === 'boolean') {
+        plan.medicalCover = medicalCover;
+      } else if (medicalCover === 'with' || medicalCover === 'With') {
+        plan.medicalCover = true;
+      } else if (medicalCover === 'without' || medicalCover === 'Without') {
+        plan.medicalCover = false;
+      } else {
+        plan.medicalCover = false;
+      }
     }
 
     await company.save();

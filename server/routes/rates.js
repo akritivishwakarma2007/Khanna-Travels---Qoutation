@@ -4,17 +4,22 @@ const multer = require('multer');
 const Company = require('../models/Company');
 const { requireAdminAuth } = require('../middleware/auth');
 
+const mongoose = require('mongoose');
 const upload = multer({ storage: multer.memoryStorage() });
 
+const DB_ERROR_MSG = 'Cannot reach the database. Check MONGODB_URI in server/.env.';
 const VALID_COVERAGES = [50000, 100000, 200000, 250000, 500000, 750000, 1000000];
 
 async function getCompanyAndPlan(req) {
+  if (mongoose.connection.readyState !== 1) {
+    return { company: null, plan: null, error: DB_ERROR_MSG, status: 503 };
+  }
   const companyId = req.params.companyId || req.params.id;
   const planId = req.params.planId || req.params.pid;
   const company = await Company.findById(companyId);
-  if (!company) return { company: null, plan: null, error: 'Company not found' };
+  if (!company) return { company: null, plan: null, error: 'Company not found', status: 404 };
   const plan = company.plans.id(planId);
-  if (!plan) return { company, plan: null, error: 'Plan not found' };
+  if (!plan) return { company, plan: null, error: 'Plan not found', status: 404 };
   return { company, plan };
 }
 
@@ -47,8 +52,8 @@ router.get('/template', (req, res) => {
 // Returns rates, optionally filtered by coverage and/or region
 router.get('/', async (req, res) => {
   try {
-    const { plan, error } = await getCompanyAndPlan(req);
-    if (error) return res.status(404).json({ error });
+    const { plan, error, status } = await getCompanyAndPlan(req);
+    if (error) return res.status(status || 404).json({ error });
 
     let rates = plan.rates || [];
     const { coverage, region } = req.query;
@@ -145,8 +150,8 @@ router.post('/grid', requireAdminAuth, async (req, res) => {
       }
     }
 
-    const { company, plan, error } = await getCompanyAndPlan(req);
-    if (error) return res.status(404).json({ error });
+    const { company, plan, error, status } = await getCompanyAndPlan(req);
+    if (error) return res.status(status || 404).json({ error });
 
     // 4. Remove existing rates for this specific (coverage + region)
     plan.rates = (plan.rates || []).filter(

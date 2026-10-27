@@ -8,22 +8,22 @@ const connectDB = async () => {
     if (
       !uri ||
       uri === 'your_mongodb_atlas_connection_string_here' ||
-      uri.includes('admin:password@cluster.mongodb.net') ||
       uri.includes('username:password')
     ) {
       console.warn('⚠️  MONGODB_URI not configured — running in offline mode.');
       mongoose.set('bufferCommands', false);
       return false;
     }
+
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 2000,
-      connectTimeoutMS: 2000,
-      socketTimeoutMS: 5000
+      serverSelectionTimeoutMS: 8000,
+      connectTimeoutMS: 8000,
+      socketTimeoutMS: 30000
     });
-    console.log('✅  MongoDB connected:', mongoose.connection.host);
+    console.log('✅  MongoDB Atlas connected successfully:', mongoose.connection.host);
     return true;
   } catch (err) {
-    console.error('❌  MongoDB connection error:', err.message);
+    console.error('❌  MongoDB Atlas connection error:', err.message);
     mongoose.set('bufferCommands', false);
     return false;
   }

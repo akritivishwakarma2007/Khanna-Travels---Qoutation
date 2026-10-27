@@ -6,52 +6,35 @@ const path = require('path');
 const Company = require('../models/Company');
 const { requireAdminAuth } = require('../middleware/auth');
 
-function getSeedCompaniesSlim() {
-  try {
-    const seedPath = path.join(__dirname, '..', 'khanna-travels-seed-data.json');
-    if (fs.existsSync(seedPath)) {
-      const data = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
-      return data.map((c, idx) => ({
-        _id: c._id || `seed_${idx}`,
-        companyName: c.companyName,
-        isActive: c.isActive !== false,
-        plans: (c.plans || []).map((p, pIdx) => ({
-          _id: p._id || `plan_${idx}_${pIdx}`,
-          planName: p.planName,
-          isActive: p.isActive !== false
-        }))
-      }));
-    }
-  } catch (err) {
-    console.error('Error reading seed data:', err.message);
-  }
-  return [];
-}
+const DB_ERROR_MSG = 'Cannot reach the database. Check MONGODB_URI in server/.env.';
 
 // GET /api/companies — list all (slim: without rate rows for speed)
 router.get('/', async (req, res) => {
   try {
     if (mongoose.connection.readyState !== 1) {
-      return res.json(getSeedCompaniesSlim());
+      return res.status(503).json({ error: DB_ERROR_MSG });
     }
     const companies = await Company.find(
       {},
-      { companyName: 1, isActive: 1, createdAt: 1, updatedAt: 1, 'plans._id': 1, 'plans.planName': 1, 'plans.isActive': 1 }
+      { companyName: 1, isActive: 1, createdAt: 1, updatedAt: 1, 'plans._id': 1, 'plans.planName': 1, 'plans.productLine': 1, 'plans.medicalCover': 1, 'plans.isActive': 1, 'plans.rates': 1 }
     ).sort({ companyName: 1 });
     res.json(companies);
   } catch (err) {
-    res.json(getSeedCompaniesSlim());
+    res.status(503).json({ error: DB_ERROR_MSG });
   }
 });
 
 // GET /api/companies/:id — full company including all rates
 router.get('/:id', async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ error: DB_ERROR_MSG });
+    }
     const company = await Company.findById(req.params.id);
     if (!company) return res.status(404).json({ error: 'Company not found' });
     res.json(company);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(503).json({ error: DB_ERROR_MSG });
   }
 });
 
