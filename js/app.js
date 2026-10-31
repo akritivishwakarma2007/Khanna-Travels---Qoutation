@@ -5,9 +5,7 @@
  */
 import { QuoteView } from './quoteView.js';
 import { VisaLinksView } from './views/visaLinksView.js';
-import { DocumentDetailsView } from './views/documentDetailsView.js';
 import { PlansRatesView } from './views/plansRatesView.js';
-import { BillingView } from './views/billingView.js';
 import { SettingsView } from './views/settingsView.js';
 import { LoginView } from './views/loginView.js';
 import { healthCheck, getAdminHealth, isAdminAuthenticated, logoutAdmin } from './api.js';
@@ -20,9 +18,7 @@ class App {
     this.views = {
       quote: new QuoteView(this),
       visa: new VisaLinksView(this),
-      documents: new DocumentDetailsView(this),
       admin: new PlansRatesView(this),
-      billing: new BillingView(this),
       settings: new SettingsView(this),
       login: new LoginView(this)
     };
@@ -98,22 +94,14 @@ class App {
     const isAuthed = isAdminAuthenticated();
 
     // Desktop navbar items
-    const navDocs = document.getElementById('navDocs');
-    if (navDocs) navDocs.style.display = isAuthed ? 'inline-flex' : 'none';
     const navAdmin = document.getElementById('navAdmin');
     if (navAdmin) navAdmin.style.display = isAuthed ? 'inline-flex' : 'none';
-    const navBilling = document.getElementById('navBilling');
-    if (navBilling) navBilling.style.display = isAuthed ? 'inline-flex' : 'none';
     const navSettings = document.getElementById('navSettings');
     if (navSettings) navSettings.style.display = isAuthed ? 'inline-flex' : 'none';
 
     // Mobile bottom tabs
-    const mobNavDocs = document.getElementById('mobNavDocs');
-    if (mobNavDocs) mobNavDocs.style.display = isAuthed ? 'flex' : 'none';
     const mobNavAdmin = document.getElementById('mobNavAdmin');
     if (mobNavAdmin) mobNavAdmin.style.display = isAuthed ? 'flex' : 'none';
-    const mobNavBilling = document.getElementById('mobNavBilling');
-    if (mobNavBilling) mobNavBilling.style.display = isAuthed ? 'flex' : 'none';
     const mobNavSettings = document.getElementById('mobNavSettings');
     if (mobNavSettings) mobNavSettings.style.display = isAuthed ? 'flex' : 'none';
 
@@ -150,8 +138,8 @@ class App {
   navigate(viewId) {
     let targetView = (viewId || 'quote').toLowerCase();
 
-    // Public users cannot reach Document Details, Plans & Rates, Billing, or Settings
-    const adminOnlyViews = ['documents', 'admin', 'billing', 'settings'];
+    // Public users cannot reach Plans & Rates or Settings
+    const adminOnlyViews = ['admin', 'settings'];
     if (adminOnlyViews.includes(targetView) && !isAdminAuthenticated()) {
       this.redirectAfterLogin = targetView;
       targetView = 'login';
