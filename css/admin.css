@@ -2565,6 +2565,51 @@
   font-size: 13px;
 }
 
+.pr-company-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #eef2f8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.pr-company-subtext {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.pr-row-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.pr-btn-view-plans {
+  background: #1a3560 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.pr-btn-view-plans:hover {
+  background: #112646 !important;
+}
+
 .pr-col-right {
   text-align: right;
 }
