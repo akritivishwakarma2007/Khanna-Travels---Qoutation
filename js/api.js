@@ -342,3 +342,7 @@ export const addVisaLink     = (linkData)                        => request('POS
 export const updateVisaLink  = (id, linkData)                    => request('PUT', `/visa-links/${id}`, linkData);
 export const deleteVisaLink  = (id)                              => request('DELETE', `/visa-links/${id}`);
 
+// ── Admin System Health Check ────────────────────────────────────────────────
+export const getAdminHealth  = ()                                => request('GET', '/admin/health', null, 8000);
+
+

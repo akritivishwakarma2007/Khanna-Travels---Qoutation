@@ -1,12 +1,11 @@
 /**
  * Khanna Travels — Insurance Plans & Rates View (Admin Only)
- * Updated to 2-Tab Specification: Companies | Rate Tables
+ * Updated Specification: Direct 2-Tier Navigation (Companies & Plans -> Rate Table)
  * 
  * Flows:
  *   - Tab 1: Companies
- *       - Level 1: Companies list (PC table / Mobile cards, filter toggle, Add Company button)
- *       - Level 2: Company page (Breadcrumb, Header with status chip, Edit, Archive/Activate, Plans list)
- *       - Level 3: Plan page (Breadcrumb, Plan settings card, Rate table card with matrix editor)
+ *       - Level 1: Companies list with direct plan rows, actions (Edit, Archive, + Add Plan), and direct "Rate Table" button per plan
+ *       - Level 3: Plan page (Breadcrumb "← Back to Companies", Plan settings card, Rate table card with matrix editor)
  *   - Tab 2: Rate Tables (Shortcut)
  *       - Dropdowns: Company, then Plan -> opens the same Plan page
  *       - Empty message before selection: "Select a company and a plan to edit its rate table."
@@ -93,7 +92,7 @@ export class PlansRatesView {
 
     // Navigation state
     this.activeTab = 'companies'; // 'companies' | 'rate-tables'
-    this.level = 'companies';     // 'companies' | 'company' | 'plan'
+    this.level = 'companies';     // 'companies' | 'plan'
 
     // Data state
     this.companies = [];
@@ -307,27 +306,18 @@ export class PlansRatesView {
     return this._renderCompaniesTab();
   }
 
-  // ─── TAB 1: COMPANIES FLOW ─────────────────────────────────────────────────
+  // ─── TAB 1: COMPANIES & PLANS FLOW ─────────────────────────────────────────
   _renderCompaniesTab() {
-    switch (this.level) {
-      case 'plan':
-        return `
-          ${this._renderBreadcrumbs()}
-          ${this._renderPlanPage()}
-        `;
-      case 'company':
-        return `
-          ${this._renderBreadcrumbs()}
-          ${this._renderCompanyPage()}
-        `;
-      case 'companies':
-      default:
-        // Rule: Show breadcrumbs ONLY on company page and plan page
-        return this._renderCompaniesList();
+    if (this.level === 'plan') {
+      return `
+        ${this._renderBreadcrumbs()}
+        ${this._renderPlanPage()}
+      `;
     }
+    return this._renderCompaniesList();
   }
 
-  // ─── BREADCRUMBS ───────────────────────────────────────────────────────────
+  // ─── BREADCRUMBS (Shown ONLY on Level 3 Plan / Rate Table page) ────────────
   _renderBreadcrumbs() {
     const compName = this.selectedCompany ? this.selectedCompany.companyName : '';
     const planName = this.selectedPlan ? this.selectedPlan.planName : '';
@@ -335,21 +325,11 @@ export class PlansRatesView {
     if (this.level === 'plan') {
       return `
         <nav class="pr-breadcrumbs" aria-label="Breadcrumb">
-          <button type="button" class="pr-crumb-link" data-crumb="companies">Companies</button>
+          <button type="button" class="pr-crumb-link" data-crumb="companies">← Back to Companies</button>
           <span class="pr-crumb-sep">›</span>
-          <button type="button" class="pr-crumb-link" data-crumb="company">${this._esc(compName)}</button>
+          <span class="pr-crumb-company-name" style="color: var(--muted); font-weight: 700;">${this._esc(compName)}</span>
           <span class="pr-crumb-sep">›</span>
           <span class="pr-crumb-current">${this._esc(planName)}</span>
-        </nav>
-      `;
-    }
-
-    if (this.level === 'company') {
-      return `
-        <nav class="pr-breadcrumbs" aria-label="Breadcrumb">
-          <button type="button" class="pr-crumb-link" data-crumb="companies">Companies</button>
-          <span class="pr-crumb-sep">›</span>
-          <span class="pr-crumb-current">${this._esc(compName)}</span>
         </nav>
       `;
     }
@@ -357,7 +337,7 @@ export class PlansRatesView {
     return '';
   }
 
-  // ─── LEVEL 1: COMPANIES LIST ───────────────────────────────────────────────
+  // ─── LEVEL 1: COMPANIES & PLANS LIST ───────────────────────────────────────
   _renderCompaniesList() {
     const all = this.companies;
     const activeCount = all.filter(c => c.isActive !== false).length;
@@ -375,7 +355,7 @@ export class PlansRatesView {
         <!-- List Header Bar -->
         <div class="pr-section-header">
           <div class="pr-section-title-wrap">
-            <h2 class="pr-section-title">Companies</h2>
+            <h2 class="pr-section-title">Insurance Companies &amp; Plans</h2>
             <span class="pr-count-chip">${filtered.length}</span>
           </div>
 
@@ -417,224 +397,144 @@ export class PlansRatesView {
         ${filtered.length === 0 ? `
           <div class="pr-card pr-empty-card">
             <div class="pr-empty-icon">🏢</div>
-            <div class="pr-empty-text">No companies yet. Add your first company.</div>
+            <div class="pr-empty-text">No companies found. Add your first company to begin.</div>
             <button type="button" class="btn btn-primary" id="btnEmptyAddCompany" style="margin-top: 14px;">
               + Add Company
             </button>
           </div>
         ` : `
-          <!-- PC Table View (>= 768px) -->
-          <div class="pr-card pr-pc-table-card">
-            <table class="pr-table">
-              <thead>
-                <tr>
-                  <th>Company &amp; Status</th>
-                  <th>Plans</th>
-                  <th>Date Added</th>
-                  <th class="pr-col-right">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${filtered.map(c => {
-                  const plansCount = (c.plans || []).length;
-                  const dateStr = c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
-                  const isActive = c.isActive !== false;
-                  return `
-                    <tr class="pr-row-clickable" data-open-company="${c._id}">
-                      <td>
-                        <div class="pr-company-cell">
-                          <strong class="pr-company-name">${this._esc(c.companyName)}</strong>
-                          <span class="pr-status-badge ${isActive ? 'status-active' : 'status-archived'}">
-                            ${isActive ? 'Active' : 'Archived'}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <span class="pr-plans-pill">${plansCount} Plans</span>
-                      </td>
-                      <td class="pr-date-cell">
-                        ${dateStr}
-                      </td>
-                      <td class="pr-col-right">
-                        <button type="button" class="btn btn-outline pr-btn-view" data-open-company="${c._id}">
-                          View Plans &amp; Rates
-                        </button>
-                      </td>
-                    </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Mobile Cards View (< 768px) -->
-          <div class="pr-mobile-cards-list">
+          <!-- Companies with Direct Plans -->
+          <div class="pr-companies-blocks">
             ${filtered.map(c => {
-              const plansCount = (c.plans || []).length;
+              const plans = c.plans || [];
               const dateStr = c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
               const isActive = c.isActive !== false;
+
               return `
-                <div class="pr-card pr-mobile-company-card" data-open-company="${c._id}">
-                  <div class="pr-mcc-header">
-                    <strong class="pr-mcc-title">${this._esc(c.companyName)}</strong>
-                    <span class="pr-status-badge ${isActive ? 'status-active' : 'status-archived'}">
-                      ${isActive ? 'Active' : 'Archived'}
-                    </span>
+                <div class="pr-card pr-company-block-card" id="compCard_${c._id}">
+                  <!-- Company Header Bar -->
+                  <div class="pr-comp-header-bar">
+                    <div class="pr-comp-info-group">
+                      <h3 class="pr-comp-title">${this._esc(c.companyName)}</h3>
+                      <span class="pr-status-badge ${isActive ? 'status-active' : 'status-archived'}">
+                        ${isActive ? 'Active' : 'Archived'}
+                      </span>
+                      <span class="pr-plans-pill">${plans.length} ${plans.length === 1 ? 'Plan' : 'Plans'}</span>
+                      <span class="pr-date-cell">Added ${dateStr}</span>
+                    </div>
+
+                    <div class="pr-comp-actions-group">
+                      <button type="button" class="btn btn-outline btn-sm" data-edit-company="${c._id}" title="Rename Company">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                        Edit
+                      </button>
+                      ${isActive ? `
+                        <button type="button" class="btn btn-outline btn-sm pr-btn-archive" data-toggle-archive="${c._id}" data-action="archive">
+                          Archive
+                        </button>
+                      ` : `
+                        <button type="button" class="btn btn-outline btn-sm pr-btn-activate" data-toggle-archive="${c._id}" data-action="activate">
+                          Activate
+                        </button>
+                      `}
+                      <button type="button" class="btn btn-primary btn-sm" data-add-plan="${c._id}">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                        Add Plan
+                      </button>
+                    </div>
                   </div>
-                  <div class="pr-mcc-meta">
-                    <span class="pr-plans-pill">${plansCount} Plans</span>
-                    <span class="pr-mcc-date">Added ${dateStr}</span>
+
+                  <!-- Plans Sub-Table (PC >= 768px) -->
+                  <div class="pr-pc-table-card" style="border:none; border-radius:0; box-shadow:none; margin:0;">
+                    ${plans.length === 0 ? `
+                      <div class="pr-company-plans-empty">
+                        <span>No plans created yet for ${this._esc(c.companyName)}.</span>
+                        <button type="button" class="btn btn-outline btn-sm" data-add-plan="${c._id}">+ Add First Plan</button>
+                      </div>
+                    ` : `
+                      <table class="pr-plans-subtable">
+                        <thead>
+                          <tr>
+                            <th>Plan Name</th>
+                            <th>Region</th>
+                            <th>Medical Type</th>
+                            <th>Status</th>
+                            <th class="pr-col-right">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          ${plans.map(p => {
+                            const isPlanActive = p.isActive !== false;
+                            const regionLabel = this._formatRegion(p.productLine);
+                            const medicalLabel = this._formatMedical(p.medicalCover);
+                            return `
+                              <tr class="pr-row-clickable" data-open-rate-table="${c._id}:${p._id}">
+                                <td>
+                                  <strong class="pr-plan-name">${this._esc(p.planName)}</strong>
+                                </td>
+                                <td>
+                                  <span class="pr-region-tag">${regionLabel}</span>
+                                </td>
+                                <td>
+                                  <span class="pr-medical-tag">${medicalLabel}</span>
+                                </td>
+                                <td>
+                                  <span class="pr-status-badge ${isPlanActive ? 'status-active' : 'status-archived'}">
+                                    ${isPlanActive ? 'Active' : 'Archived'}
+                                  </span>
+                                </td>
+                                <td class="pr-col-right">
+                                  <button type="button" class="pr-btn-rate-table" data-open-rate-table="${c._id}:${p._id}">
+                                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
+                                    Rate Table
+                                  </button>
+                                </td>
+                              </tr>
+                            `;
+                          }).join('')}
+                        </tbody>
+                      </table>
+                    `}
                   </div>
-                  <button type="button" class="btn btn-primary pr-btn-full" data-open-company="${c._id}">
-                    View Plans &amp; Rates
-                  </button>
+
+                  <!-- Plans Sub-Cards (Mobile < 768px) -->
+                  <div class="pr-mobile-cards-list" style="padding: 14px;">
+                    ${plans.length === 0 ? `
+                      <div class="pr-company-plans-empty" style="padding: 12px 0;">
+                        <span>No plans created yet.</span>
+                        <button type="button" class="btn btn-outline btn-sm" data-add-plan="${c._id}">+ Add Plan</button>
+                      </div>
+                    ` : plans.map(p => {
+                      const isPlanActive = p.isActive !== false;
+                      const regionLabel = this._formatRegion(p.productLine);
+                      const medicalLabel = this._formatMedical(p.medicalCover);
+                      return `
+                        <div class="pr-card pr-mobile-plan-card" style="box-shadow: 0 1px 2px rgba(20,35,63,0.06);" data-open-rate-table="${c._id}:${p._id}">
+                          <div class="pr-mpc-header">
+                            <strong class="pr-mpc-title">${this._esc(p.planName)}</strong>
+                            <span class="pr-status-badge ${isPlanActive ? 'status-active' : 'status-archived'}">
+                              ${isPlanActive ? 'Active' : 'Archived'}
+                            </span>
+                          </div>
+
+                          <div class="pr-mpc-tags">
+                            <span class="pr-region-tag">Region: ${regionLabel}</span>
+                            <span class="pr-medical-tag">Medical: ${medicalLabel}</span>
+                          </div>
+
+                          <button type="button" class="pr-btn-rate-table pr-btn-full" data-open-rate-table="${c._id}:${p._id}">
+                            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
+                            Rate Table
+                          </button>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
                 </div>
               `;
             }).join('')}
           </div>
         `}
-      </div>
-    `;
-  }
-
-  // ─── LEVEL 2: COMPANY PAGE (Plans of one company) ──────────────────────────
-  _renderCompanyPage() {
-    if (!this.selectedCompany) {
-      return `<div class="pr-card pr-empty-card">No company selected.</div>`;
-    }
-
-    const comp = this.selectedCompany;
-    const plans = comp.plans || [];
-    const isCompActive = comp.isActive !== false;
-
-    return `
-      <div class="pr-company-page-view">
-        <!-- Company Header Card -->
-        <div class="pr-card pr-company-header-card">
-          <div class="pr-ch-info">
-            <div class="pr-ch-name-row">
-              <h2 class="pr-company-page-title">${this._esc(comp.companyName)}</h2>
-              <span class="pr-status-badge ${isCompActive ? 'status-active' : 'status-archived'}">
-                ${isCompActive ? 'Active' : 'Archived'}
-              </span>
-            </div>
-            <p class="pr-ch-meta">Added: ${comp.createdAt ? new Date(comp.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'} &bull; ${plans.length} total plans</p>
-          </div>
-
-          <div class="pr-ch-actions">
-            <button type="button" class="btn btn-outline" id="btnEditCompany">
-              Edit Company
-            </button>
-            ${isCompActive ? `
-              <button type="button" class="btn btn-outline pr-btn-archive" id="btnArchiveCompany">
-                Archive
-              </button>
-            ` : `
-              <button type="button" class="btn btn-outline pr-btn-activate" id="btnActivateCompany">
-                Activate
-              </button>
-            `}
-          </div>
-        </div>
-
-        <!-- Company Plans Section -->
-        <div class="pr-plans-section">
-          <div class="pr-section-header">
-            <div class="pr-section-title-wrap">
-              <h3 class="pr-section-title">Insurance Plans</h3>
-              <span class="pr-count-chip">${plans.length}</span>
-            </div>
-            <button type="button" class="btn btn-primary pr-btn-add" id="btnAddPlan">
-              <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-              Add Plan
-            </button>
-          </div>
-
-          ${plans.length === 0 ? `
-            <div class="pr-card pr-empty-card">
-              <div class="pr-empty-icon">📋</div>
-              <div class="pr-empty-text">No plans yet for ${this._esc(comp.companyName)}. Add your first plan.</div>
-              <button type="button" class="btn btn-primary" id="btnEmptyAddPlan" style="margin-top: 14px;">
-                + Add Plan
-              </button>
-            </div>
-          ` : `
-            <!-- PC Plans Table (>= 768px) -->
-            <div class="pr-card pr-pc-table-card">
-              <table class="pr-table">
-                <thead>
-                  <tr>
-                    <th>Plan Name</th>
-                    <th>Region</th>
-                    <th>Medical Type</th>
-                    <th>Status</th>
-                    <th class="pr-col-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${plans.map(p => {
-                    const isPlanActive = p.isActive !== false;
-                    const regionLabel = this._formatRegion(p.productLine);
-                    const medicalLabel = this._formatMedical(p.medicalCover);
-
-                    return `
-                      <tr class="pr-row-clickable" data-open-plan="${p._id}">
-                        <td>
-                          <strong class="pr-plan-name">${this._esc(p.planName)}</strong>
-                        </td>
-                        <td>
-                          <span class="pr-region-tag">${regionLabel}</span>
-                        </td>
-                        <td>
-                          <span class="pr-medical-tag">${medicalLabel}</span>
-                        </td>
-                        <td>
-                          <span class="pr-status-badge ${isPlanActive ? 'status-active' : 'status-archived'}">
-                            ${isPlanActive ? 'Active' : 'Archived'}
-                          </span>
-                        </td>
-                        <td class="pr-col-right">
-                          <button type="button" class="btn btn-outline pr-btn-view" data-open-plan="${p._id}">
-                            Rate Table
-                          </button>
-                        </td>
-                      </tr>
-                    `;
-                  }).join('')}
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Mobile Plans Cards (< 768px) -->
-            <div class="pr-mobile-cards-list">
-              ${plans.map(p => {
-                const isPlanActive = p.isActive !== false;
-                const regionLabel = this._formatRegion(p.productLine);
-                const medicalLabel = this._formatMedical(p.medicalCover);
-
-                return `
-                  <div class="pr-card pr-mobile-plan-card" data-open-plan="${p._id}">
-                    <div class="pr-mpc-header">
-                      <strong class="pr-mpc-title">${this._esc(p.planName)}</strong>
-                      <span class="pr-status-badge ${isPlanActive ? 'status-active' : 'status-archived'}">
-                        ${isPlanActive ? 'Active' : 'Archived'}
-                      </span>
-                    </div>
-
-                    <div class="pr-mpc-tags">
-                      <span class="pr-region-tag">Region: ${regionLabel}</span>
-                      <span class="pr-medical-tag">Medical: ${medicalLabel}</span>
-                    </div>
-
-                    <button type="button" class="btn btn-primary pr-btn-full" data-open-plan="${p._id}">
-                      Rate Table
-                    </button>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          `}
-        </div>
       </div>
     `;
   }
@@ -1076,12 +976,10 @@ export class PlansRatesView {
       });
     });
 
-    // 3. Breadcrumb navigation
+    // 3. Breadcrumb navigation (Back to Companies)
     container.querySelectorAll('[data-crumb]').forEach(crumb => {
       crumb.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = crumb.dataset.crumb;
-
         if (this.isRateDirty) {
           if (!confirm('You have unsaved changes in the rate table. Do you want to discard them?')) {
             return;
@@ -1089,14 +987,9 @@ export class PlansRatesView {
         }
 
         this.isRateDirty = false;
-        if (target === 'companies') {
-          this.level = 'companies';
-          this.selectedCompany = null;
-          this.selectedPlan = null;
-        } else if (target === 'company') {
-          this.level = 'company';
-          this.selectedPlan = null;
-        }
+        this.level = 'companies';
+        this.selectedCompany = null;
+        this.selectedPlan = null;
         this._refreshDOM();
       });
     });
@@ -1111,52 +1004,33 @@ export class PlansRatesView {
       });
     });
 
-    // 5. Open Company Page (from table row or button)
-    container.querySelectorAll('[data-open-company]').forEach(el => {
+    // 5. Open Rate Table (Directly from Level 1 plan row/card to Level 3)
+    container.querySelectorAll('[data-open-rate-table]').forEach(el => {
       el.addEventListener('click', async (e) => {
-        // Prevent action button sub-click conflict
-        const compId = el.dataset.openCompany;
-        if (!compId) return;
+        const key = el.dataset.openRateTable;
+        if (!key) return;
+        const [compId, planId] = key.split(':');
+        const foundComp = this.companies.find(c => String(c._id) === String(compId));
+        if (!foundComp) return;
+        const foundPlan = (foundComp.plans || []).find(p => String(p._id) === String(planId));
+        if (!foundPlan) return;
 
         if (this.isRateDirty) {
           if (!confirm('You have unsaved changes in the rate table. Do you want to discard them?')) return;
         }
         this.isRateDirty = false;
 
-        const found = this.companies.find(c => String(c._id) === String(compId));
-        if (found) {
-          this.selectedCompany = found;
-          this.selectedPlan = null;
-          this.level = 'company';
-          this.activeTab = 'companies';
-          this._refreshDOM();
-        }
+        this.selectedCompany = foundComp;
+        this.selectedPlan = foundPlan;
+        this.level = 'plan';
+        this.isEditingPlanSettings = false;
+        this._initPlanSettingsDraft(foundPlan);
+        await this._loadRatesForCurrentPlan();
+        this._refreshDOM();
       });
     });
 
-    // 6. Open Plan Page (from plan row or Rate Table button)
-    container.querySelectorAll('[data-open-plan]').forEach(el => {
-      el.addEventListener('click', async (e) => {
-        const planId = el.dataset.openPlan;
-        if (!planId || !this.selectedCompany) return;
-
-        if (this.isRateDirty) {
-          if (!confirm('You have unsaved changes in the rate table. Do you want to discard them?')) return;
-        }
-
-        const foundPlan = (this.selectedCompany.plans || []).find(p => String(p._id) === String(planId));
-        if (foundPlan) {
-          this.selectedPlan = foundPlan;
-          this.level = 'plan';
-          this.isEditingPlanSettings = false;
-          this._initPlanSettingsDraft(foundPlan);
-          await this._loadRatesForCurrentPlan();
-          this._refreshDOM();
-        }
-      });
-    });
-
-    // 7. Add Company Button
+    // 6. Add Company Button (Top bar or empty state)
     const btnAddComp = container.querySelector('#btnAddCompany');
     const btnEmptyAddComp = container.querySelector('#btnEmptyAddCompany');
     const handleAddCompany = async () => {
@@ -1175,16 +1049,20 @@ export class PlansRatesView {
     if (btnAddComp) btnAddComp.addEventListener('click', handleAddCompany);
     if (btnEmptyAddComp) btnEmptyAddComp.addEventListener('click', handleAddCompany);
 
-    // 8. Edit Company Button
-    const btnEditComp = container.querySelector('#btnEditCompany');
-    if (btnEditComp && this.selectedCompany) {
-      btnEditComp.addEventListener('click', async () => {
-        const oldName = this.selectedCompany.companyName;
+    // 7. Edit Company Buttons on Level 1
+    container.querySelectorAll('[data-edit-company]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const compId = btn.dataset.editCompany;
+        const comp = this.companies.find(c => String(c._id) === String(compId));
+        if (!comp) return;
+
+        const oldName = comp.companyName;
         const newName = await this._promptInput('Rename Company', 'Company Name', '', oldName);
         if (!newName || newName.trim() === oldName) return;
 
         try {
-          await renameCompany(this.selectedCompany._id, newName.trim());
+          await renameCompany(comp._id, newName.trim());
           this.app.showToast('Company renamed successfully', 'success');
           await this._loadData();
           this._refreshDOM();
@@ -1192,61 +1070,63 @@ export class PlansRatesView {
           this.app.showToast(err.message, 'error');
         }
       });
-    }
+    });
 
-    // 9. Archive / Activate Company with Confirmation
-    const btnArchiveComp = container.querySelector('#btnArchiveCompany');
-    if (btnArchiveComp && this.selectedCompany) {
-      btnArchiveComp.addEventListener('click', async () => {
-        const comp = this.selectedCompany;
-        if (!confirm(`Are you sure you want to archive "${comp.companyName}"? This company will be hidden from new quotes.`)) {
-          return;
+    // 8. Archive / Activate Company Buttons on Level 1
+    container.querySelectorAll('[data-toggle-archive]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const compId = btn.dataset.toggleArchive;
+        const action = btn.dataset.action;
+        const comp = this.companies.find(c => String(c._id) === String(compId));
+        if (!comp) return;
+
+        if (action === 'archive') {
+          if (!confirm(`Are you sure you want to archive "${comp.companyName}"? This company will be hidden from new quotes.`)) {
+            return;
+          }
+          try {
+            await toggleCompanyStatus(comp._id, false);
+            this.app.showToast(`Company "${comp.companyName}" archived`, 'info');
+            await this._loadData();
+            this._refreshDOM();
+          } catch (err) {
+            this.app.showToast(err.message, 'error');
+          }
+        } else {
+          try {
+            await toggleCompanyStatus(comp._id, true);
+            this.app.showToast(`Company "${comp.companyName}" activated`, 'success');
+            await this._loadData();
+            this._refreshDOM();
+          } catch (err) {
+            this.app.showToast(err.message, 'error');
+          }
         }
+      });
+    });
+
+    // 9. Add Plan Button for a specific company on Level 1
+    container.querySelectorAll('[data-add-plan]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const compId = btn.dataset.addPlan;
+        const comp = this.companies.find(c => String(c._id) === String(compId));
+        if (!comp) return;
+
+        const planData = await this._promptPlanModal(comp.companyName);
+        if (!planData || !planData.planName) return;
+
         try {
-          await toggleCompanyStatus(comp._id, false);
-          this.app.showToast(`Company "${comp.companyName}" archived`, 'info');
+          await addPlan(comp._id, planData);
+          this.app.showToast(`Plan "${planData.planName}" created for ${comp.companyName}`, 'success');
           await this._loadData();
           this._refreshDOM();
         } catch (err) {
           this.app.showToast(err.message, 'error');
         }
       });
-    }
-
-    const btnActivateComp = container.querySelector('#btnActivateCompany');
-    if (btnActivateComp && this.selectedCompany) {
-      btnActivateComp.addEventListener('click', async () => {
-        const comp = this.selectedCompany;
-        try {
-          await toggleCompanyStatus(comp._id, true);
-          this.app.showToast(`Company "${comp.companyName}" activated`, 'success');
-          await this._loadData();
-          this._refreshDOM();
-        } catch (err) {
-          this.app.showToast(err.message, 'error');
-        }
-      });
-    }
-
-    // 10. Add Plan Button
-    const btnAddPlan = container.querySelector('#btnAddPlan');
-    const btnEmptyAddPlan = container.querySelector('#btnEmptyAddPlan');
-    const handleAddPlan = async () => {
-      if (!this.selectedCompany) return;
-      const planData = await this._promptPlanModal(this.selectedCompany.companyName);
-      if (!planData || !planData.planName) return;
-
-      try {
-        await addPlan(this.selectedCompany._id, planData);
-        this.app.showToast(`Plan "${planData.planName}" created`, 'success');
-        await this._loadData();
-        this._refreshDOM();
-      } catch (err) {
-        this.app.showToast(err.message, 'error');
-      }
-    };
-    if (btnAddPlan) btnAddPlan.addEventListener('click', handleAddPlan);
-    if (btnEmptyAddPlan) btnEmptyAddPlan.addEventListener('click', handleAddPlan);
+    });
 
     // 11. Plan Settings Card Editing
     const btnEditSettings = container.querySelector('#btnEditPlanSettings');

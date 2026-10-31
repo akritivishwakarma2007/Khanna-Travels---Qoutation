@@ -7,18 +7,23 @@ import { QuoteView } from './quoteView.js';
 import { VisaLinksView } from './views/visaLinksView.js';
 import { DocumentDetailsView } from './views/documentDetailsView.js';
 import { PlansRatesView } from './views/plansRatesView.js';
+import { BillingView } from './views/billingView.js';
+import { SettingsView } from './views/settingsView.js';
 import { LoginView } from './views/loginView.js';
-import { healthCheck, isAdminAuthenticated, logoutAdmin } from './api.js';
+import { healthCheck, getAdminHealth, isAdminAuthenticated, logoutAdmin } from './api.js';
 import { StorageManager } from './storage.js';
 
 class App {
   constructor() {
     StorageManager.init();
+    this.dbHealthStatus = 'connected';
     this.views = {
       quote: new QuoteView(this),
       visa: new VisaLinksView(this),
       documents: new DocumentDetailsView(this),
       admin: new PlansRatesView(this),
+      billing: new BillingView(this),
+      settings: new SettingsView(this),
       login: new LoginView(this)
     };
     this.currentView = null;
@@ -26,6 +31,11 @@ class App {
 
     this._setupNav();
     this._checkDbStatus();
+
+    // Periodic check every 5 minutes for header dot
+    setInterval(() => {
+      this._checkDbStatus();
+    }, 5 * 60 * 1000);
 
     // Route on initial load
     const hash = (location.hash.replace('#', '') || 'quote').toLowerCase();
@@ -40,6 +50,12 @@ class App {
       if (btn) {
         e.preventDefault();
         this.navigate(btn.dataset.view);
+        return;
+      }
+      const dbPill = e.target.closest('#headerDbPill');
+      if (dbPill) {
+        e.preventDefault();
+        this.navigate('settings');
         return;
       }
       const signInBtn = e.target.closest('#btnHeaderSignIn');
@@ -73,34 +89,50 @@ class App {
     });
   }
 
+  updateDbStatusIndicator(status) {
+    this.dbHealthStatus = status || 'connected';
+    this._updateHeaderUI();
+  }
+
   _updateHeaderUI() {
     const isAuthed = isAdminAuthenticated();
 
     // Desktop navbar items
     const navDocs = document.getElementById('navDocs');
-    if (navDocs) {
-      navDocs.style.display = isAuthed ? 'inline-flex' : 'none';
-    }
+    if (navDocs) navDocs.style.display = isAuthed ? 'inline-flex' : 'none';
     const navAdmin = document.getElementById('navAdmin');
-    if (navAdmin) {
-      navAdmin.style.display = isAuthed ? 'inline-flex' : 'none';
-    }
+    if (navAdmin) navAdmin.style.display = isAuthed ? 'inline-flex' : 'none';
+    const navBilling = document.getElementById('navBilling');
+    if (navBilling) navBilling.style.display = isAuthed ? 'inline-flex' : 'none';
+    const navSettings = document.getElementById('navSettings');
+    if (navSettings) navSettings.style.display = isAuthed ? 'inline-flex' : 'none';
 
     // Mobile bottom tabs
     const mobNavDocs = document.getElementById('mobNavDocs');
-    if (mobNavDocs) {
-      mobNavDocs.style.display = isAuthed ? 'flex' : 'none';
-    }
+    if (mobNavDocs) mobNavDocs.style.display = isAuthed ? 'flex' : 'none';
     const mobNavAdmin = document.getElementById('mobNavAdmin');
-    if (mobNavAdmin) {
-      mobNavAdmin.style.display = isAuthed ? 'flex' : 'none';
-    }
+    if (mobNavAdmin) mobNavAdmin.style.display = isAuthed ? 'flex' : 'none';
+    const mobNavBilling = document.getElementById('mobNavBilling');
+    if (mobNavBilling) mobNavBilling.style.display = isAuthed ? 'flex' : 'none';
+    const mobNavSettings = document.getElementById('mobNavSettings');
+    if (mobNavSettings) mobNavSettings.style.display = isAuthed ? 'flex' : 'none';
 
-    // Top logo band (right side auth controls)
+    // Top logo band (right side auth controls & Database Connected pill)
     const agentLabel = document.getElementById('agentLabel');
     if (agentLabel) {
       if (isAuthed) {
+        const pillClass = this.dbHealthStatus === 'connected'
+          ? 'status-pill-connected'
+          : (this.dbHealthStatus === 'slow' ? 'status-pill-slow' : 'status-pill-disconnected');
+        const pillText = this.dbHealthStatus === 'connected'
+          ? 'Database connected'
+          : (this.dbHealthStatus === 'slow' ? 'Database slow' : 'Database offline');
+
         agentLabel.innerHTML = `
+          <div class="header-db-pill ${pillClass}" id="headerDbPill" role="button" tabindex="0" aria-label="${pillText}" title="Database status: ${pillText} (Click to open Settings)">
+            <span class="status-dot"></span>
+            <span class="status-pill-text">${pillText}</span>
+          </div>
           <div class="agent-avatar" aria-hidden="true" title="Khanna Travels Admin">KT</div>
           <span class="agent-name">Khanna Agent</span>
           <button type="button" class="btn-header-logout" id="btnHeaderLogout" aria-label="Logout of admin">Logout</button>
@@ -118,9 +150,10 @@ class App {
   navigate(viewId) {
     let targetView = (viewId || 'quote').toLowerCase();
 
-    // Public users cannot reach Document Details or Insurance Plans & Rates
-    const adminOnlyViews = ['documents', 'admin'];
+    // Public users cannot reach Document Details, Plans & Rates, Billing, or Settings
+    const adminOnlyViews = ['documents', 'admin', 'billing', 'settings'];
     if (adminOnlyViews.includes(targetView) && !isAdminAuthenticated()) {
+      this.redirectAfterLogin = targetView;
       targetView = 'login';
     }
 
@@ -193,16 +226,27 @@ class App {
   async _checkDbStatus() {
     const banner = document.getElementById('dbBanner');
     try {
+      if (isAdminAuthenticated()) {
+        const adminHealth = await getAdminHealth().catch(() => null);
+        if (adminHealth && adminHealth.database) {
+          this.updateDbStatusIndicator(adminHealth.database.status);
+          if (banner) banner.classList.remove('show');
+          return;
+        }
+      }
+
       const health = await healthCheck();
       if (banner) {
         if (health.status === 'ok' && health.db === 'connected') {
           banner.classList.remove('show');
+          this.updateDbStatusIndicator('connected');
         } else if (health.status === 'ok') {
-          // Local seed mode - keep unobtrusive
           banner.classList.remove('show');
+          this.updateDbStatusIndicator('connected');
         }
       }
     } catch {
+      this.updateDbStatusIndicator('not_connected');
       if (banner) {
         banner.innerHTML = `
           <div class="db-banner-inner">
@@ -243,6 +287,9 @@ class App {
   }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  window.app = new App();
-});
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', () => {
+    window.app = new App();
+  });
+}
+

@@ -55,6 +55,7 @@ app.use('/api/quotes', require('./routes/quotes'));
 app.use('/api/quote/compare', require('./routes/compare'));
 app.use('/api/compare', require('./routes/compare'));
 app.use('/api/visa-links', require('./routes/visaLinks'));
+app.use('/api/admin/health', require('./routes/adminHealth'));
 
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {

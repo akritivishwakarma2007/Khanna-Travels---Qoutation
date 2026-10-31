@@ -154,7 +154,9 @@ export class LoginView {
           await loginAdmin(email, password, true);
           this.app.showToast('Signed in to admin successfully', 'success');
           this.app._updateHeaderUI();
-          this.app.navigate('quote');
+          const target = this.app.redirectAfterLogin || 'quote';
+          this.app.redirectAfterLogin = null;
+          this.app.navigate(target);
         } catch (err) {
           if (errBox) {
             errBox.textContent = err.message || 'Invalid administrator email or password.';
