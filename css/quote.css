@@ -1386,3 +1386,523 @@
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   STEP 3: ISSUE DETAILS SECTION
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.step-3-issue-section {
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px dashed var(--line, #dbe3ee);
+  font-family: var(--font, 'Manrope', system-ui, sans-serif);
+}
+
+.step-help-line {
+  font-size: 14px;
+  color: var(--muted, #566883);
+  margin-top: 4px;
+  margin-bottom: 18px;
+}
+
+/* Selected Plan Strip */
+.selected-plan-strip {
+  background: #e6f4ed;
+  border: 1px solid #bfe3d0;
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.sps-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  flex: 1;
+  min-width: 280px;
+}
+
+.sps-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #d1fae5;
+  color: #0d6b46;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.sps-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sps-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sps-badge {
+  background: #0d6b46;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.sps-plan-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #17325f;
+}
+
+.sps-plan-title strong {
+  color: #0d6b46;
+}
+
+.sps-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+  font-size: 13.5px;
+  color: #14233f;
+}
+
+.sps-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.75);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(191, 227, 208, 0.7);
+}
+
+.btn-change-plan {
+  background: #ffffff;
+  border: 1px solid #bfe3d0;
+  color: #0d6b46;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-change-plan:hover {
+  background: #0d6b46;
+  color: #ffffff;
+  border-color: #0d6b46;
+}
+
+/* Two Columns (PC) / One Column (Mobile) */
+.issue-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .issue-details-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+/* Common Card Styling */
+.issue-card {
+  background: #ffffff;
+  border: 1px solid var(--line, #dbe3ee);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(20, 35, 63, 0.04);
+}
+
+.issue-card-header {
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line, #dbe3ee);
+}
+
+.issue-card-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--navy, #17325f);
+  margin: 0;
+}
+
+.issue-card-subtitle {
+  font-size: 13px;
+  color: var(--muted, #566883);
+  display: block;
+  margin-top: 2px;
+}
+
+/* Form Styles */
+.issue-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.issue-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.issue-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.issue-label {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink, #14233f);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.req-star {
+  color: var(--red, #d92d27);
+  font-weight: 800;
+}
+
+.badge-from-quote {
+  font-size: 11px;
+  font-weight: 700;
+  color: #17325f;
+  background: #e0edff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.issue-form-group .form-input {
+  height: 48px;
+  border-radius: 10px;
+  border: 1px solid var(--line, #dbe3ee);
+  padding: 0 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ink, #14233f);
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.issue-form-group .form-input:focus {
+  border-color: var(--navy, #17325f);
+  box-shadow: 0 0 0 3px rgba(23, 50, 95, 0.1);
+}
+
+.issue-form-group .form-input-autofill {
+  background: #f3f6fb;
+}
+
+.issue-form-group .form-input-autofill:focus {
+  background: #ffffff;
+}
+
+/* Validation Error State */
+.issue-form-group .form-input.has-error {
+  border-color: var(--red, #d92d27) !important;
+  background: #fff8f8;
+  box-shadow: 0 0 0 3px rgba(217, 45, 39, 0.12) !important;
+}
+
+.field-error-msg {
+  color: var(--red, #d92d27);
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 2px;
+  display: none;
+}
+
+.field-error-msg.visible {
+  display: block;
+}
+
+.field-helper-text {
+  font-size: 12px;
+  color: var(--muted, #566883);
+}
+
+/* Nominee Suggestions */
+.nominee-suggestions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.nominee-suggest-label {
+  font-size: 12px;
+  color: var(--muted, #566883);
+  font-weight: 600;
+}
+
+.btn-nominee-chip {
+  background: #f3f6fb;
+  border: 1px solid var(--line, #dbe3ee);
+  color: var(--navy, #17325f);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-nominee-chip:hover {
+  background: #e0edff;
+  border-color: #b9d5ff;
+}
+
+/* Travellers List */
+.travellers-input-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.traveller-row-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.traveller-row-item .form-input {
+  flex: 1;
+}
+
+.btn-remove-traveller {
+  width: 44px;
+  height: 48px;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.btn-remove-traveller:hover {
+  background: #f87171;
+  color: #ffffff;
+}
+
+.btn-add-traveller {
+  background: #f3f6fb;
+  border: 1px dashed var(--line, #dbe3ee);
+  color: var(--navy, #17325f);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  width: 100%;
+  margin-top: 4px;
+  transition: all 0.15s ease;
+}
+
+.btn-add-traveller:hover {
+  background: #e0edff;
+  border-color: var(--navy, #17325f);
+}
+
+/* Message Header with Hide Empty Checkbox */
+.issue-message-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hide-empty-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted, #566883);
+  cursor: pointer;
+  user-select: none;
+}
+
+.hide-empty-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--navy, #17325f);
+  cursor: pointer;
+}
+
+/* Segmented Control */
+.format-segmented-control {
+  background: #e3e9f2;
+  border-radius: 10px;
+  padding: 4px;
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.format-segmented-control .segment-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--muted, #566883);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.format-segmented-control .segment-btn.active {
+  background: #ffffff;
+  color: var(--navy, #17325f);
+  box-shadow: 0 1px 4px rgba(20, 35, 63, 0.12);
+  font-weight: 800;
+}
+
+/* Preview Textarea */
+.preview-textarea-wrap {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.message-preview-textarea {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--line, #dbe3ee);
+  background: #f8fafc;
+  padding: 16px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink, #14233f);
+  resize: vertical;
+  min-height: 270px;
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.message-preview-textarea:focus {
+  border-color: var(--navy, #17325f);
+  background: #ffffff;
+}
+
+.preview-direct-edit-note {
+  font-size: 12px;
+  color: var(--muted, #566883);
+  margin-bottom: 20px;
+}
+
+/* Action Buttons */
+.issue-actions-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-issue-copy,
+.btn-issue-whatsapp {
+  flex: 1;
+  min-width: 180px;
+  min-height: 44px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 700;
+  padding: 10px 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-issue-copy {
+  background: var(--navy, #17325f);
+  color: #ffffff;
+  border: 1px solid var(--navy, #17325f);
+}
+
+.btn-issue-copy:hover {
+  background: #0f2240;
+  border-color: #0f2240;
+}
+
+.btn-issue-copy.btn-copied-state {
+  background: #0d6b46 !important;
+  border-color: #0d6b46 !important;
+  color: #ffffff !important;
+}
+
+.btn-issue-whatsapp {
+  background: #ffffff;
+  color: #0d6b46;
+  border: 1.5px solid #0d6b46;
+}
+
+.btn-issue-whatsapp:hover {
+  background: #e6f4ed;
+}
+
+.btn-issue-whatsapp svg {
+  fill: currentColor;
+}
+
+

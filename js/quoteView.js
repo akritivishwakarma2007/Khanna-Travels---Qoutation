@@ -3,7 +3,7 @@
  * Form & Results live on the same screen. Clicking Compare reveals results below the form.
  */
 
-import { compareQuotes, saveQuote, selectPlan } from './api.js';
+import { compareQuotes, saveQuote, selectPlan, isAdminAuthenticated } from './api.js';
 import { QuotationExporter } from './pdf-export.js';
 
 export const STANDARD_COVERAGES = [
@@ -48,7 +48,24 @@ export class QuoteView {
       superAgeMedicalFilter: 'all',
       superAgeDurationFilter: 'all',
       selectedForCompare: new Set(),
-      selectedPlans: [] // Multi-plan selection for forwarding to customer
+      selectedPlans: [], // Multi-plan selection for forwarding to customer
+      // Step 3: Issue details state (Admin only)
+      showIssueDetails: false,
+      issuePlan: null,
+      issueForm: {
+        country: '',
+        travelDate: '',
+        sumInsured: '',
+        planName: '',
+        issueFor: '',
+        nominee: '',
+        travellers: [''],
+        phone: '',
+        email: 'customercare@khannatravels.com',
+        format: 'format1',
+        hideEmptyLines: false,
+        customPreviewText: null
+      }
     };
     this.currentPlanMap = new Map();
   }
@@ -95,6 +112,11 @@ export class QuoteView {
 
         <!-- BOTTOM SECTION: COMPARISON RESULTS (Revealed after clicking Compare) -->
         ${this.state.hasResults && this.state.savedQuote ? this._renderResultsSection() : ''}
+
+        <!-- STEP 3: ISSUE DETAILS (Admin only, revealed after Select Plan) -->
+        <div id="step3Mount">
+          ${this._shouldRenderIssueStep() ? this._renderIssueStepSection() : ''}
+        </div>
       </div>
     `;
   }
@@ -830,7 +852,7 @@ export class QuoteView {
       this.state.travelDays = days;
     };
 
-    // Input events (customer name, countries, dates)
+    // Input events (customer name, countries, dates, and Step 3 details)
     container.addEventListener('input', (e) => {
       if (e.target.id === 'qCustomerName') {
         this.state.customerName = e.target.value;
@@ -839,11 +861,55 @@ export class QuoteView {
         this.state.arrivalCountry = e.target.value;
       } else if (e.target.id === 'qDob' || e.target.id === 'qDepartureDate' || e.target.id === 'qReturnDate') {
         updateLiveCalcs();
+      } else if (e.target.id === 'issueCountry') {
+        this.state.issueForm.country = e.target.value;
+        this._clearFieldError('issueCountry');
+        this._updateIssuePreview();
+      } else if (e.target.id === 'issueTravelDate') {
+        this.state.issueForm.travelDate = e.target.value;
+        this._clearFieldError('issueTravelDate');
+        this._updateIssuePreview();
+      } else if (e.target.id === 'issueSumInsured') {
+        this.state.issueForm.sumInsured = e.target.value;
+        this._clearFieldError('issueSumInsured');
+        this._updateIssuePreview();
+      } else if (e.target.id === 'issuePlanName') {
+        this.state.issueForm.planName = e.target.value;
+        this._clearFieldError('issuePlanName');
+        this._updateIssuePreview();
+      } else if (e.target.id === 'issueIssueFor') {
+        this.state.issueForm.issueFor = e.target.value;
+        this._clearFieldError('issueIssueFor');
+        this._updateIssuePreview();
+      } else if (e.target.id === 'issueNominee') {
+        this.state.issueForm.nominee = e.target.value;
+        this._clearFieldError('issueNominee');
+        this._updateIssuePreview();
+      } else if (e.target.id === 'issuePhone') {
+        this.state.issueForm.phone = e.target.value;
+        this._clearFieldError('issuePhone');
+        this._updateIssuePreview();
+      } else if (e.target.id === 'issueEmail') {
+        this.state.issueForm.email = e.target.value;
+        this._clearFieldError('issueEmail');
+        this._updateIssuePreview();
+      } else if (e.target.classList.contains('issue-traveller-input')) {
+        this._syncTravellersFromDom();
+        this._clearFieldError('issueTravellers');
+        this._updateIssuePreview();
+      } else if (e.target.id === 'issueMessagePreview') {
+        this.state.issueForm.customPreviewText = e.target.value;
       }
     });
 
-    // Change events (dates, region radio, sort dropdown, rate checkboxes)
+    // Change events (dates, region radio, sort dropdown, rate checkboxes, Step 3 toggles)
     container.addEventListener('change', async (e) => {
+      if (e.target.id === 'chkHideEmptyLines') {
+        this.state.issueForm.hideEmptyLines = e.target.checked;
+        this._updateIssuePreview();
+        return;
+      }
+
       if (e.target.id === 'qDob' || e.target.id === 'qDepartureDate' || e.target.id === 'qReturnDate') {
         updateLiveCalcs();
         return;
@@ -960,8 +1026,95 @@ export class QuoteView {
       const key = selectBtn.dataset.selectPlanKey;
       const plan = this.currentPlanMap?.get(key);
       if (plan) {
-        await this._handleTogglePlanSelection(plan);
+        if (isAdminAuthenticated()) {
+          await this._handleAdminSelectPlan(plan);
+        } else {
+          await this._handleTogglePlanSelection(plan);
+        }
       }
+      return;
+    }
+
+    // Step 3: Change plan button -> scroll back to results
+    if (e.target.closest('#btnChangePlan')) {
+      const resultsEl = this.container.querySelector('#comparisonResultsSection');
+      if (resultsEl) {
+        resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    }
+
+    // Step 3: Nominee suggestion chips
+    const nomineeChip = e.target.closest('[data-nominee]');
+    if (nomineeChip) {
+      const val = nomineeChip.dataset.nominee;
+      this.state.issueForm.nominee = val;
+      const nomineeInput = this.container.querySelector('#issueNominee');
+      if (nomineeInput) {
+        nomineeInput.value = val;
+      }
+      this._clearFieldError('issueNominee');
+      this._updateIssuePreview();
+      return;
+    }
+
+    // Step 3: Format toggle segment buttons
+    const formatBtn = e.target.closest('[data-format-select]');
+    if (formatBtn) {
+      const fmt = formatBtn.dataset.formatSelect;
+      this.state.issueForm.format = fmt;
+      const allSegments = this.container.querySelectorAll('.format-segmented-control .segment-btn');
+      allSegments.forEach(btn => {
+        const isActive = btn.dataset.formatSelect === fmt;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      this._clearValidationErrors();
+      this._updateIssuePreview();
+      return;
+    }
+
+    // Step 3: Add traveller button
+    if (e.target.closest('#btnAddTraveller')) {
+      const listEl = this.container.querySelector('#travellersInputList');
+      if (listEl) {
+        const currentInputs = listEl.querySelectorAll('.issue-traveller-input');
+        const newIdx = currentInputs.length;
+        const row = document.createElement('div');
+        row.className = 'traveller-row-item';
+        row.dataset.travellerIdx = newIdx;
+        row.innerHTML = `
+          <input type="text" class="form-input issue-traveller-input" placeholder="Traveller ${newIdx + 1} name" />
+          <button type="button" class="btn-remove-traveller" title="Remove traveller">✕</button>
+        `;
+        listEl.appendChild(row);
+        row.querySelector('input')?.focus();
+        this._syncTravellersFromDom();
+      }
+      return;
+    }
+
+    // Step 3: Remove traveller button
+    const removeTravellerBtn = e.target.closest('.btn-remove-traveller');
+    if (removeTravellerBtn) {
+      const row = removeTravellerBtn.closest('.traveller-row-item');
+      if (row) {
+        row.remove();
+        this._syncTravellersFromDom();
+        this._updateIssuePreview();
+      }
+      return;
+    }
+
+    // Step 3: Copy message button
+    if (e.target.closest('#btnCopyIssueMsg')) {
+      await this._handleCopyIssueMessage();
+      return;
+    }
+
+    // Step 3: Share on WhatsApp button
+    if (e.target.closest('#btnShareWhatsApp')) {
+      await this._handleShareWhatsApp();
       return;
     }
 
@@ -2169,11 +2322,727 @@ export class QuoteView {
       superAgeMedicalFilter: 'all',
       superAgeDurationFilter: 'all',
       selectedForCompare: new Set(),
-      selectedPlans: []
+      selectedPlans: [],
+      // Step 3: Issue details state (Admin only)
+      showIssueDetails: false,
+      issuePlan: null,
+      issueForm: {
+        country: '',
+        travelDate: '',
+        sumInsured: '',
+        planName: '',
+        issueFor: '',
+        nominee: '',
+        travellers: [''],
+        phone: '',
+        email: 'customercare@khannatravels.com',
+        format: 'format1',
+        hideEmptyLines: false,
+        customPreviewText: null
+      }
     };
     this.currentPlanMap = new Map();
     this._refresh();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STEP 3: ISSUE DETAILS METHODS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  _shouldRenderIssueStep() {
+    return isAdminAuthenticated() && Boolean(this.state.showIssueDetails && this.state.issuePlan);
+  }
+
+  _getOrdinalDay(n) {
+    const num = parseInt(n, 10);
+    if (isNaN(num)) return '';
+    const rem100 = num % 100;
+    if (rem100 >= 11 && rem100 <= 13) return `${num}th`;
+    switch (num % 10) {
+      case 1: return `${num}st`;
+      case 2: return `${num}nd`;
+      case 3: return `${num}rd`;
+      default: return `${num}th`;
+    }
+  }
+
+  _parseDatePartsSafe(dateStr) {
+    if (!dateStr) return null;
+    const parts = String(dateStr).trim().split('-');
+    if (parts.length === 3) {
+      const y = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10) - 1;
+      const d = parseInt(parts[2], 10);
+      if (!isNaN(y) && !isNaN(m) && !isNaN(d) && m >= 0 && m <= 11 && d >= 1 && d <= 31) {
+        return { year: y, monthIdx: m, day: d };
+      }
+    }
+    const dObj = new Date(dateStr);
+    if (!isNaN(dObj.getTime())) {
+      return {
+        year: dObj.getFullYear(),
+        monthIdx: dObj.getMonth(),
+        day: dObj.getDate()
+      };
+    }
+    return null;
+  }
+
+  _formatTravelDates(depStr, retStr) {
+    const dep = this._parseDatePartsSafe(depStr);
+    const ret = this._parseDatePartsSafe(retStr);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    if (!dep && !ret) return '';
+    if (dep && !ret) return `${this._getOrdinalDay(dep.day)} ${months[dep.monthIdx]} ${dep.year}`;
+    if (!dep && ret) return `${this._getOrdinalDay(ret.day)} ${months[ret.monthIdx]} ${ret.year}`;
+
+    const depDay = this._getOrdinalDay(dep.day);
+    const retDay = this._getOrdinalDay(ret.day);
+    const depMonth = months[dep.monthIdx];
+    const retMonth = months[ret.monthIdx];
+
+    if (dep.year === ret.year) {
+      return `${depDay} ${depMonth} to ${retDay} ${retMonth} ${dep.year}`;
+    } else {
+      return `${depDay} ${depMonth} ${dep.year} to ${retDay} ${retMonth} ${ret.year}`;
+    }
+  }
+
+  _formatSumInsured(coverage) {
+    if (!coverage && coverage !== 0) return '';
+    if (typeof coverage === 'string' && /^usd\s+/i.test(coverage.trim())) {
+      return coverage.trim();
+    }
+    const cleanStr = String(coverage).replace(/[^0-9.]/g, '');
+    const num = parseFloat(cleanStr);
+    if (isNaN(num)) return String(coverage);
+
+    if (num >= 1000000) {
+      const m = num / 1000000;
+      return `USD ${Number.isInteger(m) ? m : m.toFixed(1)}M`;
+    }
+    if (num >= 1000) {
+      const k = num / 1000;
+      return `USD ${Number.isInteger(k) ? k : k.toFixed(1)}k`;
+    }
+    return `USD ${num}`;
+  }
+
+  _formatSumInsuredUpperK(sumInsuredStr) {
+    if (!sumInsuredStr) return '';
+    return sumInsuredStr.replace(/(\d+)\s*k\b/gi, (match, p1) => `${p1}K`).replace(/\bk\b/g, 'K');
+  }
+
+  _extractShortPlanName(planName) {
+    if (!planName) return '';
+    let name = String(planName).trim();
+    name = name.replace(/\s*-\s*Without Medical.*$/i, '');
+    name = name.replace(/\s*-\s*With Medical.*$/i, '');
+    name = name.replace(/\s*-\s*Revised.*$/i, '');
+    name = name.replace(/\s*Super Age.*$/i, '');
+    name = name.replace(/\s*Age\s*\([^)]*\)/i, '');
+    name = name.replace(/\s*\([^)]*\)/g, '');
+    name = name.replace(/^Travel\s+/i, '');
+    name = name.replace(/^Care\s+/i, '');
+    name = name.trim();
+    return name || String(planName).trim();
+  }
+
+  _buildIssueMessage(formData = this.state.issueForm) {
+    const f = formData || {};
+    const format = f.format || 'format1';
+    const hideEmpty = Boolean(f.hideEmptyLines);
+
+    const issueFor = f.issueFor || '';
+    const country = f.country || '';
+    const travelDate = f.travelDate || '';
+    const sumInsured = f.sumInsured || '';
+    const planName = f.planName || '';
+    const nominee = f.nominee || '';
+    const travellers = Array.isArray(f.travellers) ? f.travellers.map(t => (t || '').trim()).filter(Boolean).join(' // ') : (f.travellers || '');
+    const phone = f.phone || '';
+    const email = f.email || '';
+
+    const sumInsuredUpperK = this._formatSumInsuredUpperK(sumInsured);
+
+    if (format === 'format1') {
+      if (!hideEmpty) {
+        return [
+          `Issue for ${issueFor} -`,
+          ``,
+          `Country - ${country}`,
+          `Travel Date - ${travelDate}`,
+          ``,
+          `Sum Insured- ${sumInsured}`,
+          ``,
+          `Nominee- ${nominee}`,
+          ``,
+          `${phone}`,
+          `${email}`
+        ].join('\n');
+      } else {
+        const blocks = [];
+        if (issueFor.trim()) blocks.push([`Issue for ${issueFor.trim()} -`]);
+        const trip = [];
+        if (country.trim()) trip.push(`Country - ${country.trim()}`);
+        if (travelDate.trim()) trip.push(`Travel Date - ${travelDate.trim()}`);
+        if (trip.length > 0) blocks.push(trip);
+        if (sumInsured.trim()) blocks.push([`Sum Insured- ${sumInsured.trim()}`]);
+        if (nominee.trim()) blocks.push([`Nominee- ${nominee.trim()}`]);
+        const contact = [];
+        if (phone.trim()) contact.push(phone.trim());
+        if (email.trim()) contact.push(email.trim());
+        if (contact.length > 0) blocks.push(contact);
+
+        return blocks.map(b => b.join('\n')).join('\n\n');
+      }
+    } else {
+      // Format 2
+      if (!hideEmpty) {
+        return [
+          `Country- ${country}`,
+          `Travel Date- ${travelDate}`,
+          ``,
+          `Premium - ${planName} - ${sumInsuredUpperK}`,
+          `Nominee - ${nominee}`,
+          ``,
+          `Travelers - ${travellers}`,
+          `Phone No- ${phone}`,
+          `Email id- ${email}`
+        ].join('\n');
+      } else {
+        const blocks = [];
+        const trip = [];
+        if (country.trim()) trip.push(`Country- ${country.trim()}`);
+        if (travelDate.trim()) trip.push(`Travel Date- ${travelDate.trim()}`);
+        if (trip.length > 0) blocks.push(trip);
+        const planLines = [];
+        if (planName.trim() || sumInsuredUpperK.trim()) {
+          const parts = ['Premium'];
+          if (planName.trim()) parts.push(planName.trim());
+          if (sumInsuredUpperK.trim()) parts.push(sumInsuredUpperK.trim());
+          planLines.push(parts.join(' - '));
+        }
+        if (nominee.trim()) planLines.push(`Nominee - ${nominee.trim()}`);
+        if (planLines.length > 0) blocks.push(planLines);
+        const contact = [];
+        if (travellers.trim()) contact.push(`Travelers - ${travellers.trim()}`);
+        if (phone.trim()) contact.push(`Phone No- ${phone.trim()}`);
+        if (email.trim()) contact.push(`Email id- ${email.trim()}`);
+        if (contact.length > 0) blocks.push(contact);
+
+        return blocks.map(b => b.join('\n')).join('\n\n');
+      }
+    }
+  }
+
+  _renderIssueStepSection() {
+    const plan = this.state.issuePlan;
+    if (!plan) return '';
+    const f = this.state.issueForm;
+    const previewMsg = f.customPreviewText !== null ? f.customPreviewText : this._buildIssueMessage(f);
+
+    return `
+      <div class="step-3-issue-section" id="step3IssueSection">
+        <!-- Header -->
+        <div class="step-header">
+          <div class="step-num">3</div>
+          <div>
+            <h2 class="step-title">Issue details</h2>
+            <p class="step-help-line">Opens after you tap Select Plan. Fill the missing details, then copy or share.</p>
+          </div>
+        </div>
+
+        <!-- Selected Plan Strip -->
+        <div class="selected-plan-strip" id="selectedPlanStrip">
+          <div class="sps-left">
+            <div class="sps-icon">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="22" height="22" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="sps-content">
+              <div class="sps-badge-row">
+                <span class="sps-badge">SELECTED PLAN</span>
+              </div>
+              <div class="sps-plan-title">
+                <strong>${this._esc(plan.companyName)}</strong> — ${this._esc(plan.planName)}
+              </div>
+              <div class="sps-meta-row">
+                <span class="sps-meta-pill">🌍 Country: <strong>${this._esc(f.country || this.state.travellingCountry || this.state.arrivalCountry || 'Worldwide')}</strong></span>
+                <span class="sps-meta-pill">🛡️ Sum Insured: <strong>${this._esc(f.sumInsured || this._formatSumInsured(plan.coverage))}</strong></span>
+                <span class="sps-meta-pill">💰 Premium: <strong>₹${Number(plan.premium || 0).toLocaleString('en-IN')}</strong> / traveller</span>
+              </div>
+            </div>
+          </div>
+          <div class="sps-right">
+            <button type="button" class="btn-change-plan" id="btnChangePlan" title="Return to comparison results to select another plan">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
+                <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+              </svg>
+              <span>Change plan</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Two Columns Grid: Left Details Form, Right Message to share -->
+        <div class="issue-details-grid">
+
+          <!-- Left Card: Details Form -->
+          <div class="issue-card issue-details-card">
+            <div class="issue-card-header">
+              <h3 class="issue-card-title">Details</h3>
+              <span class="issue-card-subtitle">Auto-filled from quote &amp; editable customer details</span>
+            </div>
+
+            <div class="issue-form-grid">
+              <!-- Country -->
+              <div class="issue-form-group">
+                <div class="issue-label-row">
+                  <label class="issue-label" for="issueCountry">Country <span class="req-star">*</span></label>
+                  <span class="badge-from-quote">From quote</span>
+                </div>
+                <input type="text" id="issueCountry" class="form-input form-input-autofill"
+                       value="${this._esc(f.country)}" placeholder="e.g. Thailand" />
+                <div class="field-error-msg" id="err-issueCountry"></div>
+              </div>
+
+              <!-- Travel date -->
+              <div class="issue-form-group">
+                <div class="issue-label-row">
+                  <label class="issue-label" for="issueTravelDate">Travel date <span class="req-star">*</span></label>
+                  <span class="badge-from-quote">From quote</span>
+                </div>
+                <input type="text" id="issueTravelDate" class="form-input form-input-autofill"
+                       value="${this._esc(f.travelDate)}" placeholder="e.g. 10th Nov to 30th Nov 2026" />
+                <div class="field-error-msg" id="err-issueTravelDate"></div>
+              </div>
+
+              <!-- Sum insured -->
+              <div class="issue-form-group">
+                <div class="issue-label-row">
+                  <label class="issue-label" for="issueSumInsured">Sum insured <span class="req-star">*</span></label>
+                  <span class="badge-from-quote">From quote</span>
+                </div>
+                <input type="text" id="issueSumInsured" class="form-input form-input-autofill"
+                       value="${this._esc(f.sumInsured)}" placeholder="e.g. USD 75k" />
+                <div class="field-error-msg" id="err-issueSumInsured"></div>
+              </div>
+
+              <!-- Plan name -->
+              <div class="issue-form-group">
+                <div class="issue-label-row">
+                  <label class="issue-label" for="issuePlanName">Plan name</label>
+                  <span class="badge-from-quote">From quote</span>
+                </div>
+                <input type="text" id="issuePlanName" class="form-input form-input-autofill"
+                       value="${this._esc(f.planName)}" placeholder="e.g. Prime" />
+                <div class="field-error-msg" id="err-issuePlanName"></div>
+              </div>
+
+              <!-- Issue for -->
+              <div class="issue-form-group">
+                <label class="issue-label" for="issueIssueFor">Issue for <span class="req-star">*</span></label>
+                <input type="text" id="issueIssueFor" class="form-input"
+                       value="${this._esc(f.issueFor)}" placeholder="e.g. Mr. and Mrs. Bhasin" />
+                <div class="field-error-msg" id="err-issueIssueFor"></div>
+                <span class="field-helper-text">Names for format 1 greeting line (e.g. Mr. and Mrs. Bhasin)</span>
+              </div>
+
+              <!-- Nominee -->
+              <div class="issue-form-group">
+                <label class="issue-label" for="issueNominee">Nominee <span class="req-star">*</span></label>
+                <input type="text" id="issueNominee" class="form-input"
+                       value="${this._esc(f.nominee)}" placeholder="e.g. Spouse" />
+                <div class="field-error-msg" id="err-issueNominee"></div>
+                <div class="nominee-suggestions">
+                  <span class="nominee-suggest-label">Suggestions:</span>
+                  <button type="button" class="btn-nominee-chip" data-nominee="Spouse">Spouse</button>
+                  <button type="button" class="btn-nominee-chip" data-nominee="Interchange">Interchange</button>
+                  <button type="button" class="btn-nominee-chip" data-nominee="Parents">Parents</button>
+                  <button type="button" class="btn-nominee-chip" data-nominee="Children">Children</button>
+                </div>
+              </div>
+
+              <!-- Traveller name(s) -->
+              <div class="issue-form-group">
+                <label class="issue-label">Traveller name(s) <span class="req-star">*</span></label>
+                <div class="travellers-input-list" id="travellersInputList">
+                  ${(f.travellers && f.travellers.length > 0 ? f.travellers : ['']).map((tr, i) => `
+                    <div class="traveller-row-item" data-traveller-idx="${i}">
+                      <input type="text" class="form-input issue-traveller-input"
+                             placeholder="Traveller ${i + 1} name" value="${this._esc(tr)}" />
+                      ${i > 0 ? `<button type="button" class="btn-remove-traveller" title="Remove traveller">✕</button>` : ''}
+                    </div>
+                  `).join('')}
+                </div>
+                <button type="button" class="btn-add-traveller" id="btnAddTraveller">
+                  <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Add traveller</span>
+                </button>
+                <div class="field-error-msg" id="err-issueTravellers"></div>
+                <span class="field-helper-text">Multiple travellers will be joined with " // "</span>
+              </div>
+
+              <!-- Contact phone / Phone no. -->
+              <div class="issue-form-group">
+                <label class="issue-label" for="issuePhone">Contact phone / Phone no. <span class="req-star">*</span></label>
+                <input type="tel" id="issuePhone" class="form-input"
+                       value="${this._esc(f.phone)}" placeholder="10-digit mobile number" maxlength="15" />
+                <div class="field-error-msg" id="err-issuePhone"></div>
+              </div>
+
+              <!-- Email -->
+              <div class="issue-form-group">
+                <label class="issue-label" for="issueEmail">Email</label>
+                <input type="email" id="issueEmail" class="form-input"
+                       value="${this._esc(f.email || 'customercare@khannatravels.com')}" placeholder="customercare@khannatravels.com" />
+                <div class="field-error-msg" id="err-issueEmail"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Card: Message to Share -->
+          <div class="issue-card issue-message-card">
+            <div class="issue-card-header issue-message-header">
+              <div>
+                <h3 class="issue-card-title">Message to share</h3>
+                <span class="issue-card-subtitle">Live preview of message to copy or send on WhatsApp</span>
+              </div>
+              <label class="hide-empty-label" title="Hide lines with empty values from the final message">
+                <input type="checkbox" id="chkHideEmptyLines" ${f.hideEmptyLines ? 'checked' : ''} />
+                <span>Hide empty lines</span>
+              </label>
+            </div>
+
+            <!-- Segmented Control Format Toggle -->
+            <div class="format-segmented-control" role="tablist" aria-label="Message Formats">
+              <button type="button"
+                      class="segment-btn ${f.format === 'format1' ? 'active' : ''}"
+                      data-format-select="format1"
+                      role="tab"
+                      aria-selected="${f.format === 'format1'}">
+                Format 1: Issue for
+              </button>
+              <button type="button"
+                      class="segment-btn ${f.format === 'format2' ? 'active' : ''}"
+                      data-format-select="format2"
+                      role="tab"
+                      aria-selected="${f.format === 'format2'}">
+                Format 2: Traveller details
+              </button>
+            </div>
+
+            <!-- Live Textarea Preview -->
+            <div class="preview-textarea-wrap">
+              <textarea id="issueMessagePreview"
+                        class="message-preview-textarea"
+                        spellcheck="false"
+                        rows="13"
+                        aria-label="Message preview">${this._esc(previewMsg)}</textarea>
+            </div>
+            <div class="preview-direct-edit-note">
+              💡 Preview updates live as you type. You can also edit this text directly before copying.
+            </div>
+
+            <!-- Buttons Row -->
+            <div class="issue-actions-row">
+              <button type="button" class="btn-issue-copy" id="btnCopyIssueMsg">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18" aria-hidden="true">
+                  <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                  <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                </svg>
+                <span class="btn-copy-label">Copy message</span>
+              </button>
+
+              <button type="button" class="btn-issue-whatsapp" id="btnShareWhatsApp">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true">
+                  <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm5.78 14.12c-.24.68-1.39 1.3-1.92 1.38-.5.08-1.15.11-3.69-.94-2.22-.92-3.67-3.18-3.78-3.33-.11-.15-.9-1.2-1.04-2.29-.14-1.09.43-1.63.66-1.87.23-.24.5-.3.67-.3.17 0 .34 0 .49.01.16.01.37-.06.58.44.22.52.75 1.83.82 1.96.07.14.11.3.02.48-.09.18-.14.3-.28.46-.14.16-.3.35-.43.47-.14.14-.29.29-.12.58.17.29.74 1.23 1.59 1.99 1.09.98 2.01 1.28 2.3 1.42.29.14.46.12.63-.07.17-.19.74-.86.94-1.16.2-.3.4-.25.68-.15.28.1.78.37 1.83.89 1.05.52 1.25.63 1.32.74.07.11.07.64-.17 1.32z"/>
+                </svg>
+                <span>Share on WhatsApp</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    `;
+  }
+
+  _updateIssuePreview() {
+    const previewEl = this.container?.querySelector('#issueMessagePreview');
+    if (!previewEl) return;
+    const msg = this._buildIssueMessage(this.state.issueForm);
+    this.state.issueForm.customPreviewText = null;
+    previewEl.value = msg;
+  }
+
+  _syncTravellersFromDom() {
+    if (!this.container) return;
+    const inputs = this.container.querySelectorAll('.issue-traveller-input');
+    const values = Array.from(inputs).map(inp => inp.value);
+    this.state.issueForm.travellers = values.length > 0 ? values : [''];
+  }
+
+  _clearFieldError(fieldId) {
+    if (!this.container) return;
+    const inputEl = this.container.querySelector(`#${fieldId}`) || (fieldId === 'issueTravellers' ? this.container.querySelector('.issue-traveller-input') : null);
+    if (inputEl) {
+      inputEl.classList.remove('has-error');
+    }
+    const errEl = this.container.querySelector(`#err-${fieldId}`);
+    if (errEl) {
+      errEl.textContent = '';
+      errEl.classList.remove('visible');
+    }
+  }
+
+  _clearValidationErrors() {
+    if (!this.container) return;
+    const errorInputs = this.container.querySelectorAll('.form-input.has-error');
+    errorInputs.forEach(el => el.classList.remove('has-error'));
+    const errorMsgs = this.container.querySelectorAll('.field-error-msg');
+    errorMsgs.forEach(el => {
+      el.textContent = '';
+      el.classList.remove('visible');
+    });
+  }
+
+  _displayValidationErrors(errors) {
+    let firstInvalid = null;
+    for (const [fieldId, msg] of Object.entries(errors)) {
+      let inputEl;
+      if (fieldId === 'issueTravellers') {
+        inputEl = this.container?.querySelector('.issue-traveller-input');
+      } else {
+        inputEl = this.container?.querySelector(`#${fieldId}`);
+      }
+      if (inputEl) {
+        inputEl.classList.add('has-error');
+        if (!firstInvalid) firstInvalid = inputEl;
+      }
+      const errEl = this.container?.querySelector(`#err-${fieldId}`);
+      if (errEl) {
+        errEl.textContent = msg;
+        errEl.classList.add('visible');
+      }
+    }
+    if (firstInvalid) {
+      firstInvalid.focus();
+    }
+  }
+
+  _validateIssueForm(format = this.state.issueForm.format) {
+    let isValid = true;
+    const errors = {};
+    const f = this.state.issueForm;
+
+    this._clearValidationErrors();
+
+    // 1. Country (Required)
+    if (!f.country || !f.country.trim()) {
+      errors.issueCountry = 'Country is required';
+      isValid = false;
+    }
+
+    // 2. Travel date (Required)
+    if (!f.travelDate || !f.travelDate.trim()) {
+      errors.issueTravelDate = 'Travel date is required';
+      isValid = false;
+    }
+
+    // 3. Sum insured (Required)
+    if (!f.sumInsured || !f.sumInsured.trim()) {
+      errors.issueSumInsured = 'Sum insured is required';
+      isValid = false;
+    }
+
+    // 4. Nominee (Required)
+    if (!f.nominee || !f.nominee.trim()) {
+      errors.issueNominee = 'Nominee is required';
+      isValid = false;
+    }
+
+    // Phone cleanup & check
+    const rawPhone = (f.phone || '').trim();
+    const cleanPhone = rawPhone.replace(/[\s\-+()]/g, '');
+
+    if (format === 'format1') {
+      if (!f.issueFor || !f.issueFor.trim()) {
+        errors.issueIssueFor = 'Issue for is required for Format 1';
+        isValid = false;
+      }
+      if (!rawPhone) {
+        errors.issuePhone = 'Contact phone is required';
+        isValid = false;
+      } else if (!/^\d{10}$/.test(cleanPhone)) {
+        errors.issuePhone = 'Phone number must be 10 digits';
+        isValid = false;
+      }
+    } else {
+      const hasTraveller = Array.isArray(f.travellers) && f.travellers.some(t => t && t.trim().length > 0);
+      if (!hasTraveller) {
+        errors.issueTravellers = 'At least one traveller name is required for Format 2';
+        isValid = false;
+      }
+      if (!rawPhone) {
+        errors.issuePhone = 'Phone number is required';
+        isValid = false;
+      } else if (!/^\d{10}$/.test(cleanPhone)) {
+        errors.issuePhone = 'Phone number must be 10 digits';
+        isValid = false;
+      }
+    }
+
+    // Email format check
+    const rawEmail = (f.email || '').trim();
+    if (rawEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawEmail)) {
+      errors.issueEmail = 'Please enter a valid email address';
+      isValid = false;
+    }
+
+    if (!isValid) {
+      this._displayValidationErrors(errors);
+      this.app.showToast('Please fill in all required fields correctly before copying/sharing.', 'warning');
+    }
+
+    return isValid;
+  }
+
+  async _handleAdminSelectPlan(plan) {
+    await this._setPlanSelected(plan, true);
+
+    this.state.issuePlan = plan;
+    this.state.showIssueDetails = true;
+
+    const countryFromQuote = this.state.travellingCountry || this.state.arrivalCountry || '';
+    const travelDateFromQuote = this._formatTravelDates(this.state.departureDate, this.state.returnDate);
+    const sumInsuredFromQuote = this._formatSumInsured(plan.coverage);
+    const planNameFromQuote = this._extractShortPlanName(plan.planName);
+
+    if (!this.state.issueForm) {
+      this.state.issueForm = {
+        country: countryFromQuote,
+        travelDate: travelDateFromQuote,
+        sumInsured: sumInsuredFromQuote,
+        planName: planNameFromQuote,
+        issueFor: '',
+        nominee: '',
+        travellers: [''],
+        phone: '',
+        email: 'customercare@khannatravels.com',
+        format: 'format1',
+        hideEmptyLines: false,
+        customPreviewText: null
+      };
+    } else {
+      this.state.issueForm.sumInsured = sumInsuredFromQuote;
+      this.state.issueForm.planName = planNameFromQuote;
+      if (!this.state.issueForm.country) {
+        this.state.issueForm.country = countryFromQuote;
+      }
+      if (!this.state.issueForm.travelDate) {
+        this.state.issueForm.travelDate = travelDateFromQuote;
+      }
+      if (!this.state.issueForm.email) {
+        this.state.issueForm.email = 'customercare@khannatravels.com';
+      }
+      this.state.issueForm.customPreviewText = null;
+    }
+
+    const mountEl = this.container?.querySelector('#step3Mount');
+    if (mountEl) {
+      mountEl.innerHTML = this._renderIssueStepSection();
+      this._updateIssuePreview();
+    } else {
+      this._refresh();
+    }
+
+    setTimeout(() => {
+      const step3El = this.container?.querySelector('#step3IssueSection');
+      if (step3El) {
+        step3El.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 60);
+
+    this.app.showToast(`Step 3: Issue details opened for ${plan.companyName} (${plan.planName})`, 'info');
+  }
+
+  async _handleCopyIssueMessage() {
+    if (!this._validateIssueForm()) {
+      return;
+    }
+
+    const previewEl = this.container?.querySelector('#issueMessagePreview');
+    const textToCopy = previewEl ? previewEl.value : this._buildIssueMessage(this.state.issueForm);
+
+    try {
+      let copied = false;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(textToCopy);
+          copied = true;
+        } catch (clipErr) {
+          console.warn('Clipboard writeText failed, using fallback:', clipErr);
+        }
+      }
+      if (!copied) {
+        const tempTextarea = document.createElement('textarea');
+        tempTextarea.value = textToCopy;
+        tempTextarea.style.position = 'fixed';
+        tempTextarea.style.opacity = '0';
+        document.body.appendChild(tempTextarea);
+        tempTextarea.focus();
+        tempTextarea.select();
+        copied = document.execCommand('copy');
+        document.body.removeChild(tempTextarea);
+      }
+
+      const btn = this.container?.querySelector('#btnCopyIssueMsg');
+      const labelSpan = btn?.querySelector('.btn-copy-label');
+      if (labelSpan) {
+        labelSpan.textContent = '✓ Copied!';
+        btn.classList.add('btn-copied-state');
+        setTimeout(() => {
+          labelSpan.textContent = 'Copy message';
+          btn.classList.remove('btn-copied-state');
+        }, 2000);
+      }
+
+      this.app.showToast('✓ Message copied to clipboard!', 'success');
+    } catch (err) {
+      this.app.showToast('Failed to copy: ' + err.message, 'error');
+    }
+  }
+
+  async _handleShareWhatsApp() {
+    if (!this._validateIssueForm()) {
+      return;
+    }
+
+    const previewEl = this.container?.querySelector('#issueMessagePreview');
+    const textToShare = previewEl ? previewEl.value : this._buildIssueMessage(this.state.issueForm);
+
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (window.innerWidth <= 768 && !!navigator.share);
+
+    if (isMobile && navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Khanna Travels - Issue Details',
+          text: textToShare
+        });
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+        console.warn('navigator.share failed, fallback to WhatsApp:', err);
+      }
+    }
+
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(textToShare)}`;
+    window.open(waUrl, '_blank');
   }
 
   // ── Helper Math Functions ─────────────────────────────────────────────────
