@@ -3,6 +3,7 @@
  * Manages LocalStorage persistence, rate matrix updates, CSV export/import, and settings
  */
 import { INITIAL_RATES, INSURANCE_COMPANIES, SAMPLE_QUOTATIONS, SAMPLE_CUSTOMERS, DAY_SLABS, AGE_BANDS, COVERAGE_AMOUNTS, REGIONS } from './data.js';
+import { getRecentQuotes, getCompanies } from './api.js';
 
 const STORAGE_KEYS = {
   RATES: 'ins_rates_v1',
@@ -15,7 +16,7 @@ const STORAGE_KEYS = {
 export const DEFAULT_SETTINGS = {
   brokerAgencyName: 'Khanna Travels',
   brokerAgentName: 'Khanna Agent',
-  brokerPhone: '+91-9876543210',
+  brokerPhone: '+91 86574 61001',
   brokerEmail: 'quotes@khannatravels.com',
   brokerAddress: 'Khanna Travels, New Delhi, India',
   currency: 'INR',
@@ -52,8 +53,8 @@ export class StorageManager {
   static async syncWithBackend() {
     try {
       const [quotesRes, companiesRes] = await Promise.all([
-        fetch('/api/quotes?limit=100').then(r => r.json()).catch(() => null),
-        fetch('/api/companies').then(r => r.json()).catch(() => null)
+        getRecentQuotes(100).catch(() => null),
+        getCompanies().catch(() => null)
       ]);
 
       if (Array.isArray(quotesRes) && quotesRes.length > 0) {

@@ -42,7 +42,8 @@ export class QuoteView {
       resultsSummary: {},
       activeCoverageTab: 50000,
       sortBy: 'lowest', // 'lowest' | 'highest' | 'name'
-      selectedCompanyFilter: 'all', // 'all' | companyName
+      selectedCompanies: null, // null (defaults to all) | Set of company names
+      isCompanyDropdownOpen: false,
       superAgeMedical: 'all', // 'all' | 'with_medical' | 'without_medical'
       superAgeDuration: 'all', // 'all' | 'less_than_30' | 'more_than_30'
       superAgeMedicalFilter: 'all',
@@ -51,6 +52,7 @@ export class QuoteView {
       selectedPlans: [], // Multi-plan selection for forwarding to customer
       // Step 3: Issue details state (Admin only)
       showIssueDetails: false,
+      issuePreviewMode: 'formatted', // 'formatted' | 'raw'
       issuePlan: null,
       issueForm: {
         country: '',
@@ -60,10 +62,13 @@ export class QuoteView {
         issueFor: '',
         nominee: '',
         travellers: [''],
-        phone: '',
+        phone: '8657461001',
         email: 'customercare@khannatravels.com',
-        format: 'format1',
+        format: 'format2',
+        groupSuffix: '',
+        customSubject: null,
         hideEmptyLines: false,
+        includeGreetingSignature: false,
         customPreviewText: null
       }
     };
@@ -82,6 +87,15 @@ export class QuoteView {
   _getSelectedPlanIndex(p) {
     const key = this._getPlanKey(p);
     return this.state.selectedPlans.findIndex(sp => this._getPlanKey(sp) === key);
+  }
+
+  _getSelectedCompaniesSet(availableCompanies = this._getAvailableCompanies()) {
+    if (!this.state.selectedCompanies || this.state.selectedCompanies === 'all') {
+      return new Set(availableCompanies);
+    }
+    if (this.state.selectedCompanies instanceof Set) return this.state.selectedCompanies;
+    if (Array.isArray(this.state.selectedCompanies)) return new Set(this.state.selectedCompanies);
+    return new Set([this.state.selectedCompanies]);
   }
 
   _formatDate(dateStr) {
@@ -280,19 +294,17 @@ export class QuoteView {
     };
 
     const availableCompanies = this._getAvailableCompanies();
-    const selectedCompanyFilter = this.state.selectedCompanyFilter || 'all';
+    const selectedCompaniesSet = this._getSelectedCompaniesSet(availableCompanies);
+    const allSelected = availableCompanies.length > 0 && selectedCompaniesSet.size === availableCompanies.length;
 
     // Apply company filter if selected
     let filteredPlans = [...allPlansForTab];
-    if (selectedCompanyFilter !== 'all') {
-      filteredPlans = filteredPlans.filter(p => p.companyName === selectedCompanyFilter);
+    if (selectedCompaniesSet.size < availableCompanies.length) {
+      filteredPlans = filteredPlans.filter(p => selectedCompaniesSet.has(p.companyName));
     }
 
-    // Apply Super Age 70+ filters ONLY IF age > 70
+    // Apply Super Age 70+ duration filter (<= 30 vs > 30 days)
     if (q && q.age > 70) {
-      const medFilter = this.state.superAgeMedicalFilter || 'all';
-
-      // 1. Automatically analyze travel duration from dates/days (<= 30 vs > 30 days)
       const isWithin30 = (q.travelDays || 0) <= 30;
       if (isWithin30) {
         filteredPlans = filteredPlans.filter(p => {
@@ -305,21 +317,22 @@ export class QuoteView {
           return !name.includes('within 30') && !name.includes('less than 30');
         });
       }
+    }
 
-      // 2. Medical option filter: all / with_medical / without_medical
-      if (medFilter === 'with_medical') {
-        filteredPlans = filteredPlans.filter(p => {
-          if (p.medicalCover === true) return true;
-          const name = (p.planName || '').toLowerCase();
-          return name.includes('with medical') && !name.includes('without medical');
-        });
-      } else if (medFilter === 'without_medical') {
-        filteredPlans = filteredPlans.filter(p => {
-          if (p.medicalCover === false) return true;
-          const name = (p.planName || '').toLowerCase();
-          return name.includes('without medical');
-        });
-      }
+    // Apply Medical filter: all / with_medical / without_medical
+    const medFilter = this.state.superAgeMedicalFilter || 'all';
+    if (medFilter === 'with_medical') {
+      filteredPlans = filteredPlans.filter(p => {
+        if (p.medicalCover === true) return true;
+        const name = (p.planName || '').toLowerCase();
+        return name.includes('with medical') && !name.includes('without medical');
+      });
+    } else if (medFilter === 'without_medical') {
+      filteredPlans = filteredPlans.filter(p => {
+        if (p.medicalCover === false) return true;
+        const name = (p.planName || '').toLowerCase();
+        return name.includes('without medical');
+      });
     }
 
     // Apply sorting
@@ -347,77 +360,20 @@ export class QuoteView {
     const allPlans = this._getAllMatchingPlans();
     const areAllSelected = allPlans.length > 0 && allPlans.every(p => this._isPlanSelected(p));
 
-    // Status chips
-    const isSenior = q && q.age >= 70;
-    const isWithin30 = q && (q.travelDays || 0) <= 30;
-
-    const formattedDept = this._formatDate(q.departureDate);
-    const formattedRet = this._formatDate(q.returnDate);
-    const originCountry = this._esc(q.departureCountry || 'India');
-    const destCountry = this._esc(q.arrivalCountry || q.travellingCountry || 'Worldwide');
-    const regionText = q.region === 'Including' ? 'incl. USA/Canada' : 'excl. USA/Canada';
-    const medFilter = this.state.superAgeMedicalFilter || 'all';
+    // Dynamic button label for company dropdown
+    let companyBtnLabel = `Company: All (${availableCompanies.length})`;
+    if (selectedCompaniesSet.size === 0) {
+      companyBtnLabel = 'Company: None (0)';
+    } else if (selectedCompaniesSet.size === 1) {
+      const singleComp = Array.from(selectedCompaniesSet)[0];
+      const singleCount = allPlansForTab.filter(p => p.companyName === singleComp).length;
+      companyBtnLabel = `Company: ${singleComp} (${singleCount})`;
+    } else if (selectedCompaniesSet.size < availableCompanies.length) {
+      companyBtnLabel = `Company: ${selectedCompaniesSet.size} Selected`;
+    }
 
     return `
       <div class="comparison-results-section" id="comparisonResultsSection">
-
-        <div class="step-header">
-          <div class="step-num">2</div>
-          <h2 class="step-title">Compare plans</h2>
-        </div>
-
-        <!-- 2. TRIP SUMMARY CARD -->
-        <div class="trip-summary-card" id="tripSummaryCard">
-          <!-- Row 1: Quote ID chip on left, Customer name on right -->
-          <div class="tsc-row-1">
-            <div class="quote-id-chip" id="quoteRefBadge">${this._esc(q.quoteReference)}</div>
-            <div class="tsc-cust-name">${this._esc(q.customerName || 'Customer')}</div>
-          </div>
-
-          <!-- Row 2: Status chips, wrapping (only show chips that apply) -->
-          ${(isSenior || isWithin30) ? `
-            <div class="tsc-chips-row">
-              ${isSenior ? '<span class="status-chip chip-senior">Senior (70+)</span>' : ''}
-              ${isWithin30 ? '<span class="status-chip chip-within30">Within 30 days</span>' : ''}
-            </div>
-          ` : ''}
-
-          <!-- Facts Grid -->
-          <div class="tsc-facts-grid">
-            <div class="tsc-fact-col">
-              <div class="tsc-fact-label">TRAVELLER</div>
-              <div class="tsc-fact-val">${q.age} yrs</div>
-            </div>
-            <div class="tsc-fact-col">
-              <div class="tsc-fact-label">DURATION</div>
-              <div class="tsc-fact-val">${q.travelDays} days</div>
-            </div>
-            <div class="tsc-fact-full">
-              <div class="tsc-fact-label">TRAVEL DATES</div>
-              <div class="tsc-fact-val">${formattedDept} → ${formattedRet}</div>
-            </div>
-            <div class="tsc-fact-full">
-              <div class="tsc-fact-label">ROUTE</div>
-              <div class="tsc-fact-val">${originCountry} → ${destCountry}, ${regionText}</div>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="tsc-actions-row">
-            <button type="button" class="btn-tsc-edit" id="btnEditThisQuote" title="Edit trip details">
-              <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-              </svg>
-              <span>Edit Details</span>
-            </button>
-            <button type="button" class="btn-tsc-new" id="btnNewQuote" title="Start fresh new quote">
-              <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
-                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
-              </svg>
-              <span>New Quote</span>
-            </button>
-          </div>
-        </div>
 
         <!-- 3. SUM INSURED SELECTOR -->
         <div class="sum-insured-section">
@@ -443,49 +399,57 @@ export class QuoteView {
           </div>
         </div>
 
-        <!-- 4. FILTER CARD -->
-        <div class="filter-card">
-          <!-- Row 1: Two dropdowns side by side -->
-          <div class="fc-dropdowns-row">
-            <div class="fc-dropdown-wrap">
-              <label for="filterCompanySelect" class="fc-dropdown-label">COMPANY</label>
-              <div class="fc-select-box">
-                <select class="fc-select ${selectedCompanyFilter !== 'all' ? 'has-filter' : ''}" id="filterCompanySelect">
-                  <option value="all" ${selectedCompanyFilter === 'all' ? 'selected' : ''}>All Companies (${availableCompanies.length})</option>
-                  ${availableCompanies.map(comp => {
-                    const compCountInTab = allPlansForTab.filter(p => p.companyName === comp).length;
-                    return `
-                      <option value="${this._esc(comp)}" ${selectedCompanyFilter === comp ? 'selected' : ''}>
-                        ${this._esc(comp)} (${compCountInTab})
-                      </option>
-                    `;
-                  }).join('')}
-                </select>
-                <svg class="fc-chevron" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                </svg>
-              </div>
-            </div>
-
-            <div class="fc-dropdown-wrap">
-              <label for="sortResultsSelect" class="fc-dropdown-label">SORT</label>
-              <div class="fc-select-box">
-                <select class="fc-select" id="sortResultsSelect">
-                  <option value="lowest" ${this.state.sortBy === 'lowest' ? 'selected' : ''}>Lowest Premium</option>
-                  <option value="highest" ${this.state.sortBy === 'highest' ? 'selected' : ''}>Highest Premium</option>
-                  <option value="name" ${this.state.sortBy === 'name' ? 'selected' : ''}>Company Name A-Z</option>
-                </select>
-                <svg class="fc-chevron" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                </svg>
+        <!-- 4. FILTER TOOLBAR -->
+        <div class="filter-card fc-toolbar-card">
+          <!-- Company Dropdown (Multi-select) -->
+          <div class="fc-dropdown-wrap fc-company-dropdown-wrap ${this.state.isCompanyDropdownOpen ? 'open' : ''}" id="companyDropdownWrap">
+            <button type="button" class="fc-compact-dropdown-btn" id="btnCompanyDropdown" aria-haspopup="true" aria-expanded="${this.state.isCompanyDropdownOpen ? 'true' : 'false'}">
+              <span>${this._esc(companyBtnLabel)}</span>
+              <svg class="fc-dropdown-arrow" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </button>
+            <div class="fc-dropdown-popover" id="companyDropdownPopover">
+              <label class="fc-popover-item fc-popover-all">
+                <input type="checkbox" id="chkCompanySelectAll" ${allSelected ? 'checked' : ''} />
+                <span class="fc-popover-item-text">Select all</span>
+                <span class="fc-popover-item-count">(${availableCompanies.length})</span>
+              </label>
+              <div class="fc-popover-divider"></div>
+              <div class="fc-popover-list">
+                ${availableCompanies.map(comp => {
+                  const compCountInTab = allPlansForTab.filter(p => p.companyName === comp).length;
+                  const isChecked = selectedCompaniesSet.has(comp);
+                  return `
+                    <label class="fc-popover-item">
+                      <input type="checkbox" class="chk-company-filter-item" data-company-name="${this._esc(comp)}" ${isChecked ? 'checked' : ''} />
+                      <span class="fc-popover-item-text">${this._esc(comp)}</span>
+                      <span class="fc-popover-item-count">(${compCountInTab} rate${compCountInTab !== 1 ? 's' : ''})</span>
+                    </label>
+                  `;
+                }).join('')}
               </div>
             </div>
           </div>
 
-          <!-- Row 2: 3-option toggle inside tint container -->
-          <div class="fc-toggle-container" role="group" aria-label="Medical Cover Option">
+          <!-- Sort Dropdown -->
+          <div class="fc-dropdown-wrap">
+            <div class="fc-compact-select-box">
+              <select class="fc-compact-select" id="sortResultsSelect" aria-label="Sort plans">
+                <option value="lowest" ${this.state.sortBy === 'lowest' ? 'selected' : ''}>Sort: Lowest Premium</option>
+                <option value="highest" ${this.state.sortBy === 'highest' ? 'selected' : ''}>Sort: Highest Premium</option>
+                <option value="name" ${this.state.sortBy === 'name' ? 'selected' : ''}>Sort: Company Name A-Z</option>
+              </select>
+              <svg class="fc-dropdown-arrow" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Medical Segmented Control -->
+          <div class="fc-compact-toggle" role="group" aria-label="Medical Cover Option">
             <button type="button" class="fc-toggle-btn ${medFilter === 'all' ? 'active' : ''}" data-super-medical="all">
-              Show Both
+              Both
             </button>
             <button type="button" class="fc-toggle-btn ${medFilter === 'with_medical' ? 'active' : ''}" data-super-medical="with_medical">
               With Medical
@@ -493,11 +457,6 @@ export class QuoteView {
             <button type="button" class="fc-toggle-btn ${medFilter === 'without_medical' ? 'active' : ''}" data-super-medical="without_medical">
               Without Medical
             </button>
-          </div>
-
-          <!-- Row 3: Horizontally scrolling quick select row -->
-          <div class="fc-quick-select-row" id="companyQuickSelectBar">
-            ${this._renderCompanyQuickSelectBarHtml()}
           </div>
         </div>
 
@@ -519,20 +478,24 @@ export class QuoteView {
         <!-- 6. PLAN CARDS GRID -->
         ${sortedPlans.length === 0 ? `
           <div class="guided-empty-state" style="background:#fff; border-radius:16px; border:1px solid var(--line); margin-bottom:2rem; padding: 2.5rem 1.5rem; text-align: center;">
-            <div class="empty-state-icon" style="font-size: 2.2rem; margin-bottom: 0.5rem;">${selectedCompanyFilter !== 'all' ? '🏢' : '🔍'}</div>
+            <div class="empty-state-icon" style="font-size: 2.2rem; margin-bottom: 0.5rem;">${selectedCompaniesSet.size < availableCompanies.length ? '🏢' : '🔍'}</div>
             <div class="empty-state-title" style="font-size: 1.1rem; font-weight: 700; color: var(--navy);">
-              ${selectedCompanyFilter !== 'all'
-                ? `No plans from ${this._esc(selectedCompanyFilter)} for $${activeCoverage.toLocaleString()} coverage`
-                : `No plans available for this coverage amount`
+              ${selectedCompaniesSet.size === 0
+                ? 'No companies selected'
+                : selectedCompaniesSet.size < availableCompanies.length
+                  ? `No plans from selected companies for $${activeCoverage.toLocaleString()} coverage`
+                  : `No plans available for this coverage amount`
               }
             </div>
             <div class="empty-state-desc" style="max-width: 600px; margin: 0.5rem auto 1rem; color: var(--muted); font-size: 0.875rem;">
-              ${selectedCompanyFilter !== 'all'
-                ? `${this._esc(selectedCompanyFilter)} does not offer plans for ${q.age} yrs, ${q.travelDays} days under $${activeCoverage.toLocaleString()} sum insured.`
-                : `None of the active insurance companies offer a plan matching this exact age (${q.age} yrs), duration (${q.travelDays} days), and region for <strong>$${activeCoverage.toLocaleString()}</strong> coverage.`
+              ${selectedCompaniesSet.size === 0
+                ? 'Please select at least one insurance company from the Company dropdown to view plans.'
+                : selectedCompaniesSet.size < availableCompanies.length
+                  ? `The selected insurers do not offer plans for ${q.age} yrs, ${q.travelDays} days under $${activeCoverage.toLocaleString()} sum insured.`
+                  : `None of the active insurance companies offer a plan matching this exact age (${q.age} yrs), duration (${q.travelDays} days), and region for <strong>$${activeCoverage.toLocaleString()}</strong> coverage.`
               }
             </div>
-            ${selectedCompanyFilter !== 'all' ? `
+            ${selectedCompaniesSet.size < availableCompanies.length ? `
               <button type="button" class="btn btn-outline btn-sm" id="btnResetCompanyFilter" style="font-weight: 700; margin-top: 0.5rem;">
                 ✕ Clear Company Filter (Show All Companies)
               </button>
@@ -685,29 +648,6 @@ export class QuoteView {
     return Array.from(new Set(all.map(p => p.companyName)));
   }
 
-  _renderCompanyQuickSelectBarHtml() {
-    const availableCompanies = this._getAvailableCompanies();
-    if (availableCompanies.length === 0) return '';
-
-    const allPlans = this._getAllMatchingPlans();
-    const areAllSelected = allPlans.length > 0 && allPlans.every(p => this._isPlanSelected(p));
-
-    return `
-      <button type="button" class="btn-qs-all ${areAllSelected ? 'all-selected' : ''}" id="btnToggleAllCompanies">
-        ${areAllSelected ? '✓ All Companies' : 'Select all companies'}
-      </button>
-      ${availableCompanies.map(compName => {
-        const compPlans = this._getAllPlansForCompany(compName);
-        const isCompAllSelected = compPlans.length > 0 && compPlans.every(p => this._isPlanSelected(p));
-        return `
-          <button type="button" class="btn-qs-comp ${isCompAllSelected ? 'selected' : ''}" data-toggle-company="${this._esc(compName)}">
-            ${isCompAllSelected ? '✓' : '+'} ${this._esc(compName)} (${compPlans.length} rate${compPlans.length !== 1 ? 's' : ''})
-          </button>
-        `;
-      }).join('')}
-    `;
-  }
-
   // ── Small Super Age 70+ Box (Rendered ONLY IF age > 70 after Compare is clicked) ──
   _renderSuperAgeSmallBox(q) {
     if (!q || q.age <= 70) return '';
@@ -855,7 +795,24 @@ export class QuoteView {
     // Input events (customer name, countries, dates, and Step 3 details)
     container.addEventListener('input', (e) => {
       if (e.target.id === 'qCustomerName') {
+        const prevCust = this.state.customerName;
         this.state.customerName = e.target.value;
+        // If Step 3 is currently open and issueFor was empty or matching old customerName, auto-sync
+        if (this.state.showIssueDetails && this.state.issueForm) {
+          if (!this.state.issueForm.issueFor || this.state.issueForm.issueFor === prevCust) {
+            this.state.issueForm.issueFor = e.target.value;
+            const ifInp = this.container?.querySelector('#issueIssueFor');
+            if (ifInp) ifInp.value = e.target.value;
+          }
+          const tr0 = this.state.issueForm.travellers ? this.state.issueForm.travellers[0] : '';
+          if (!tr0 || tr0 === prevCust) {
+            if (!this.state.issueForm.travellers) this.state.issueForm.travellers = [];
+            this.state.issueForm.travellers[0] = e.target.value;
+            const tr1Inp = this.container?.querySelector('.issue-traveller-input');
+            if (tr1Inp) tr1Inp.value = e.target.value;
+          }
+          this._updateIssuePreview();
+        }
       } else if (e.target.id === 'qTravellingCountry' || e.target.id === 'qArrivalCountry') {
         this.state.travellingCountry = e.target.value;
         this.state.arrivalCountry = e.target.value;
@@ -878,7 +835,22 @@ export class QuoteView {
         this._clearFieldError('issuePlanName');
         this._updateIssuePreview();
       } else if (e.target.id === 'issueIssueFor') {
-        this.state.issueForm.issueFor = e.target.value;
+        const val = e.target.value;
+        const prevIssueFor = this.state.issueForm.issueFor;
+        this.state.issueForm.issueFor = val;
+
+        // Auto-sync Traveller 1 if it is empty or was matching previous issueFor
+        const firstTraveller = (this.state.issueForm.travellers && this.state.issueForm.travellers[0]) ? this.state.issueForm.travellers[0] : '';
+        if (!firstTraveller.trim() || firstTraveller === prevIssueFor) {
+          if (!this.state.issueForm.travellers || this.state.issueForm.travellers.length === 0) {
+            this.state.issueForm.travellers = [val];
+          } else {
+            this.state.issueForm.travellers[0] = val;
+          }
+          const tr1Input = this.container?.querySelector('.issue-traveller-input');
+          if (tr1Input) tr1Input.value = val;
+        }
+
         this._clearFieldError('issueIssueFor');
         this._updateIssuePreview();
       } else if (e.target.id === 'issueNominee') {
@@ -895,10 +867,20 @@ export class QuoteView {
         this._updateIssuePreview();
       } else if (e.target.classList.contains('issue-traveller-input')) {
         this._syncTravellersFromDom();
+        // If Traveller 1 was edited, auto-sync Issue for if it was empty
+        const row = e.target.closest('.traveller-row-item');
+        const trIdx = row ? parseInt(row.dataset.travellerIdx, 10) : 0;
+        if (trIdx === 0 && (!this.state.issueForm.issueFor || !this.state.issueForm.issueFor.trim())) {
+          this.state.issueForm.issueFor = e.target.value;
+          const issueForInp = this.container?.querySelector('#issueIssueFor');
+          if (issueForInp) issueForInp.value = e.target.value;
+        }
         this._clearFieldError('issueTravellers');
         this._updateIssuePreview();
       } else if (e.target.id === 'issueMessagePreview') {
         this.state.issueForm.customPreviewText = e.target.value;
+      } else if (e.target.id === 'issueSubjectInput') {
+        this.state.issueForm.customSubject = e.target.value;
       }
     });
 
@@ -906,6 +888,11 @@ export class QuoteView {
     container.addEventListener('change', async (e) => {
       if (e.target.id === 'chkHideEmptyLines') {
         this.state.issueForm.hideEmptyLines = e.target.checked;
+        this._updateIssuePreview();
+        return;
+      }
+      if (e.target.id === 'chkIncludeGreetingSignature') {
+        this.state.issueForm.includeGreetingSignature = e.target.checked;
         this._updateIssuePreview();
         return;
       }
@@ -920,14 +907,36 @@ export class QuoteView {
         return;
       }
 
-      if (e.target.id === 'filterCompanySelect') {
-        this.state.selectedCompanyFilter = e.target.value;
+      if (e.target.id === 'chkCompanySelectAll') {
+        const availableCompanies = this._getAvailableCompanies();
+        if (e.target.checked) {
+          this.state.selectedCompanies = new Set(availableCompanies);
+        } else {
+          this.state.selectedCompanies = new Set();
+        }
+        this.state.isCompanyDropdownOpen = true;
+        this._refresh();
+        return;
+      }
+
+      if (e.target.classList.contains('chk-company-filter-item')) {
+        const comp = e.target.dataset.companyName;
+        const availableCompanies = this._getAvailableCompanies();
+        const set = this._getSelectedCompaniesSet(availableCompanies);
+        if (e.target.checked) {
+          set.add(comp);
+        } else {
+          set.delete(comp);
+        }
+        this.state.selectedCompanies = set;
+        this.state.isCompanyDropdownOpen = true;
         this._refresh();
         return;
       }
 
       if (e.target.id === 'sortResultsSelect') {
         this.state.sortBy = e.target.value;
+        this.state.isCompanyDropdownOpen = false;
         this._refresh();
         return;
       }
@@ -968,44 +977,55 @@ export class QuoteView {
       }
     });
 
+    // Close company dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!this.container) return;
+      if (!e.target.closest('#companyDropdownWrap')) {
+        const wrap = this.container.querySelector('#companyDropdownWrap');
+        if (wrap && wrap.classList.contains('open')) {
+          wrap.classList.remove('open');
+          this.state.isCompanyDropdownOpen = false;
+        }
+      }
+    });
+
     // Global Click Router in Results View
     container.addEventListener('click', (e) => this._handleResultsClick(e));
   }
 
   // ── Results Clicks Handler ────────────────────────────────────────────────
   async _handleResultsClick(e) {
-    // Super Age 70+ Medical filter pill buttons (Show Both, With Medical, Without Medical)
+    // Toggle Company dropdown popover
+    if (e.target.closest('#btnCompanyDropdown')) {
+      const wrap = this.container.querySelector('#companyDropdownWrap');
+      if (wrap) {
+        wrap.classList.toggle('open');
+        this.state.isCompanyDropdownOpen = wrap.classList.contains('open');
+      }
+      return;
+    }
+
+    // Medical filter buttons (Both, With Medical, Without Medical)
     const superMedBtn = e.target.closest('[data-super-medical]');
     if (superMedBtn) {
       const mode = superMedBtn.dataset.superMedical;
       this.state.superAgeMedicalFilter = mode;
+      this.state.isCompanyDropdownOpen = false;
       this._refresh();
       return;
     }
 
-    // Reset Form button or New Quote
-    if (e.target.closest('#btnResetQuoteForm') || e.target.closest('#btnNewQuote')) {
+    // Reset Form button
+    if (e.target.closest('#btnResetQuoteForm')) {
       this._resetForm();
       return;
     }
 
     // Reset Company Filter button (from empty state)
     if (e.target.closest('#btnResetCompanyFilter')) {
-      this.state.selectedCompanyFilter = 'all';
+      this.state.selectedCompanies = new Set(this._getAvailableCompanies());
+      this.state.isCompanyDropdownOpen = false;
       this._refresh();
-      return;
-    }
-
-    // Edit Details: Reveal form container on mobile if hidden & smooth scroll to form
-    if (e.target.closest('#btnEditThisQuote')) {
-      const formContainer = this.container.querySelector('#quoteFormContainer');
-      if (formContainer) {
-        formContainer.classList.add('mobile-form-visible');
-      }
-      const formCard = this.container.querySelector('#quoteFormCard');
-      if (formCard) {
-        formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
       return;
     }
 
@@ -1015,6 +1035,7 @@ export class QuoteView {
       const selectedCov = Number(tab.dataset.coverageTab);
       if (this.state.activeCoverageTab !== selectedCov) {
         this.state.activeCoverageTab = selectedCov;
+        this.state.isCompanyDropdownOpen = false;
         this._refresh();
       }
       return;
@@ -1053,8 +1074,39 @@ export class QuoteView {
       if (nomineeInput) {
         nomineeInput.value = val;
       }
+      if (!this.state.issueForm.groupSuffix) {
+        this.state.issueForm.customSubject = null;
+      }
       this._clearFieldError('issueNominee');
       this._updateIssuePreview();
+      return;
+    }
+
+    // Step 3: Copy subject button
+    if (e.target.closest('#btnCopySubject')) {
+      await this._handleCopyIssueSubject();
+      return;
+    }
+
+    // Step 3: Subject quick suffix chips (& FAMILY, & GROUP, Single)
+    const suffixChip = e.target.closest('[data-subject-suffix]');
+    if (suffixChip) {
+      const sfx = suffixChip.dataset.subjectSuffix;
+      this.state.issueForm.groupSuffix = sfx;
+      this.state.issueForm.customSubject = null;
+      this._updateIssuePreview();
+      const allChips = this.container.querySelectorAll('[data-subject-suffix]');
+      allChips.forEach(c => c.classList.toggle('active', c.dataset.subjectSuffix === sfx));
+      return;
+    }
+
+    // Step 3: Preview view mode tabs (Formatted vs Raw)
+    if (e.target.closest('#btnViewFormattedPreview')) {
+      this._setPreviewViewMode('formatted');
+      return;
+    }
+    if (e.target.closest('#btnViewRawPreview')) {
+      this._setPreviewViewMode('raw');
       return;
     }
 
@@ -1118,6 +1170,18 @@ export class QuoteView {
       return;
     }
 
+    // Step 3: Outlook Email button (direct launch if preferred, or modal)
+    if (e.target.closest('#btnSendIssueEmail')) {
+      await this._handleSendIssueEmail(false);
+      return;
+    }
+
+    // Step 3: Outlook Email options dropdown arrow (always force modal)
+    if (e.target.closest('#btnEmailOptionsDropdown')) {
+      await this._handleSendIssueEmail(true);
+      return;
+    }
+
     // Remove single plan from dock (✕ button on chip)
     const removeBtn = e.target.closest('[data-remove-plan-key]');
     if (removeBtn) {
@@ -1139,49 +1203,6 @@ export class QuoteView {
     if (e.target.closest('#btnClearSelectedPlans')) {
       this.state.selectedPlans = [];
       this._clearAllSelectionDom();
-      this._syncSelectedPlansWithBackend();
-      return;
-    }
-
-    // Quick Company Selector: Select / Deselect All Companies in 1 click
-    if (e.target.closest('#btnToggleAllCompanies')) {
-      const allPlans = this._getAllMatchingPlans();
-      const areAllSelected = allPlans.length > 0 && allPlans.every(p => this._isPlanSelected(p));
-
-      if (areAllSelected) {
-        this.state.selectedPlans = [];
-        this.app.showToast('Cleared all selected rate plans', 'info');
-      } else {
-        this.state.selectedPlans = [...allPlans];
-        this.app.showToast(`✓ Selected all ${allPlans.length} rates across all companies! Ready to copy images or print.`, 'success');
-      }
-
-      this._updateSelectionDom();
-      this._syncSelectedPlansWithBackend();
-      return;
-    }
-
-    // Quick Company Selector: Select / Deselect All Rates for a single Company
-    const compToggleBtn = e.target.closest('[data-toggle-company]');
-    if (compToggleBtn) {
-      const compName = compToggleBtn.dataset.toggleCompany;
-      const compPlans = this._getAllPlansForCompany(compName);
-      const isAllSelected = compPlans.length > 0 && compPlans.every(p => this._isPlanSelected(p));
-
-      if (isAllSelected) {
-        this.state.selectedPlans = this.state.selectedPlans.filter(p => p.companyName !== compName);
-        this.app.showToast(`Deselected all ${compName} rates`, 'info');
-      } else {
-        const existingKeys = new Set(this.state.selectedPlans.map(p => this._getPlanKey(p)));
-        compPlans.forEach(p => {
-          if (!existingKeys.has(this._getPlanKey(p))) {
-            this.state.selectedPlans.push(p);
-          }
-        });
-        this.app.showToast(`✓ Selected all ${compPlans.length} rates for ${compName}! Ready to copy image or print.`, 'success');
-      }
-
-      this._updateSelectionDom();
       this._syncSelectedPlansWithBackend();
       return;
     }
@@ -1316,6 +1337,9 @@ export class QuoteView {
       this.state.coverageStats = compareRes.coverageStats || {};
       this.state.resultsSummary = compareRes.resultsSummary || {};
       this.state.activeCoverageTab = compareRes.defaultActiveCoverage || 50000;
+      this.state.sortBy = 'lowest';
+      this.state.selectedCompanies = null;
+      this.state.isCompanyDropdownOpen = false;
       this.state.superAgeMedicalFilter = 'all';
       this.state.selectedForCompare.clear();
 
@@ -1481,12 +1505,6 @@ export class QuoteView {
       if (dockActions) {
         dockActions.innerHTML = this._buildDockActionsHtml();
       }
-    }
-
-    // 6. Update Quick Company Selector Bar in-place
-    const cqsBar = this.container.querySelector('#companyQuickSelectBar');
-    if (cqsBar) {
-      cqsBar.innerHTML = this._renderCompanyQuickSelectBarHtml();
     }
   }
 
@@ -2316,7 +2334,8 @@ export class QuoteView {
       resultsSummary: {},
       activeCoverageTab: 50000,
       sortBy: 'lowest',
-      selectedCompanyFilter: 'all',
+      selectedCompanies: null,
+      isCompanyDropdownOpen: false,
       superAgeMedical: 'all',
       superAgeDuration: 'all',
       superAgeMedicalFilter: 'all',
@@ -2325,6 +2344,7 @@ export class QuoteView {
       selectedPlans: [],
       // Step 3: Issue details state (Admin only)
       showIssueDetails: false,
+      issuePreviewMode: 'formatted', // 'formatted' | 'raw'
       issuePlan: null,
       issueForm: {
         country: '',
@@ -2334,10 +2354,13 @@ export class QuoteView {
         issueFor: '',
         nominee: '',
         travellers: [''],
-        phone: '',
+        phone: '8657461001',
         email: 'customercare@khannatravels.com',
-        format: 'format1',
+        format: 'format2',
+        groupSuffix: '',
+        customSubject: null,
         hideEmptyLines: false,
+        includeGreetingSignature: false,
         customPreviewText: null
       }
     };
@@ -2424,7 +2447,7 @@ export class QuoteView {
     }
     if (num >= 1000) {
       const k = num / 1000;
-      return `USD ${Number.isInteger(k) ? k : k.toFixed(1)}k`;
+      return `USD ${Number.isInteger(k) ? k : k.toFixed(1)}K`;
     }
     return `USD ${num}`;
   }
@@ -2449,10 +2472,64 @@ export class QuoteView {
     return name || String(planName).trim();
   }
 
-  _buildIssueMessage(formData = this.state.issueForm) {
+  _buildIssueSubject(formData = this.state.issueForm) {
     const f = formData || {};
-    const format = f.format || 'format1';
+    if (f.customSubject && f.customSubject.trim()) {
+      return f.customSubject.trim();
+    }
+
+    let primaryName = '';
+    if (f.issueFor && f.issueFor.trim()) {
+      primaryName = f.issueFor.trim();
+    } else if (Array.isArray(f.travellers) && f.travellers.length > 0 && f.travellers[0].trim()) {
+      primaryName = f.travellers[0].trim();
+    } else if (this.state.customerName && this.state.customerName.trim() && this.state.customerName.trim().toLowerCase() !== 'customer') {
+      primaryName = this.state.customerName.trim();
+    } else {
+      primaryName = 'CUSTOMER';
+    }
+
+    primaryName = primaryName.toUpperCase();
+
+    const travellers = Array.isArray(f.travellers) ? f.travellers.map(t => (t || '').trim()).filter(Boolean) : [];
+    const count = travellers.length > 0 ? travellers.length : 1;
+    const nominee = (f.nominee || '').trim().toLowerCase();
+
+    let suffix = '';
+    if (f.groupSuffix === 'none') {
+      suffix = '';
+    } else if (f.groupSuffix === 'family') {
+      suffix = ' & FAMILY';
+    } else if (f.groupSuffix === 'group') {
+      suffix = ' & GROUP';
+    } else if (count > 1) {
+      if (nominee.includes('family') || nominee.includes('spouse') || nominee.includes('children') || nominee.includes('interchange') || nominee.includes('parent')) {
+        suffix = ' & FAMILY';
+      } else {
+        suffix = ' & GROUP';
+      }
+    }
+
+    return `ISSUE TRAVEL INSURANCE POLICY OF ${primaryName}${suffix}`;
+  }
+
+  _buildIssueMessage(formData = this.state.issueForm, mode = 'plain') {
+    const f = formData || {};
+    const format = f.format || 'format2';
     const hideEmpty = Boolean(f.hideEmptyLines);
+
+    const b = (val) => {
+      if (!val) return '';
+      if (mode === 'whatsapp') return `*${val}*`;
+      if (mode === 'html') return `<strong>${this._esc(val)}</strong>`;
+      return val;
+    };
+
+    const formatEmail = (emailStr) => {
+      if (!emailStr) return '';
+      if (mode === 'html') return `<a href="mailto:${this._esc(emailStr)}" style="color: #0284c7; text-decoration: underline;">${this._esc(emailStr)}</a>`;
+      return emailStr;
+    };
 
     const issueFor = f.issueFor || '';
     const country = f.country || '';
@@ -2469,71 +2546,103 @@ export class QuoteView {
     if (format === 'format1') {
       if (!hideEmpty) {
         return [
-          `Issue for ${issueFor} -`,
+          `Issue for ${b(issueFor)} -`,
           ``,
-          `Country - ${country}`,
-          `Travel Date - ${travelDate}`,
+          `Country - ${b(country)}`,
+          `Travel Date - ${b(travelDate)}`,
           ``,
-          `Sum Insured- ${sumInsured}`,
+          `Sum Insured- ${b(sumInsured)}`,
           ``,
-          `Nominee- ${nominee}`,
+          `Nominee- ${b(nominee)}`,
           ``,
           `${phone}`,
-          `${email}`
+          `${formatEmail(email)}`
         ].join('\n');
       } else {
         const blocks = [];
-        if (issueFor.trim()) blocks.push([`Issue for ${issueFor.trim()} -`]);
+        if (issueFor.trim()) blocks.push([`Issue for ${b(issueFor.trim())} -`]);
         const trip = [];
-        if (country.trim()) trip.push(`Country - ${country.trim()}`);
-        if (travelDate.trim()) trip.push(`Travel Date - ${travelDate.trim()}`);
+        if (country.trim()) trip.push(`Country - ${b(country.trim())}`);
+        if (travelDate.trim()) trip.push(`Travel Date - ${b(travelDate.trim())}`);
         if (trip.length > 0) blocks.push(trip);
-        if (sumInsured.trim()) blocks.push([`Sum Insured- ${sumInsured.trim()}`]);
-        if (nominee.trim()) blocks.push([`Nominee- ${nominee.trim()}`]);
+        if (sumInsured.trim()) blocks.push([`Sum Insured- ${b(sumInsured.trim())}`]);
+        if (nominee.trim()) blocks.push([`Nominee- ${b(nominee.trim())}`]);
         const contact = [];
         if (phone.trim()) contact.push(phone.trim());
-        if (email.trim()) contact.push(email.trim());
+        if (email.trim()) contact.push(formatEmail(email.trim()));
         if (contact.length > 0) blocks.push(contact);
 
         return blocks.map(b => b.join('\n')).join('\n\n');
       }
     } else {
-      // Format 2
+      // Format 2: Official / Letter Format (Khanna)
+      const includeGreetingSignature = Boolean(f.includeGreetingSignature);
+
+      let premStr = 'Premium';
+      if (planName.trim() && sumInsuredUpperK.trim()) {
+        premStr = `Premium - ${b(planName.trim())} - ${sumInsuredUpperK.trim()}`;
+      } else if (planName.trim()) {
+        premStr = `Premium - ${b(planName.trim())}`;
+      } else if (sumInsuredUpperK.trim()) {
+        premStr = `Premium - ${b(sumInsuredUpperK.trim())}`;
+      }
+
+      let detailsText = '';
       if (!hideEmpty) {
-        return [
-          `Country- ${country}`,
-          `Travel Date- ${travelDate}`,
+        detailsText = [
+          `Country- ${b(country)}`,
           ``,
-          `Premium - ${planName} - ${sumInsuredUpperK}`,
-          `Nominee - ${nominee}`,
+          `Travel Date- ${b(travelDate)}`,
           ``,
-          `Travelers - ${travellers}`,
+          premStr,
+          ``,
+          `Nominee - ${b(nominee)}`,
+          ``,
+          `Travelers - ${b(travellers)}`,
+          ``,
           `Phone No- ${phone}`,
-          `Email id- ${email}`
+          `Email id - ${formatEmail(email)}`
         ].join('\n');
       } else {
         const blocks = [];
-        const trip = [];
-        if (country.trim()) trip.push(`Country- ${country.trim()}`);
-        if (travelDate.trim()) trip.push(`Travel Date- ${travelDate.trim()}`);
-        if (trip.length > 0) blocks.push(trip);
-        const planLines = [];
-        if (planName.trim() || sumInsuredUpperK.trim()) {
-          const parts = ['Premium'];
-          if (planName.trim()) parts.push(planName.trim());
-          if (sumInsuredUpperK.trim()) parts.push(sumInsuredUpperK.trim());
-          planLines.push(parts.join(' - '));
-        }
-        if (nominee.trim()) planLines.push(`Nominee - ${nominee.trim()}`);
-        if (planLines.length > 0) blocks.push(planLines);
+        if (country.trim()) blocks.push([`Country- ${b(country.trim())}`]);
+        if (travelDate.trim()) blocks.push([`Travel Date- ${b(travelDate.trim())}`]);
+        if (planName.trim() || sumInsuredUpperK.trim()) blocks.push([premStr]);
+        if (nominee.trim()) blocks.push([`Nominee - ${b(nominee.trim())}`]);
+        if (travellers.trim()) blocks.push([`Travelers - ${b(travellers.trim())}`]);
+
         const contact = [];
-        if (travellers.trim()) contact.push(`Travelers - ${travellers.trim()}`);
         if (phone.trim()) contact.push(`Phone No- ${phone.trim()}`);
-        if (email.trim()) contact.push(`Email id- ${email.trim()}`);
+        if (email.trim()) contact.push(`Email id - ${formatEmail(email.trim())}`);
         if (contact.length > 0) blocks.push(contact);
 
-        return blocks.map(b => b.join('\n')).join('\n\n');
+        detailsText = blocks.map(b => b.join('\n')).join('\n\n');
       }
+
+      if (!includeGreetingSignature) {
+        return detailsText;
+      }
+
+      const greeting = [
+        "Dear Sir/Ma'am,",
+        "",
+        b("Greetings From Khannaholidays.com !!")
+      ].join('\n');
+
+      const closing = [
+        b("Do not hesitate to contact us for any further assistance."),
+        "",
+        "",
+        "Regards,",
+        b("Ms. Dhvani // Ms. Akriti"),
+        `${b("Mobile No. :")} +91 86574 61001`,
+        `${b("Email:")} ${formatEmail('customercare@khannatravels.com')}`,
+        `${b("Tel Board:")} + 91 22 41555555`,
+        `${b("GST NO :")} 27AAFCK5236J2ZB`,
+        `${b("Company Name :")} Khanna Holidays Pvt Ltd`
+      ].join('\n');
+
+      return [greeting, '', detailsText, '', closing].join('\n');
     }
   }
 
@@ -2541,7 +2650,14 @@ export class QuoteView {
     const plan = this.state.issuePlan;
     if (!plan) return '';
     const f = this.state.issueForm;
-    const previewMsg = f.customPreviewText !== null ? f.customPreviewText : this._buildIssueMessage(f);
+    const previewMsg = f.customPreviewText !== null ? f.customPreviewText : this._buildIssueMessage(f, 'plain');
+    const currentSubject = this._buildIssueSubject(f);
+    const formattedHtml = this._buildIssueMessage(f, 'html').split('\n\n').map(p => `<div class="preview-formatted-block">${p.replace(/\n/g, '<br>')}</div>`).join('');
+
+    const savedEmailPref = localStorage.getItem('kt_preferred_email_client');
+    let emailBtnLabel = 'Outlook Email';
+    if (savedEmailPref === 'web') emailBtnLabel = 'Outlook Web';
+    else if (savedEmailPref === 'desktop') emailBtnLabel = 'Outlook App';
 
     return `
       <div class="step-3-issue-section" id="step3IssueSection">
@@ -2643,11 +2759,14 @@ export class QuoteView {
 
               <!-- Issue for -->
               <div class="issue-form-group">
-                <label class="issue-label" for="issueIssueFor">Issue for <span class="req-star">*</span></label>
+                <div class="issue-label-row">
+                  <label class="issue-label" for="issueIssueFor">Issue for <span class="req-star">*</span></label>
+                  <span class="badge-from-quote">From quote</span>
+                </div>
                 <input type="text" id="issueIssueFor" class="form-input"
                        value="${this._esc(f.issueFor)}" placeholder="e.g. Mr. and Mrs. Bhasin" />
                 <div class="field-error-msg" id="err-issueIssueFor"></div>
-                <span class="field-helper-text">Names for format 1 greeting line (e.g. Mr. and Mrs. Bhasin)</span>
+                <span class="field-helper-text">1st customer name (auto-syncs with Traveller 1)</span>
               </div>
 
               <!-- Nominee -->
@@ -2667,7 +2786,10 @@ export class QuoteView {
 
               <!-- Traveller name(s) -->
               <div class="issue-form-group">
-                <label class="issue-label">Traveller name(s) <span class="req-star">*</span></label>
+                <div class="issue-label-row">
+                  <label class="issue-label">Traveller name(s) <span class="req-star">*</span></label>
+                  <span class="badge-from-quote">From quote</span>
+                </div>
                 <div class="travellers-input-list" id="travellersInputList">
                   ${(f.travellers && f.travellers.length > 0 ? f.travellers : ['']).map((tr, i) => `
                     <div class="traveller-row-item" data-traveller-idx="${i}">
@@ -2689,15 +2811,21 @@ export class QuoteView {
 
               <!-- Contact phone / Phone no. -->
               <div class="issue-form-group">
-                <label class="issue-label" for="issuePhone">Contact phone / Phone no. <span class="req-star">*</span></label>
+                <div class="issue-label-row">
+                  <label class="issue-label" for="issuePhone">Contact phone / Phone no. <span class="req-star">*</span></label>
+                  <span class="badge-from-quote">Default</span>
+                </div>
                 <input type="tel" id="issuePhone" class="form-input"
-                       value="${this._esc(f.phone)}" placeholder="10-digit mobile number" maxlength="15" />
+                       value="${this._esc(f.phone || '8657461001')}" placeholder="10-digit mobile number" maxlength="15" />
                 <div class="field-error-msg" id="err-issuePhone"></div>
               </div>
 
               <!-- Email -->
               <div class="issue-form-group">
-                <label class="issue-label" for="issueEmail">Email</label>
+                <div class="issue-label-row">
+                  <label class="issue-label" for="issueEmail">Email</label>
+                  <span class="badge-from-quote">Default</span>
+                </div>
                 <input type="email" id="issueEmail" class="form-input"
                        value="${this._esc(f.email || 'customercare@khannatravels.com')}" placeholder="customercare@khannatravels.com" />
                 <div class="field-error-msg" id="err-issueEmail"></div>
@@ -2710,12 +2838,44 @@ export class QuoteView {
             <div class="issue-card-header issue-message-header">
               <div>
                 <h3 class="issue-card-title">Message to share</h3>
-                <span class="issue-card-subtitle">Live preview of message to copy or send on WhatsApp</span>
+                <span class="issue-card-subtitle">Live preview of policy details to copy or send</span>
               </div>
-              <label class="hide-empty-label" title="Hide lines with empty values from the final message">
-                <input type="checkbox" id="chkHideEmptyLines" ${f.hideEmptyLines ? 'checked' : ''} />
-                <span>Hide empty lines</span>
-              </label>
+              <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                <label class="hide-empty-label" title="Toggle full email with greeting & signature or between details only">
+                  <input type="checkbox" id="chkIncludeGreetingSignature" ${f.includeGreetingSignature ? 'checked' : ''} />
+                  <span>Full Email (with Signature)</span>
+                </label>
+                <label class="hide-empty-label" title="Hide lines with empty values from the final message">
+                  <input type="checkbox" id="chkHideEmptyLines" ${f.hideEmptyLines ? 'checked' : ''} />
+                  <span>Hide empty lines</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Standardized Policy Issue Subject Line -->
+            <div class="issue-subject-box">
+              <div class="issue-subject-header">
+                <label class="issue-subject-label" for="issueSubjectInput">
+                  <span>EMAIL / REQUEST SUBJECT</span>
+                  <span class="subject-caps-hint">(Auto in ALL CAPS)</span>
+                </label>
+                <button type="button" class="btn-copy-subject" id="btnCopySubject" title="Copy subject line to clipboard">
+                  <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
+                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                  </svg>
+                  <span id="copySubjectBtnText">Copy Sub</span>
+                </button>
+              </div>
+              <input type="text" id="issueSubjectInput" class="form-input issue-subject-input"
+                     value="${this._esc(currentSubject)}"
+                     placeholder="ISSUE TRAVEL INSURANCE POLICY OF..." />
+              <div class="subject-quick-chips">
+                <span class="chips-label">Quick suffix:</span>
+                <button type="button" class="btn-subject-chip ${f.groupSuffix === 'family' ? 'active' : ''}" data-subject-suffix="family">&amp; FAMILY</button>
+                <button type="button" class="btn-subject-chip ${f.groupSuffix === 'group' ? 'active' : ''}" data-subject-suffix="group">&amp; GROUP</button>
+                <button type="button" class="btn-subject-chip ${f.groupSuffix === 'none' ? 'active' : ''}" data-subject-suffix="none">Single (No Suffix)</button>
+              </div>
             </div>
 
             <!-- Segmented Control Format Toggle -->
@@ -2732,20 +2892,45 @@ export class QuoteView {
                       data-format-select="format2"
                       role="tab"
                       aria-selected="${f.format === 'format2'}">
-                Format 2: Traveller details
+                Format 2: Between Details (Email &amp; WhatsApp)
               </button>
             </div>
 
-            <!-- Live Textarea Preview -->
-            <div class="preview-textarea-wrap">
+            <!-- View Mode Toolbar (Formatted vs Raw) -->
+            <div class="preview-mode-toolbar">
+              <div class="preview-view-tabs">
+                <button type="button" class="preview-tab-btn ${this.state.issuePreviewMode !== 'raw' ? 'active' : ''}" id="btnViewFormattedPreview">
+                  ✨ Formatted (Bold)
+                </button>
+                <button type="button" class="preview-tab-btn ${this.state.issuePreviewMode === 'raw' ? 'active' : ''}" id="btnViewRawPreview">
+                  ✏️ Edit Text
+                </button>
+              </div>
+              <div class="preview-hint-tag" id="previewModeHint">
+                ${this.state.issuePreviewMode === 'raw' ? 'Direct text editing mode' : 'Highlighted &amp; bold values'}
+              </div>
+            </div>
+
+            <!-- Preview Display Container -->
+            <div class="preview-display-container">
+              <!-- Rich Formatted View (Default) -->
+              <div id="issueFormattedPreview"
+                   class="message-preview-formatted"
+                   style="${this.state.issuePreviewMode === 'raw' ? 'display: none;' : 'display: block;'}"
+                   aria-label="Formatted message preview">
+                ${formattedHtml}
+              </div>
+
+              <!-- Raw Textarea View (Editable) -->
               <textarea id="issueMessagePreview"
                         class="message-preview-textarea"
                         spellcheck="false"
                         rows="13"
+                        style="${this.state.issuePreviewMode === 'raw' ? 'display: block;' : 'display: none;'}"
                         aria-label="Message preview">${this._esc(previewMsg)}</textarea>
             </div>
             <div class="preview-direct-edit-note">
-              💡 Preview updates live as you type. You can also edit this text directly before copying.
+              💡 Preview updates live as you type. Switching to Edit Text allows modifying message text directly.
             </div>
 
             <!-- Buttons Row -->
@@ -2764,6 +2949,21 @@ export class QuoteView {
                 </svg>
                 <span>Share on WhatsApp</span>
               </button>
+
+              <div class="btn-issue-email-group" id="btnIssueEmailGroup">
+                <button type="button" class="btn-issue-email" id="btnSendIssueEmail" title="Send policy issue request via Outlook (${f.email || 'customercare@khannatravels.com'})">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  <span id="labelIssueEmailBtn">${emailBtnLabel}</span>
+                </button>
+                <button type="button" class="btn-issue-email-dropdown" id="btnEmailOptionsDropdown" title="Choose Outlook Web (Office 365) or Desktop App">
+                  <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -2773,11 +2973,102 @@ export class QuoteView {
   }
 
   _updateIssuePreview() {
-    const previewEl = this.container?.querySelector('#issueMessagePreview');
-    if (!previewEl) return;
-    const msg = this._buildIssueMessage(this.state.issueForm);
-    this.state.issueForm.customPreviewText = null;
-    previewEl.value = msg;
+    if (!this.container) return;
+
+    // 1. Update Subject Line input (unless user has custom edit)
+    const subjectEl = this.container.querySelector('#issueSubjectInput');
+    if (subjectEl) {
+      if (this.state.issueForm.customSubject === null) {
+        subjectEl.value = this._buildIssueSubject(this.state.issueForm);
+      }
+    }
+
+    // 2. Update Raw Preview Textarea
+    const previewEl = this.container.querySelector('#issueMessagePreview');
+    const plainMsg = this._buildIssueMessage(this.state.issueForm, 'plain');
+    if (previewEl) {
+      if (this.state.issueForm.customPreviewText === null) {
+        previewEl.value = plainMsg;
+      }
+    }
+
+    // 3. Update Formatted Rich Preview Box
+    const formattedEl = this.container.querySelector('#issueFormattedPreview');
+    if (formattedEl) {
+      const htmlMsg = this._buildIssueMessage(this.state.issueForm, 'html');
+      const paragraphs = htmlMsg.split('\n\n').map(p => {
+        return `<div class="preview-formatted-block">${p.replace(/\n/g, '<br>')}</div>`;
+      }).join('');
+      formattedEl.innerHTML = paragraphs;
+    }
+  }
+
+  _setPreviewViewMode(mode) {
+    this.state.issuePreviewMode = mode;
+    const formattedEl = this.container?.querySelector('#issueFormattedPreview');
+    const rawEl = this.container?.querySelector('#issueMessagePreview');
+    const btnFormatted = this.container?.querySelector('#btnViewFormattedPreview');
+    const btnRaw = this.container?.querySelector('#btnViewRawPreview');
+    const hintEl = this.container?.querySelector('#previewModeHint');
+
+    if (mode === 'formatted') {
+      if (formattedEl) formattedEl.style.display = 'block';
+      if (rawEl) rawEl.style.display = 'none';
+      if (btnFormatted) btnFormatted.classList.add('active');
+      if (btnRaw) btnRaw.classList.remove('active');
+      if (hintEl) hintEl.textContent = 'Highlighted & bold values';
+    } else {
+      if (formattedEl) formattedEl.style.display = 'none';
+      if (rawEl) rawEl.style.display = 'block';
+      if (btnFormatted) btnFormatted.classList.remove('active');
+      if (btnRaw) btnRaw.classList.add('active');
+      if (hintEl) hintEl.textContent = 'Direct text editing mode';
+      if (rawEl) rawEl.focus();
+    }
+  }
+
+  async _handleCopyIssueSubject() {
+    const subjectEl = this.container?.querySelector('#issueSubjectInput');
+    const subject = subjectEl ? subjectEl.value.trim() : this._buildIssueSubject(this.state.issueForm);
+
+    try {
+      let copied = false;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(subject);
+          copied = true;
+        } catch (clipErr) {
+          console.warn('Clipboard writeText failed:', clipErr);
+        }
+      }
+      if (!copied) {
+        const temp = document.createElement('textarea');
+        temp.value = subject;
+        temp.style.position = 'fixed';
+        temp.style.opacity = '0';
+        document.body.appendChild(temp);
+        temp.focus();
+        temp.select();
+        copied = document.execCommand('copy');
+        document.body.removeChild(temp);
+      }
+
+      const btn = this.container?.querySelector('#btnCopySubject');
+      const label = btn?.querySelector('#copySubjectBtnText');
+      if (label) {
+        const prevText = label.textContent;
+        label.textContent = '✓ Copied!';
+        btn.classList.add('btn-copied-state');
+        setTimeout(() => {
+          label.textContent = prevText;
+          btn.classList.remove('btn-copied-state');
+        }, 2000);
+      }
+
+      this.app.showToast('✓ Subject copied to clipboard!', 'success');
+    } catch (err) {
+      this.app.showToast('Failed to copy subject: ' + err.message, 'error');
+    }
   }
 
   _syncTravellersFromDom() {
@@ -2918,10 +3209,16 @@ export class QuoteView {
     this.state.issuePlan = plan;
     this.state.showIssueDetails = true;
 
+    // Pull customer name from quote (Step 1)
+    const rawCustomer = (this.container?.querySelector('#qCustomerName')?.value || this.state.customerName || '').trim();
+    const customerFromQuote = (rawCustomer && rawCustomer.toLowerCase() !== 'customer') ? rawCustomer : '';
+
     const countryFromQuote = this.state.travellingCountry || this.state.arrivalCountry || '';
     const travelDateFromQuote = this._formatTravelDates(this.state.departureDate, this.state.returnDate);
     const sumInsuredFromQuote = this._formatSumInsured(plan.coverage);
     const planNameFromQuote = this._extractShortPlanName(plan.planName);
+    const defaultPhone = '8657461001';
+    const defaultEmail = 'customercare@khannatravels.com';
 
     if (!this.state.issueForm) {
       this.state.issueForm = {
@@ -2929,27 +3226,43 @@ export class QuoteView {
         travelDate: travelDateFromQuote,
         sumInsured: sumInsuredFromQuote,
         planName: planNameFromQuote,
-        issueFor: '',
+        issueFor: customerFromQuote,
         nominee: '',
-        travellers: [''],
-        phone: '',
-        email: 'customercare@khannatravels.com',
-        format: 'format1',
+        travellers: customerFromQuote ? [customerFromQuote] : [''],
+        phone: defaultPhone,
+        email: defaultEmail,
+        format: 'format2',
+        groupSuffix: '',
+        customSubject: null,
         hideEmptyLines: false,
+        includeGreetingSignature: false,
         customPreviewText: null
       };
     } else {
       this.state.issueForm.sumInsured = sumInsuredFromQuote;
       this.state.issueForm.planName = planNameFromQuote;
+      if (!this.state.issueForm.format) {
+        this.state.issueForm.format = 'format2';
+      }
       if (!this.state.issueForm.country) {
         this.state.issueForm.country = countryFromQuote;
       }
       if (!this.state.issueForm.travelDate) {
         this.state.issueForm.travelDate = travelDateFromQuote;
       }
-      if (!this.state.issueForm.email) {
-        this.state.issueForm.email = 'customercare@khannatravels.com';
+      if (!this.state.issueForm.issueFor && customerFromQuote) {
+        this.state.issueForm.issueFor = customerFromQuote;
       }
+      if ((!this.state.issueForm.travellers || !this.state.issueForm.travellers[0] || !this.state.issueForm.travellers[0].trim()) && customerFromQuote) {
+        this.state.issueForm.travellers = [customerFromQuote];
+      }
+      if (!this.state.issueForm.phone) {
+        this.state.issueForm.phone = defaultPhone;
+      }
+      if (!this.state.issueForm.email) {
+        this.state.issueForm.email = defaultEmail;
+      }
+      this.state.issueForm.customSubject = null;
       this.state.issueForm.customPreviewText = null;
     }
 
@@ -2971,27 +3284,74 @@ export class QuoteView {
     this.app.showToast(`Step 3: Issue details opened for ${plan.companyName} (${plan.planName})`, 'info');
   }
 
+  async _copyRichFormattedToClipboardSilently() {
+    const isCustom = this.state.issueForm.customPreviewText !== null;
+    const previewEl = this.container?.querySelector('#issueMessagePreview');
+    const plainText = isCustom ? (previewEl?.value || '') : this._buildIssueMessage(this.state.issueForm, 'plain');
+    const htmlText = isCustom
+      ? (previewEl?.value || '').replace(/\n/g, '<br>')
+      : this._buildIssueMessage(this.state.issueForm, 'html').split('\n\n').map(p => `<p style="margin: 0 0 10pt 0; font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000;">${p.replace(/\n/g, '<br>')}</p>`).join('');
+
+    try {
+      if (navigator.clipboard && window.ClipboardItem) {
+        const textBlob = new Blob([plainText], { type: 'text/plain' });
+        const htmlBlob = new Blob([htmlText], { type: 'text/html' });
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/plain': textBlob,
+            'text/html': htmlBlob
+          })
+        ]);
+        return true;
+      }
+    } catch (err) {
+      console.warn('Silent rich copy error:', err);
+    }
+    return false;
+  }
+
   async _handleCopyIssueMessage() {
     if (!this._validateIssueForm()) {
       return;
     }
 
     const previewEl = this.container?.querySelector('#issueMessagePreview');
-    const textToCopy = previewEl ? previewEl.value : this._buildIssueMessage(this.state.issueForm);
+    const isCustom = this.state.issueForm.customPreviewText !== null;
+    const plainText = isCustom ? (previewEl?.value || '') : this._buildIssueMessage(this.state.issueForm, 'plain');
+    const htmlText = isCustom
+      ? (previewEl?.value || '').replace(/\n/g, '<br>')
+      : this._buildIssueMessage(this.state.issueForm, 'html').split('\n\n').map(p => `<p style="margin: 0 0 10pt 0; font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000;">${p.replace(/\n/g, '<br>')}</p>`).join('');
 
     try {
       let copied = false;
-      if (navigator.clipboard && navigator.clipboard.writeText) {
+      if (navigator.clipboard && window.ClipboardItem && !isCustom) {
         try {
-          await navigator.clipboard.writeText(textToCopy);
+          const textBlob = new Blob([plainText], { type: 'text/plain' });
+          const htmlBlob = new Blob([htmlText], { type: 'text/html' });
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              'text/plain': textBlob,
+              'text/html': htmlBlob
+            })
+          ]);
           copied = true;
         } catch (clipErr) {
-          console.warn('Clipboard writeText failed, using fallback:', clipErr);
+          console.warn('Rich clipboard write failed, fallback to writeText:', clipErr);
         }
       }
+
+      if (!copied && navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(plainText);
+          copied = true;
+        } catch (clipErr) {
+          console.warn('Clipboard writeText failed, fallback to execCommand:', clipErr);
+        }
+      }
+
       if (!copied) {
         const tempTextarea = document.createElement('textarea');
-        tempTextarea.value = textToCopy;
+        tempTextarea.value = plainText;
         tempTextarea.style.position = 'fixed';
         tempTextarea.style.opacity = '0';
         document.body.appendChild(tempTextarea);
@@ -3012,7 +3372,7 @@ export class QuoteView {
         }, 2000);
       }
 
-      this.app.showToast('✓ Message copied to clipboard!', 'success');
+      this.app.showToast('✓ Bold formatted details copied! (Ready to paste in Outlook or Word)', 'success');
     } catch (err) {
       this.app.showToast('Failed to copy: ' + err.message, 'error');
     }
@@ -3024,14 +3384,19 @@ export class QuoteView {
     }
 
     const previewEl = this.container?.querySelector('#issueMessagePreview');
-    const textToShare = previewEl ? previewEl.value : this._buildIssueMessage(this.state.issueForm);
+    const isCustom = this.state.issueForm.customPreviewText !== null;
+    const bodyMsg = isCustom ? (previewEl?.value || '') : this._buildIssueMessage(this.state.issueForm, 'whatsapp');
+
+    // Include standardized subject line in uppercase at top for WhatsApp
+    const subject = this._buildIssueSubject(this.state.issueForm);
+    const textToShare = `*${subject}*\n\n${bodyMsg}`;
 
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (window.innerWidth <= 768 && !!navigator.share);
 
     if (isMobile && navigator.share) {
       try {
         await navigator.share({
-          title: 'Khanna Travels - Issue Details',
+          title: subject,
           text: textToShare
         });
         return;
@@ -3043,6 +3408,258 @@ export class QuoteView {
 
     const waUrl = `https://wa.me/?text=${encodeURIComponent(textToShare)}`;
     window.open(waUrl, '_blank');
+  }
+
+  async _handleSendIssueEmail(forceModal = false) {
+    if (!this._validateIssueForm()) {
+      return;
+    }
+
+    // Automatically copy the rich bold HTML to clipboard so the user can paste (Ctrl+V) with bold styling!
+    await this._copyRichFormattedToClipboardSilently();
+
+    const savedPref = localStorage.getItem('kt_preferred_email_client');
+    if (!forceModal && savedPref) {
+      if (savedPref === 'web') {
+        this._launchOutlookWeb();
+        return;
+      }
+      if (savedPref === 'desktop') {
+        this._launchOutlookDesktop();
+        return;
+      }
+      if (savedPref === 'default') {
+        this._launchDefaultMail();
+        return;
+      }
+    }
+
+    this._showOutlookEmailModal();
+  }
+
+  _getEmailPayload() {
+    const previewEl = this.container?.querySelector('#issueMessagePreview');
+    const textToShare = previewEl ? previewEl.value : this._buildIssueMessage(this.state.issueForm, 'plain');
+    const f = this.state.issueForm || {};
+
+    // Standardized uppercase subject line: ISSUE TRAVEL INSURANCE POLICY OF <NAME> & FAMILY / & GROUP
+    const subject = this._buildIssueSubject(f);
+
+    // Default sender account login_hint for Microsoft 365 / Outlook on the Web
+    const loginHint = 'customercare@khannatravels.com';
+    // If a recipient distinct from customercare@khannatravels.com was typed in, use it as To:
+    const recipient = (f.email && f.email.toLowerCase() !== 'customercare@khannatravels.com') ? f.email.trim() : '';
+
+    return {
+      to: recipient,
+      subject,
+      body: textToShare,
+      loginHint
+    };
+  }
+
+  _launchOutlookWeb(customRecipient = null) {
+    const { to, subject, body, loginHint } = this._getEmailPayload();
+    const finalTo = customRecipient !== null ? customRecipient : to;
+
+    let url = `https://outlook.office.com/mail/deeplink/compose?login_hint=${encodeURIComponent(loginHint)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    if (finalTo) {
+      url += `&to=${encodeURIComponent(finalTo)}`;
+    }
+
+    window.open(url, '_blank');
+    this.app.showToast('Opened Outlook Web! Bold details copied to clipboard (press Ctrl+V to paste with bold)', 'success');
+  }
+
+  _launchOutlookDesktop(customRecipient = null) {
+    const { to, subject, body } = this._getEmailPayload();
+    const finalTo = customRecipient !== null ? customRecipient : to;
+
+    const mailtoUrl = `mailto:${encodeURIComponent(finalTo)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+    this.app.showToast('Opening Outlook app... Bold details copied to clipboard (press Ctrl+V to paste with bold)', 'success');
+  }
+
+  _launchDefaultMail(customRecipient = null) {
+    const { to, subject, body } = this._getEmailPayload();
+    const finalTo = customRecipient !== null ? customRecipient : to;
+
+    const mailtoUrl = `mailto:${encodeURIComponent(finalTo)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+    this.app.showToast('Opening email application... Bold details copied to clipboard (press Ctrl+V to paste with bold)', 'success');
+  }
+
+  _showOutlookEmailModal() {
+    const existing = document.getElementById('outlookEmailModal');
+    if (existing) existing.remove();
+
+    const payload = this._getEmailPayload();
+    const savedPref = localStorage.getItem('kt_preferred_email_client') || '';
+
+    const modalHtml = `
+      <div id="outlookEmailModal" style="
+        position: fixed; inset: 0; z-index: 1060;
+        background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px);
+        display: flex; align-items: center; justify-content: center; padding: 20px;
+      ">
+        <div style="
+          background: #ffffff; border-radius: 16px;
+          box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+          width: 100%; max-width: 490px; overflow: hidden;
+          border: 1px solid #dbe3ee; font-family: inherit;
+        ">
+          <!-- Header -->
+          <div style="
+            padding: 18px 22px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+            display: flex; align-items: center; justify-content: space-between;
+          ">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 22px;">📧</span>
+              <div>
+                <div style="font-size: 16px; font-weight: 800; color: #17325f;">Send via Outlook</div>
+                <div style="font-size: 12px; color: #64748b;">Account: <strong>customercare@khannatravels.com</strong></div>
+              </div>
+            </div>
+            <button type="button" id="btnCloseOutlookModal" aria-label="Close" style="background: none; border: none; font-size: 20px; color: #64748b; cursor: pointer; padding: 4px; line-height: 1;">✕</button>
+          </div>
+
+          <!-- Body -->
+          <div style="padding: 22px 24px;">
+            <!-- Subject Preview Banner -->
+            <div style="margin-bottom: 12px; padding: 10px 12px; background: #f1f5f9; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 12px; color: #334155; word-break: break-word;">
+              <span style="font-weight: 800; color: #17325f;">Subject:</span> ${this._esc(payload.subject)}
+            </div>
+
+            <!-- Bold Formatting Tip -->
+            <div style="margin-bottom: 14px; padding: 10px 12px; background: #e0f2fe; border-radius: 8px; border: 1px solid #bae6fd; font-size: 12px; color: #0369a1; line-height: 1.4;">
+              ✨ <strong>Bold Details Copied:</strong> The bold formatted details are on your clipboard. When Outlook opens, press <strong>Ctrl+V</strong> to paste with bold highlights!
+            </div>
+
+            <!-- Recipient input -->
+            <div style="margin-bottom: 18px;">
+              <label for="omRecipientEmail" style="display: block; font-size: 12.5px; font-weight: 700; color: #14233f; margin-bottom: 6px;">
+                Send To (Recipient Email) <span style="font-weight: 500; color: #64748b;">(Optional)</span>
+              </label>
+              <input type="email" id="omRecipientEmail" placeholder="e.g. insurer / underwriter email or leave blank"
+                     value="${this._esc(payload.to)}"
+                     style="width: 100%; height: 42px; padding: 0 14px; border: 1px solid #dbe3ee; border-radius: 8px; font-size: 13.5px; box-sizing: border-box; font-family: inherit;" />
+              <span style="display: block; font-size: 11.5px; color: #64748b; margin-top: 4px;">You can also enter or select the recipient in Outlook once it opens.</span>
+            </div>
+
+            <!-- Choice Options -->
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;">
+              <!-- Option 1: Outlook on the Web -->
+              <button type="button" id="btnOptOutlookWeb" style="
+                display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+                border: 2px solid ${savedPref === 'web' ? '#0078d4' : '#dbe3ee'};
+                border-radius: 10px; background: ${savedPref === 'web' ? '#f0f7ff' : '#ffffff'};
+                text-align: left; cursor: pointer; transition: all 0.15s ease;
+              ">
+                <div style="font-size: 24px; flex-shrink: 0;">🌐</div>
+                <div style="flex: 1;">
+                  <div style="font-size: 14px; font-weight: 800; color: #0078d4;">Outlook on the Web (Office 365)</div>
+                  <div style="font-size: 11.5px; color: #475569; margin-top: 2px;">
+                    Opens in browser &bull; Uses logged-in <strong>customercare@khannatravels.com</strong>
+                  </div>
+                </div>
+                <div style="color: #0078d4; font-weight: 800; font-size: 16px;">→</div>
+              </button>
+
+              <!-- Option 2: Outlook Desktop App -->
+              <button type="button" id="btnOptOutlookDesktop" style="
+                display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+                border: 2px solid ${savedPref === 'desktop' ? '#17325f' : '#dbe3ee'};
+                border-radius: 10px; background: ${savedPref === 'desktop' ? '#f3f6fb' : '#ffffff'};
+                text-align: left; cursor: pointer; transition: all 0.15s ease;
+              ">
+                <div style="font-size: 24px; flex-shrink: 0;">💻</div>
+                <div style="flex: 1;">
+                  <div style="font-size: 14px; font-weight: 800; color: #17325f;">Outlook Desktop App</div>
+                  <div style="font-size: 11.5px; color: #475569; margin-top: 2px;">
+                    Launches Microsoft Outlook application installed on this PC
+                  </div>
+                </div>
+                <div style="color: #17325f; font-weight: 800; font-size: 16px;">→</div>
+              </button>
+
+              <!-- Option 3: Default Mail (mailto) -->
+              <button type="button" id="btnOptDefaultMail" style="
+                display: flex; align-items: center; gap: 14px; padding: 10px 16px;
+                border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;
+                text-align: left; cursor: pointer;
+              ">
+                <div style="font-size: 18px; flex-shrink: 0;">✉️</div>
+                <div style="flex: 1; font-size: 12.5px; font-weight: 700; color: #334155;">
+                  Other / System Default Email App
+                </div>
+              </button>
+            </div>
+
+            <!-- Remember Choice Checkbox -->
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #475569; cursor: pointer; user-select: none;">
+              <input type="checkbox" id="chkRememberOutlookPref" ${savedPref ? 'checked' : ''} />
+              <span>Remember my choice for 1-click send (use ▾ to change anytime)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modalEl = document.getElementById('outlookEmailModal');
+
+    const closeModal = () => modalEl?.remove();
+
+    modalEl.querySelector('#btnCloseOutlookModal')?.addEventListener('click', closeModal);
+    modalEl.addEventListener('click', (e) => {
+      if (e.target === modalEl) closeModal();
+    });
+
+    const getRecipientInput = () => {
+      const inp = modalEl.querySelector('#omRecipientEmail');
+      return inp ? inp.value.trim() : '';
+    };
+
+    const handlePrefSave = (pref) => {
+      const remember = modalEl.querySelector('#chkRememberOutlookPref')?.checked;
+      if (remember) {
+        localStorage.setItem('kt_preferred_email_client', pref);
+      } else {
+        localStorage.removeItem('kt_preferred_email_client');
+      }
+      this._updateEmailButtonLabel();
+    };
+
+    modalEl.querySelector('#btnOptOutlookWeb')?.addEventListener('click', () => {
+      handlePrefSave('web');
+      const rec = getRecipientInput();
+      closeModal();
+      this._launchOutlookWeb(rec);
+    });
+
+    modalEl.querySelector('#btnOptOutlookDesktop')?.addEventListener('click', () => {
+      handlePrefSave('desktop');
+      const rec = getRecipientInput();
+      closeModal();
+      this._launchOutlookDesktop(rec);
+    });
+
+    modalEl.querySelector('#btnOptDefaultMail')?.addEventListener('click', () => {
+      handlePrefSave('default');
+      const rec = getRecipientInput();
+      closeModal();
+      this._launchDefaultMail(rec);
+    });
+  }
+
+  _updateEmailButtonLabel() {
+    const savedPref = localStorage.getItem('kt_preferred_email_client');
+    const labelSpan = this.container?.querySelector('#labelIssueEmailBtn');
+    if (labelSpan) {
+      if (savedPref === 'web') labelSpan.textContent = 'Outlook Web';
+      else if (savedPref === 'desktop') labelSpan.textContent = 'Outlook App';
+      else labelSpan.textContent = 'Outlook Email';
+    }
   }
 
   // ── Helper Math Functions ─────────────────────────────────────────────────

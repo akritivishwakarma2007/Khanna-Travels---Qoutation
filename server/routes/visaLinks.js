@@ -76,7 +76,7 @@ router.get('/', async (req, res) => {
   try {
     if (isDbConnected()) {
       let count = await VisaLink.countDocuments();
-      if (count === 0 || count < DEFAULT_INITIAL_LINKS.length) {
+      if (count === 0) {
         await autoSeedVisaLinksToDb();
       }
       const links = await VisaLink.find().sort({ country: 1, title: 1 });
@@ -170,8 +170,19 @@ router.delete('/:id', requireAdminAuth, async (req, res) => {
     const { id } = req.params;
 
     if (isDbConnected()) {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        // Fallback if ID is an in-memory ID
+        const initialLen = inMemoryLinks.length;
+        inMemoryLinks = inMemoryLinks.filter(l => String(l._id) !== String(id));
+        if (inMemoryLinks.length < initialLen) {
+          return res.json({ success: true, deletedId: id });
+        }
+        return res.status(404).json({ error: 'Visa link not found or invalid ID' });
+      }
       const deleted = await VisaLink.findByIdAndDelete(id);
       if (!deleted) return res.status(404).json({ error: 'Visa link not found' });
+      // Keep in-memory cache in sync
+      inMemoryLinks = inMemoryLinks.filter(l => String(l._id) !== String(id));
       return res.json({ success: true, deletedId: id });
     } else {
       const initialLen = inMemoryLinks.length;

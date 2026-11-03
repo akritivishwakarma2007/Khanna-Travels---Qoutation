@@ -611,11 +611,12 @@ export class SettingsView {
 
     // 7. Duplicate visa links "Review" button
     container.querySelectorAll('.btn-review-duplicates').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const title = e.currentTarget.dataset.duplicateTitle || '';
+      btn.addEventListener('click', () => {
         if (this.app.views.visa) {
           this.app.views.visa.state.showDuplicatesOnly = true;
-          this.app.views.visa.state.searchQuery = title;
+          this.app.views.visa.state.selectedCountry = 'all';
+          this.app.views.visa.state.portalFilter = 'all';
+          this.app.views.visa.state.searchQuery = '';
         }
         this.app.navigate('visa');
       });

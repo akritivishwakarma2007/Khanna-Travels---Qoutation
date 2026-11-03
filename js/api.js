@@ -67,16 +67,16 @@ export function isAdminAuthenticated() {
   return Boolean(getAdminToken());
 }
 
-async function request(method, path, body = null, timeoutMs = 4000) {
+async function request(method, path, body = null, timeoutMs = 6000) {
   const headers = { 'Content-Type': 'application/json' };
   const token = getAdminToken();
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const send = async (baseUrl) => {
+  const send = async (baseUrl, curTimeout = timeoutMs) => {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    const timer = setTimeout(() => controller.abort(), curTimeout);
     const opts = { method, headers, signal: controller.signal };
     if (body) opts.body = JSON.stringify(body);
 
@@ -110,11 +110,16 @@ async function request(method, path, body = null, timeoutMs = 4000) {
     if (activeBaseUrl !== RENDER_BACKEND_URL) {
       try {
         console.warn('⚠️ Primary API unreachable, attempting fallback to Render backend:', RENDER_BACKEND_URL);
-        const fallbackData = await send(RENDER_BACKEND_URL);
+        const fallbackData = await send(RENDER_BACKEND_URL, Math.max(timeoutMs, 8000));
         activeBaseUrl = RENDER_BACKEND_URL;
         return fallbackData;
       } catch (fallbackErr) {
-        // Both failed
+        if (fallbackErr.name === 'AbortError') {
+          const timeoutErr = new Error('Request timed out');
+          timeoutErr.isTimeout = true;
+          throw timeoutErr;
+        }
+        throw fallbackErr;
       }
     }
     if (err.name === 'AbortError') {

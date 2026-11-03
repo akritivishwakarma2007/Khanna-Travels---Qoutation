@@ -63,6 +63,7 @@ export class VisaLinksView {
     this.app = app;
     this.links = [];
     this.isLoading = false;
+    this._dataFetched = false;
     this.state = {
       searchQuery: '',
       portalFilter: 'all', // 'all' | 'visa' | 'partner'
@@ -117,7 +118,7 @@ export class VisaLinksView {
     this.links.forEach(l => {
       const key = (this._getCleanDomain(l.url) || l.title || '').toLowerCase();
       if (counts[key] > 1) {
-        dupMap.add(l._id);
+        dupMap.add(String(l._id));
       }
     });
     return dupMap;
@@ -131,6 +132,11 @@ export class VisaLinksView {
     const dupMap = isAuthed ? this._findDuplicates() : new Set();
     const dupCount = dupMap.size;
 
+    // Auto-reset duplicate mode if no duplicates exist or user is logged out
+    if (this.state.showDuplicatesOnly && (!isAuthed || dupCount === 0)) {
+      this.state.showDuplicatesOnly = false;
+    }
+
     // Filter list
     let filtered = [...this.links];
 
@@ -140,32 +146,37 @@ export class VisaLinksView {
       filtered = filtered.filter(l => (l.category || '').toLowerCase() !== 'partner portal');
     }
 
-    // Portal filter
-    if (portalFilter === 'visa') {
-      filtered = filtered.filter(l => (l.category || '').toLowerCase() !== 'partner portal');
-    } else if (portalFilter === 'partner' && isAuthed) {
-      filtered = filtered.filter(l => (l.category || '').toLowerCase() === 'partner portal');
-    }
+    // When showing duplicates only, show ALL duplicates across all countries
+    if (this.state.showDuplicatesOnly && isAuthed) {
+      filtered = filtered.filter(l => dupMap.has(String(l._id)));
+    } else {
+      // Portal filter
+      if (portalFilter === 'visa') {
+        filtered = filtered.filter(l => (l.category || '').toLowerCase() !== 'partner portal');
+      } else if (portalFilter === 'partner' && isAuthed) {
+        filtered = filtered.filter(l => (l.category || '').toLowerCase() === 'partner portal');
+      }
 
-    // Country filter
-    if (selCountry && selCountry !== 'all') {
-      if (selCountry === 'more') {
-        const standard = ['uae', 'united arab emirates', 'dubai', 'usa', 'united states', 'uk', 'united kingdom', 'schengen', 'europe', 'thailand', 'singapore', 'turkey', 'türkiye'];
-        filtered = filtered.filter(l => {
-          const c = (l.country || '').toLowerCase().trim();
-          return c && !standard.includes(c);
-        });
-      } else {
-        const sc = selCountry.toLowerCase();
-        filtered = filtered.filter(l => {
-          const c = (l.country || '').toLowerCase();
-          const t = (l.title || '').toLowerCase();
-          return c.includes(sc) || t.includes(sc);
-        });
+      // Country filter
+      if (selCountry && selCountry !== 'all') {
+        if (selCountry === 'more') {
+          const standard = ['uae', 'united arab emirates', 'dubai', 'usa', 'united states', 'uk', 'united kingdom', 'schengen', 'europe', 'thailand', 'singapore', 'turkey', 'türkiye'];
+          filtered = filtered.filter(l => {
+            const c = (l.country || '').toLowerCase().trim();
+            return c && !standard.includes(c);
+          });
+        } else {
+          const sc = selCountry.toLowerCase();
+          filtered = filtered.filter(l => {
+            const c = (l.country || '').toLowerCase();
+            const t = (l.title || '').toLowerCase();
+            return c.includes(sc) || t.includes(sc);
+          });
+        }
       }
     }
 
-    // Search query filter
+    // Search query filter (applies in both modes)
     if (query) {
       filtered = filtered.filter(l => {
         const t = (l.title || '').toLowerCase();
@@ -174,11 +185,6 @@ export class VisaLinksView {
         const n = (l.notes || '').toLowerCase();
         return t.includes(query) || u.includes(query) || c.includes(query) || n.includes(query);
       });
-    }
-
-    // Show duplicates only
-    if (this.state.showDuplicatesOnly && isAuthed) {
-      filtered = filtered.filter(l => dupMap.has(l._id));
     }
 
     // Separate into Visa Portals vs Partner Portals
@@ -264,18 +270,35 @@ export class VisaLinksView {
         </div>
 
         <!-- Admin Only: Amber duplicate notice if duplicates exist -->
-        ${(isAuthed && dupCount > 0) ? `
-          <div class="visa-dup-notice" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; margin-bottom: 24px; color: #92400e; font-size: 13px;">
+        ${(isAuthed && dupCount > 0 && !this.state.showDuplicatesOnly) ? `
+          <div class="visa-dup-notice" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; margin-bottom: 24px; color: #92400e; font-size: 13px;">
             <div style="display: flex; align-items: center; gap: 10px; font-weight: 600;">
               <span style="font-size: 16px;">⚠️</span>
-              <span>${dupCount} duplicate link${dupCount !== 1 ? 's' : ''} found. Review and remove one.</span>
+              <span><strong>${dupCount} duplicate link${dupCount !== 1 ? 's' : ''} found</strong> across domains. Review and remove redundant entries.</span>
             </div>
             <button
               type="button"
               id="btnReviewDuplicates"
-              style="padding: 6px 14px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; color: #78350f; font-weight: 700; font-size: 12px; cursor: pointer;"
+              style="padding: 7px 16px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; color: #78350f; font-weight: 800; font-size: 12px; cursor: pointer; white-space: nowrap;"
             >
-              ${this.state.showDuplicatesOnly ? 'Show All Links' : 'Review'}
+              Review Duplicates (${dupCount})
+            </button>
+          </div>
+        ` : ''}
+
+        <!-- Admin Only: Active duplicate review mode banner -->
+        ${(isAuthed && this.state.showDuplicatesOnly) ? `
+          <div class="visa-dup-notice" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; margin-bottom: 24px; color: #1e40af; font-size: 13px;">
+            <div style="display: flex; align-items: center; gap: 10px; font-weight: 600;">
+              <span style="font-size: 16px;">🔍</span>
+              <span><strong>Showing ${filtered.length} duplicate link${filtered.length !== 1 ? 's' : ''}</strong>. Click 🗑️ on any card to delete the duplicate.</span>
+            </div>
+            <button
+              type="button"
+              id="btnExitDuplicateReview"
+              style="padding: 7px 16px; background: var(--navy); border: none; border-radius: 8px; color: #ffffff; font-weight: 800; font-size: 12px; cursor: pointer; white-space: nowrap;"
+            >
+              ← Show All Links (${this.links.length})
             </button>
           </div>
         ` : ''}
@@ -297,7 +320,7 @@ export class VisaLinksView {
             </div>
           ` : `
             <div class="visa-cards-grid">
-              ${visaPortals.map(link => this._renderLinkCard(link, isAuthed)).join('')}
+              ${visaPortals.map(link => this._renderLinkCard(link, isAuthed, dupMap.has(String(link._id)))).join('')}
             </div>
           `}
         </div>
@@ -323,7 +346,7 @@ export class VisaLinksView {
               </div>
             ` : `
               <div class="visa-cards-grid">
-                ${partnerPortals.map(link => this._renderLinkCard(link, isAuthed)).join('')}
+                ${partnerPortals.map(link => this._renderLinkCard(link, isAuthed, dupMap.has(String(link._id)))).join('')}
               </div>
             `}
           </div>
@@ -336,13 +359,13 @@ export class VisaLinksView {
     `;
   }
 
-  _renderLinkCard(link, isAuthed) {
+  _renderLinkCard(link, isAuthed, isDuplicate = false) {
     const code = this._getCountryCode(link.country, link.title);
     const domain = this._getCleanDomain(link.url);
     const isPartner = (link.category || '').toLowerCase() === 'partner portal';
 
     return `
-      <div class="visa-link-card" data-link-id="${link._id}">
+      <div class="visa-link-card ${isDuplicate ? 'is-duplicate-card' : ''}" data-link-id="${link._id}" ${this.state.showDuplicatesOnly && isDuplicate ? 'style="border-color: #f59e0b; box-shadow: 0 0 0 1px #fde68a;"' : ''}>
         
         <!-- PC Card Body / Mobile compact flex -->
         <div class="vlc-main-row">
@@ -357,6 +380,11 @@ export class VisaLinksView {
               <span class="vlc-tag ${isPartner ? 'tag-partner' : 'tag-visa'}">
                 ${isPartner ? 'Partner portal' : 'Visa portal'}
               </span>
+              ${(isAuthed && isDuplicate) ? `
+                <span class="vlc-tag" style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; font-weight: 700;">
+                  ⚠️ Duplicate
+                </span>
+              ` : ''}
             </div>
             <div class="vlc-domain" title="${this._esc(domain)}">${this._esc(domain)}</div>
           </div>
@@ -543,16 +571,19 @@ export class VisaLinksView {
       console.warn('Could not load visa links:', err.message);
     } finally {
       this.isLoading = false;
+      this._dataFetched = true;
     }
   }
 
   attachEvents(container) {
-    // Initial fetch if list is empty
-    if (this.links.length === 0 && !this.isLoading) {
+    // Initial fetch once on load
+    if (!this._dataFetched && !this.isLoading) {
+      this._dataFetched = true;
       this.loadData().then(() => {
         container.innerHTML = this.render();
         this.attachEvents(container);
       });
+      return;
     }
 
     // Search input
@@ -576,6 +607,7 @@ export class VisaLinksView {
     // Portal filter toggle (All / Visa / Partner)
     container.querySelectorAll('[data-portal-filter]').forEach(btn => {
       btn.addEventListener('click', () => {
+        this.state.showDuplicatesOnly = false;
         this.state.portalFilter = btn.dataset.portalFilter;
         this._refresh(container);
       });
@@ -584,6 +616,7 @@ export class VisaLinksView {
     // Country chips
     container.querySelectorAll('[data-country-chip]').forEach(btn => {
       btn.addEventListener('click', () => {
+        this.state.showDuplicatesOnly = false;
         this.state.selectedCountry = btn.dataset.countryChip;
         this._refresh(container);
       });
@@ -593,7 +626,22 @@ export class VisaLinksView {
     const reviewDupBtn = container.querySelector('#btnReviewDuplicates');
     if (reviewDupBtn) {
       reviewDupBtn.addEventListener('click', () => {
-        this.state.showDuplicatesOnly = !this.state.showDuplicatesOnly;
+        this.state.showDuplicatesOnly = true;
+        this.state.selectedCountry = 'all';
+        this.state.portalFilter = 'all';
+        this.state.searchQuery = '';
+        this._refresh(container);
+      });
+    }
+
+    // Exit duplicate review mode button
+    const exitReviewBtn = container.querySelector('#btnExitDuplicateReview');
+    if (exitReviewBtn) {
+      exitReviewBtn.addEventListener('click', () => {
+        this.state.showDuplicatesOnly = false;
+        this.state.selectedCountry = 'all';
+        this.state.portalFilter = 'all';
+        this.state.searchQuery = '';
         this._refresh(container);
       });
     }
@@ -642,11 +690,23 @@ export class VisaLinksView {
         const id = btn.dataset.delLinkId;
         const link = this.links.find(l => String(l._id) === String(id));
         if (!link) return;
-        if (window.confirm(`Delete "${link.title}"?`)) {
+        if (window.confirm(`Delete "${link.title}"?\nThis will permanently remove this portal link.`)) {
           try {
             await deleteVisaLink(id);
-            this.app.showToast('Visa link deleted', 'info');
             this.links = this.links.filter(l => String(l._id) !== String(id));
+
+            // Check remaining duplicates
+            const remainingDups = this._findDuplicates();
+            if (this.state.showDuplicatesOnly) {
+              if (remainingDups.size === 0) {
+                this.state.showDuplicatesOnly = false;
+                this.app.showToast(`"${link.title}" deleted. All duplicate links resolved!`, 'success');
+              } else {
+                this.app.showToast(`"${link.title}" deleted. ${remainingDups.size} duplicate links remaining.`, 'info');
+              }
+            } else {
+              this.app.showToast(`"${link.title}" deleted`, 'info');
+            }
             this._refresh(container);
           } catch (err) {
             this.app.showToast(err.message || 'Failed to delete link', 'error');

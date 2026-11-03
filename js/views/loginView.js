@@ -69,11 +69,6 @@ export class LoginView {
               </div>
             </div>
 
-            <!-- Credentials Hint -->
-            <div style="margin-bottom: 16px; padding: 10px 12px; background: var(--tint); border: 1px solid var(--line); border-radius: 8px; font-size: 12px; color: var(--muted); line-height: 1.4;">
-              🔑 <strong>Admin Credentials:</strong> <code>admin@khannatravels.com</code> &bull; Password: <code>khanna2026</code>
-            </div>
-
             <!-- Inline Error Box -->
             <div
               id="adminLoginError"

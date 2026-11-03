@@ -138,18 +138,18 @@ router.get('/', requireAdminAuth, async (req, res) => {
     });
   });
 
-  // Check C: Duplicate visa links (grouped by normalized title or domain)
+  // Check C: Duplicate visa links (grouped by normalized domain or title)
   const visaLinkGroups = {};
   visaLinks.forEach(item => {
-    const titleKey = (item.title || '').trim().toUpperCase();
     const domainKey = normalizeDomain(item.url);
-    const key = titleKey || domainKey;
+    const titleKey = (item.title || '').trim().toLowerCase();
+    const key = domainKey || titleKey;
     if (!key) return;
 
     if (!visaLinkGroups[key]) {
       visaLinkGroups[key] = {
         key,
-        title: item.title || key,
+        title: item.title || domainKey || key,
         count: 0,
         ids: []
       };
