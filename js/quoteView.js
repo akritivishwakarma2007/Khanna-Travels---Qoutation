@@ -3,7 +3,7 @@
  * Form & Results live on the same screen. Clicking Compare reveals results below the form.
  */
 
-import { compareQuotes, saveQuote, selectPlan, isAdminAuthenticated } from './api.js';
+import { compareQuotes, saveQuote, selectPlan } from './api.js';
 import { QuotationExporter } from './pdf-export.js';
 
 export const STANDARD_COVERAGES = [
@@ -50,7 +50,7 @@ export class QuoteView {
       superAgeDurationFilter: 'all',
       selectedForCompare: new Set(),
       selectedPlans: [], // Multi-plan selection for forwarding to customer
-      // Step 3: Issue details state (Admin only)
+      // Step 3: Issue details state (Public & Admin)
       showIssueDetails: false,
       issuePreviewMode: 'formatted', // 'formatted' | 'raw'
       issuePlan: null,
@@ -127,7 +127,7 @@ export class QuoteView {
         <!-- BOTTOM SECTION: COMPARISON RESULTS (Revealed after clicking Compare) -->
         ${this.state.hasResults && this.state.savedQuote ? this._renderResultsSection() : ''}
 
-        <!-- STEP 3: ISSUE DETAILS (Admin only, revealed after Select Plan) -->
+        <!-- STEP 3: ISSUE DETAILS (Public & Admin, revealed after Select Plan) -->
         <div id="step3Mount">
           ${this._shouldRenderIssueStep() ? this._renderIssueStepSection() : ''}
         </div>
@@ -733,6 +733,9 @@ export class QuoteView {
     return `
       <button class="btn-dock-clear" id="btnClearSelectedPlans" title="Clear all selected plans">Clear</button>
       ${copyButtonsHtml}
+      <button class="btn-dock-issue" id="btnDockOpenIssue" title="Go to Issue details to prepare and share policy request" style="background:#0d6b46; color:#ffffff; border:none; border-radius:8px; padding:6px 12px; font-weight:700; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:all 0.15s ease;">
+        📝 Issue Details
+      </button>
       <button class="btn-dock-forward" id="btnViewPrintQuotation" title="View &amp; Print Quotations / Copy Individual Images">
         🖨️ View / Print (${count})
       </button>
@@ -1041,17 +1044,26 @@ export class QuoteView {
       return;
     }
 
-    // Select / Deselect Plan action button (BUTTON ONLY — NOT input checkbox!)
+    // Select / Deselect Plan action button (Available for ALL — Public & Admin)
     const selectBtn = e.target.closest('button[data-select-plan-key]');
     if (selectBtn) {
       const key = selectBtn.dataset.selectPlanKey;
       const plan = this.currentPlanMap?.get(key);
       if (plan) {
-        if (isAdminAuthenticated()) {
-          await this._handleAdminSelectPlan(plan);
-        } else {
-          await this._handleTogglePlanSelection(plan);
-        }
+        await this._handleAdminSelectPlan(plan);
+      }
+      return;
+    }
+
+    // Go to Issue Details button from dock
+    if (e.target.closest('#btnDockOpenIssue')) {
+      if (this.state.issuePlan && this.container?.querySelector('#step3IssueSection')) {
+        this.container.querySelector('#step3IssueSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (this.state.selectedPlans.length > 0) {
+        await this._handleAdminSelectPlan(this.state.selectedPlans[0]);
+      } else if (this.currentPlanMap && this.currentPlanMap.size > 0) {
+        const firstPlan = Array.from(this.currentPlanMap.values())[0];
+        await this._handleAdminSelectPlan(firstPlan);
       }
       return;
     }
@@ -2342,7 +2354,7 @@ export class QuoteView {
       superAgeDurationFilter: 'all',
       selectedForCompare: new Set(),
       selectedPlans: [],
-      // Step 3: Issue details state (Admin only)
+      // Step 3: Issue details state (Public & Admin)
       showIssueDetails: false,
       issuePreviewMode: 'formatted', // 'formatted' | 'raw'
       issuePlan: null,
@@ -2374,7 +2386,7 @@ export class QuoteView {
   // ═══════════════════════════════════════════════════════════════════════════
 
   _shouldRenderIssueStep() {
-    return isAdminAuthenticated() && Boolean(this.state.showIssueDetails && this.state.issuePlan);
+    return Boolean(this.state.showIssueDetails && this.state.issuePlan);
   }
 
   _getOrdinalDay(n) {
