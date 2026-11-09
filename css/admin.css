@@ -2782,12 +2782,13 @@
 }
 
 .pr-btn-archive {
-  color: #dc2626;
-  border-color: #fca5a5;
+  color: #d97706;
+  border-color: #fde68a;
 }
 
 .pr-btn-archive:hover {
-  background: #fef2f2;
+  background: #fef3c7;
+  color: #b45309;
 }
 
 .pr-btn-activate {
@@ -2797,6 +2798,19 @@
 
 .pr-btn-activate:hover {
   background: #e6f4ed;
+}
+
+.pr-btn-delete {
+  color: #dc2626 !important;
+  border-color: #fecaca !important;
+  background: #ffffff !important;
+  transition: all 0.15s ease;
+}
+
+.pr-btn-delete:hover {
+  background: #fee2e2 !important;
+  border-color: #dc2626 !important;
+  color: #b91c1c !important;
 }
 
 /* ── Plan Settings Card ──────────────────────────────────────────────────── */

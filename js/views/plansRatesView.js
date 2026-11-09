@@ -21,9 +21,12 @@ import {
   addCompany,
   renameCompany,
   toggleCompanyStatus,
+  deleteCompany,
   addPlan,
   updatePlan,
+  deletePlan,
   getRates,
+  clearRates,
   saveRateGrid
 } from '../api.js';
 
@@ -479,6 +482,9 @@ export class PlansRatesView {
                           <button type="button" class="btn btn-outline btn-sm" data-add-plan="${c._id}">
                             + Plan
                           </button>
+                          <button type="button" class="btn btn-outline btn-sm pr-btn-delete" data-delete-company="${c._id}" title="Permanently delete company">
+                            Delete
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -518,6 +524,7 @@ export class PlansRatesView {
                         <button type="button" class="btn btn-outline btn-sm pr-btn-activate" data-toggle-archive="${c._id}" data-action="activate" style="flex:1;">Activate</button>
                       `}
                       <button type="button" class="btn btn-outline btn-sm" data-add-plan="${c._id}" style="flex:1;">+ Plan</button>
+                      <button type="button" class="btn btn-outline btn-sm pr-btn-delete" data-delete-company="${c._id}" style="flex:1;">Delete</button>
                     </div>
                   </div>
                 </div>
@@ -576,6 +583,9 @@ export class PlansRatesView {
                   Activate
                 </button>
               `}
+              <button type="button" class="btn btn-outline btn-sm pr-btn-delete" data-delete-company="${c._id}" title="Permanently delete this entire company">
+                🗑️ Delete Company
+              </button>
               <button type="button" class="btn btn-primary btn-sm" data-add-plan="${c._id}">
                 <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
                 + Add Plan
@@ -635,11 +645,16 @@ export class PlansRatesView {
                             ${isPlanActive ? 'Active' : 'Archived'}
                           </span>
                         </td>
-                        <td class="pr-col-right">
-                          <button type="button" class="pr-btn-rate-table" data-open-rate-table="${c._id}:${p._id}">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
-                            Rate Table
-                          </button>
+                        <td class="pr-col-right" onclick="event.stopPropagation()">
+                          <div style="display:inline-flex; align-items:center; gap:6px;">
+                            <button type="button" class="pr-btn-rate-table" data-open-rate-table="${c._id}:${p._id}">
+                              <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
+                              Rate Table
+                            </button>
+                            <button type="button" class="btn btn-outline btn-sm pr-btn-delete" data-delete-plan="${c._id}:${p._id}" title="Permanently delete plan">
+                              🗑️ Delete
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     `;
@@ -672,10 +687,15 @@ export class PlansRatesView {
                     <span class="pr-region-tag">Region: ${regionLabel}</span>
                     <span class="pr-medical-tag">Medical: ${medicalLabel}</span>
                   </div>
-                  <button type="button" class="pr-btn-rate-table pr-btn-full" data-open-rate-table="${c._id}:${p._id}">
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
-                    Rate Table
-                  </button>
+                  <div style="display:flex; gap:8px; margin-top:10px;" onclick="event.stopPropagation()">
+                    <button type="button" class="pr-btn-rate-table pr-btn-full" data-open-rate-table="${c._id}:${p._id}" style="flex:2;">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
+                      Rate Table
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm pr-btn-delete" data-delete-plan="${c._id}:${p._id}" style="flex:1;">
+                      🗑️ Delete
+                    </button>
+                  </div>
                 </div>
               `;
             }).join('')}
@@ -786,9 +806,14 @@ export class PlansRatesView {
           <h3 class="pr-card-title">Plan Settings</h3>
           <p class="pr-card-subtitle">Configuration settings and metadata for this policy plan.</p>
         </div>
-        <button type="button" class="btn btn-outline" id="btnEditPlanSettings">
-          Edit
-        </button>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="btn btn-outline" id="btnEditPlanSettings">
+            Edit
+          </button>
+          <button type="button" class="btn btn-outline pr-btn-delete" data-delete-plan="${this.selectedCompany._id}:${plan._id}" title="Permanently delete this plan">
+            🗑️ Delete Plan
+          </button>
+        </div>
       </div>
 
       <div class="pr-settings-grid-view">
@@ -907,6 +932,8 @@ export class PlansRatesView {
           </select>
           <button type="button" class="btn btn-outline btn-sm" id="btnAddAgeBand">+ Age</button>
           <button type="button" class="btn btn-outline btn-sm" id="btnAddDaysSlab">+ Days</button>
+          <button type="button" class="btn btn-outline btn-sm pr-btn-delete" id="btnClearMatrixGrid" title="Clear entered numbers in current matrix">🗑️ Clear Grid</button>
+          <button type="button" class="btn btn-outline btn-sm pr-btn-delete" id="btnDeletePlanRates" title="Permanently delete all rates in database for this plan">🗑️ Delete All Rates</button>
         </div>
       </div>
 
@@ -1161,8 +1188,8 @@ export class PlansRatesView {
     // 5. Select Company -> Level 2 (Company Plans)
     container.querySelectorAll('[data-select-company]').forEach(el => {
       el.addEventListener('click', (e) => {
-        // Prevent selection if clicking inside action buttons (Edit, Archive, +Plan)
-        if (e.target.closest('[data-edit-company], [data-toggle-archive], [data-add-plan]')) {
+        // Prevent selection if clicking inside action buttons (Edit, Archive, +Plan, Delete)
+        if (e.target.closest('[data-edit-company], [data-toggle-archive], [data-add-plan], [data-delete-company]')) {
           return;
         }
 
@@ -1187,6 +1214,7 @@ export class PlansRatesView {
     container.querySelectorAll('[data-open-rate-table]').forEach(el => {
       el.addEventListener('click', async (e) => {
         e.stopPropagation();
+        if (e.target.closest('[data-delete-plan]')) return;
         const key = el.dataset.openRateTable;
         if (!key) return;
         const [compId, planId] = key.split(':');
@@ -1286,6 +1314,38 @@ export class PlansRatesView {
       });
     });
 
+    // 8b. Delete Company Buttons (Level 1 & Level 2)
+    container.querySelectorAll('[data-delete-company]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const compId = btn.dataset.deleteCompany;
+        const comp = this.companies.find(c => String(c._id) === String(compId));
+        if (!comp) return;
+
+        const confirmed = await this._promptConfirm(
+          'Delete Company',
+          `Are you sure you want to permanently delete company <strong>"${this._esc(comp.companyName)}"</strong> and all of its rate plans? This action cannot be undone.`,
+          'Permanent Delete',
+          true
+        );
+        if (!confirmed) return;
+
+        try {
+          await deleteCompany(comp._id, true);
+          this.app.showToast(`Company "${comp.companyName}" permanently deleted`, 'success');
+          if (this.selectedCompany && String(this.selectedCompany._id) === String(compId)) {
+            this.selectedCompany = null;
+            this.selectedPlan = null;
+            this.level = 'companies';
+          }
+          await this._loadData();
+          this._refreshDOM();
+        } catch (err) {
+          this.app.showToast('Failed to delete company: ' + err.message, 'error');
+        }
+      });
+    });
+
     // 9. Add Plan Button for a specific company on Level 1
     container.querySelectorAll('[data-add-plan]').forEach(btn => {
       btn.addEventListener('click', async (e) => {
@@ -1304,6 +1364,44 @@ export class PlansRatesView {
           this._refreshDOM();
         } catch (err) {
           this.app.showToast(err.message, 'error');
+        }
+      });
+    });
+
+    // 9b. Delete Plan Buttons (Level 2 & Level 3)
+    container.querySelectorAll('[data-delete-plan]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const key = btn.dataset.deletePlan;
+        if (!key) return;
+        const [compId, planId] = key.split(':');
+        const comp = this.companies.find(c => String(c._id) === String(compId));
+        if (!comp) return;
+        const plan = (comp.plans || []).find(p => String(p._id) === String(planId));
+        if (!plan) return;
+
+        const confirmed = await this._promptConfirm(
+          'Delete Rate Plan',
+          `Are you sure you want to permanently delete plan <strong>"${this._esc(plan.planName)}"</strong> and all of its rate tables? This action cannot be undone.`,
+          'Permanent Delete',
+          true
+        );
+        if (!confirmed) return;
+
+        try {
+          await deletePlan(comp._id, plan._id, true);
+          this.app.showToast(`Plan "${plan.planName}" permanently deleted`, 'success');
+          if (this.selectedPlan && String(this.selectedPlan._id) === String(planId)) {
+            this.selectedPlan = null;
+            this.level = 'company';
+          }
+          await this._loadData();
+          if (this.selectedCompany) {
+            this.selectedCompany = this.companies.find(c => String(c._id) === String(this.selectedCompany._id)) || null;
+          }
+          this._refreshDOM();
+        } catch (err) {
+          this.app.showToast('Failed to delete plan: ' + err.message, 'error');
         }
       });
     });
@@ -1444,6 +1542,19 @@ export class PlansRatesView {
           return;
         }
         this.ageBands.splice(idx, 1);
+
+        // Re-index matrixData columns so rates align properly with remaining columns
+        const newMatrix = {};
+        for (const [key, val] of Object.entries(this.matrixData || {})) {
+          const [rStr, cStr] = key.split('_');
+          const r = parseInt(rStr, 10);
+          const c = parseInt(cStr, 10);
+          if (c === idx) continue; // deleted column
+          const newC = c > idx ? c - 1 : c;
+          newMatrix[`${r}_${newC}`] = val;
+        }
+        this.matrixData = newMatrix;
+
         this.isRateDirty = true;
         this._refreshDOM();
       });
@@ -1457,10 +1568,66 @@ export class PlansRatesView {
           return;
         }
         this.daysSlabs.splice(idx, 1);
+
+        // Re-index matrixData rows so rates align properly with remaining rows
+        const newMatrix = {};
+        for (const [key, val] of Object.entries(this.matrixData || {})) {
+          const [rStr, cStr] = key.split('_');
+          const r = parseInt(rStr, 10);
+          const c = parseInt(cStr, 10);
+          if (r === idx) continue; // deleted row
+          const newR = r > idx ? r - 1 : r;
+          newMatrix[`${newR}_${c}`] = val;
+        }
+        this.matrixData = newMatrix;
+
         this.isRateDirty = true;
         this._refreshDOM();
       });
     });
+
+    // 16b. Rate Table: Clear Matrix Grid inputs
+    const btnClearGrid = container.querySelector('#btnClearMatrixGrid');
+    if (btnClearGrid) {
+      btnClearGrid.addEventListener('click', () => {
+        if (!this.matrixData || Object.keys(this.matrixData).length === 0) {
+          this.app.showToast('Matrix grid is already empty', 'info');
+          return;
+        }
+        this.matrixData = {};
+        this.isRateDirty = true;
+        this._refreshDOM();
+        this.app.showToast('Matrix grid inputs cleared. Click "Save Changes" to save, or reload to discard.', 'info');
+      });
+    }
+
+    // 16c. Rate Table: Permanently Delete All Rates for Plan
+    const btnDeleteRates = container.querySelector('#btnDeletePlanRates');
+    if (btnDeleteRates && this.selectedCompany && this.selectedPlan) {
+      btnDeleteRates.addEventListener('click', async () => {
+        const comp = this.selectedCompany;
+        const plan = this.selectedPlan;
+
+        const confirmed = await this._promptConfirm(
+          'Delete All Saved Rates',
+          `Permanently delete <strong>ALL saved rates</strong> for plan <strong>"${this._esc(plan.planName)}"</strong> across all coverages and regions? This will erase all pricing entries for this plan from the database.`,
+          'Permanent Delete Rates',
+          true
+        );
+        if (!confirmed) return;
+
+        try {
+          await clearRates(comp._id, plan._id);
+          this.matrixData = {};
+          this.isRateDirty = false;
+          this.app.showToast(`All saved rates deleted for "${plan.planName}"`, 'success');
+          await this._loadRatesForCurrentPlan();
+          this._refreshDOM();
+        } catch (err) {
+          this.app.showToast('Failed to delete rates: ' + err.message, 'error');
+        }
+      });
+    }
 
     // 17. Rate Table: Edit Cells & Range Inputs (Marks Dirty and Enables Save Changes)
     container.querySelectorAll('.pr-cell-input').forEach(input => {
@@ -1662,6 +1829,52 @@ export class PlansRatesView {
   }
 
   // ─── Modal Dialogs ─────────────────────────────────────────────────────────
+  _promptConfirm(title, message, confirmText = 'Delete', isDanger = true) {
+    return new Promise((resolve) => {
+      const existing = document.getElementById('prConfirmModal');
+      if (existing) existing.remove();
+
+      const html = `
+        <div class="pr-modal-backdrop" id="prConfirmModal">
+          <div class="pr-modal-box" style="max-width: 440px;">
+            <div class="pr-modal-header">
+              <h3 class="pr-modal-title">${this._esc(title)}</h3>
+              <button type="button" class="pr-modal-close" id="btnConfirmClose">✕</button>
+            </div>
+            <div class="pr-modal-body" style="font-size: 14px; color: var(--navy); line-height: 1.6;">
+              <p style="margin: 0;">${message}</p>
+            </div>
+            <div class="pr-modal-footer">
+              <button type="button" class="btn btn-outline" id="btnConfirmCancel">Cancel</button>
+              <button type="button" class="btn ${isDanger ? 'pr-btn-delete' : 'btn-primary'}" id="btnConfirmOk" style="${isDanger ? 'background:#dc2626 !important; color:#fff !important; border-color:#dc2626 !important;' : ''}">
+                ${this._esc(confirmText)}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.insertAdjacentHTML('beforeend', html);
+      const modal = document.getElementById('prConfirmModal');
+
+      const close = (val) => {
+        window.removeEventListener('keydown', handleKey);
+        if (modal) modal.remove();
+        resolve(val);
+      };
+
+      const handleKey = (e) => {
+        if (e.key === 'Escape') close(false);
+      };
+      window.addEventListener('keydown', handleKey);
+
+      modal.querySelector('#btnConfirmClose').onclick = () => close(false);
+      modal.querySelector('#btnConfirmCancel').onclick = () => close(false);
+      modal.querySelector('#btnConfirmOk').onclick = () => close(true);
+      modal.onclick = (e) => { if (e.target === modal) close(false); };
+    });
+  }
+
   _promptInput(title, label, placeholder = '', initialValue = '') {
     return new Promise((resolve) => {
       const existing = document.getElementById('prModal');

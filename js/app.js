@@ -5,7 +5,7 @@
  */
 import { QuoteView } from './quoteView.js';
 import { VisaLinksView } from './views/visaLinksView.js';
-import { PlansRatesView } from './views/plansRatesView.js';
+import { PlansRatesView } from './views/plansRatesView.js?v=3.3';
 import { SettingsView } from './views/settingsView.js';
 import { LoginView } from './views/loginView.js?v=2.1';
 import { healthCheck, getAdminHealth, isAdminAuthenticated, logoutAdmin } from './api.js';

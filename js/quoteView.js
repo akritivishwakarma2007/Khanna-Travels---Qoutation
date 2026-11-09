@@ -458,6 +458,15 @@ export class QuoteView {
               Without Medical
             </button>
           </div>
+
+          <!-- Vertical Divider -->
+          <div class="fc-toolbar-divider"></div>
+
+          <!-- Quick Company Selection Pills (Small Bars) -->
+          <div class="fc-company-pills-wrap" id="fcCompanyPillsWrap">
+            <span class="fc-pills-label">Select:</span>
+            ${this._renderCompactCompanyPillsHtml()}
+          </div>
         </div>
 
         <!-- 5. RESULT SUMMARY LINE -->
@@ -591,7 +600,7 @@ export class QuoteView {
 
           <!-- Buttons Row -->
           <div class="qrc-buttons-row">
-            <button type="button" class="btn-select-plan ${isSelectedPlan ? 'selected' : ''}" data-select-plan-key="${this._esc(planKey)}">
+            <button type="button" class="btn-select-plan ${isSelectedPlan ? 'selected' : ''}" data-select-plan-key="${this._esc(planKey)}" title="${isSelectedPlan ? 'Click to deselect this plan' : 'Click to select this plan and open issue details'}">
               ${isSelectedPlan ? `✓ Selected (#${selIndex + 1})` : 'Select Plan'}
             </button>
             <button type="button" class="btn-view-details" data-view-plan-key="${this._esc(planKey)}">
@@ -608,6 +617,8 @@ export class QuoteView {
     const seenKeys = new Set();
     const q = this.state.savedQuote;
     const medFilter = this.state.superAgeMedicalFilter || 'all';
+
+    if (!this.currentPlanMap) this.currentPlanMap = new Map();
 
     Object.values(this.state.groupedResults || {}).forEach(plansList => {
       if (Array.isArray(plansList)) {
@@ -629,6 +640,7 @@ export class QuoteView {
           }
 
           const key = this._getPlanKey(p);
+          this.currentPlanMap.set(key, p);
           if (!seenKeys.has(key)) {
             seenKeys.add(key);
             all.push(p);
@@ -646,6 +658,60 @@ export class QuoteView {
   _getAvailableCompanies() {
     const all = this._getAllMatchingPlans();
     return Array.from(new Set(all.map(p => p.companyName)));
+  }
+
+  // ── Quick Company Selection Pills (Small Bars in Toolbar) ───────────────
+  _renderCompactCompanyPillsHtml() {
+    const availableCompanies = this._getAvailableCompanies();
+    if (availableCompanies.length === 0) return '';
+
+    const allPlans = this._getAllMatchingPlans();
+    const areAllSelected = allPlans.length > 0 && allPlans.every(p => this._isPlanSelected(p));
+
+    const allPill = `
+      <button type="button" 
+              class="fc-company-pill btn-pill-all ${areAllSelected ? 'all-selected' : ''}" 
+              id="btnSelectAllAnyCompany"
+              title="${areAllSelected ? 'Click to deselect all plans' : `Click to select all ${allPlans.length} plans across all companies`}">
+        <span class="fcp-icon">${areAllSelected ? '✓' : '⚡'}</span>
+        <span class="fcp-name">All</span>
+        <span class="fcp-count">(${allPlans.length})</span>
+      </button>
+    `;
+
+    const companyPills = availableCompanies.map(comp => {
+      const compPlans = this._getAllPlansForCompany(comp);
+      const selectedCompPlans = compPlans.filter(p => this._isPlanSelected(p));
+      const isAllSelected = compPlans.length > 0 && selectedCompPlans.length === compPlans.length;
+      const isPartSelected = selectedCompPlans.length > 0 && !isAllSelected;
+
+      let statusClass = '';
+      let icon = '🏢';
+      let countText = `(${compPlans.length})`;
+
+      if (isAllSelected) {
+        statusClass = 'all-selected';
+        icon = '✓';
+        countText = `(${compPlans.length})`;
+      } else if (isPartSelected) {
+        statusClass = 'part-selected';
+        icon = '◐';
+        countText = `(${selectedCompPlans.length}/${compPlans.length})`;
+      }
+
+      return `
+        <button type="button" 
+                class="fc-company-pill ${statusClass}" 
+                data-select-company-name="${this._esc(comp)}"
+                title="${isAllSelected ? `Click to deselect all ${compPlans.length} plans of ${this._esc(comp)}` : `Click to select all ${compPlans.length} plans of ${this._esc(comp)}`}">
+          <span class="fcp-icon">${icon}</span>
+          <span class="fcp-name">${this._esc(comp)}</span>
+          <span class="fcp-count">${countText}</span>
+        </button>
+      `;
+    }).join('');
+
+    return allPill + companyPills;
   }
 
   // ── Small Super Age 70+ Box (Rendered ONLY IF age > 70 after Compare is clicked) ──
@@ -693,9 +759,9 @@ export class QuoteView {
     if (compCounts.size === 0) return '';
 
     return Array.from(compCounts.entries()).map(([comp, count]) => `
-      <span class="dock-company-badge" title="${this._esc(comp)}: ${count} rate option${count !== 1 ? 's' : ''} selected">
-        🏢 ${this._esc(comp)} (${count})
-      </span>
+      <button type="button" class="dock-company-badge" data-select-company-name="${this._esc(comp)}" title="Click to toggle or deselect all ${this._esc(comp)} plans">
+        🏢 ${this._esc(comp)} (${count}) ✕
+      </button>
     `).join('');
   }
 
@@ -1055,12 +1121,39 @@ export class QuoteView {
       return;
     }
 
+    // Select all plans of a company button (from bottom bar OR from bottom dock)
+    const compBtn = e.target.closest('[data-select-company-name]');
+    if (compBtn) {
+      const compName = compBtn.dataset.selectCompanyName;
+      await this._toggleAllPlansForCompany(compName);
+      return;
+    }
+
+    // Select all matching plans across all companies
+    if (e.target.closest('#btnSelectAllAnyCompany')) {
+      await this._toggleSelectAllMatchingPlans();
+      return;
+    }
+
+    // Clear all from companies bottom bar
+    if (e.target.closest('#btnClearFromCompaniesBar')) {
+      this.state.selectedPlans = [];
+      this.state.showIssueDetails = false;
+      this.state.issuePlan = null;
+      const mountEl = this.container?.querySelector('#step3Mount');
+      if (mountEl) mountEl.innerHTML = '';
+      this._clearAllSelectionDom();
+      this._syncSelectedPlansWithBackend();
+      this.app.showToast('Cleared all selected plans', 'info');
+      return;
+    }
+
     // Go to Issue Details button from dock
     if (e.target.closest('#btnDockOpenIssue')) {
       if (this.state.issuePlan && this.container?.querySelector('#step3IssueSection')) {
         this.container.querySelector('#step3IssueSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else if (this.state.selectedPlans.length > 0) {
-        await this._handleAdminSelectPlan(this.state.selectedPlans[0]);
+        await this._activateIssueForPlan(this.state.selectedPlans[0], true);
       } else if (this.currentPlanMap && this.currentPlanMap.size > 0) {
         const firstPlan = Array.from(this.currentPlanMap.values())[0];
         await this._handleAdminSelectPlan(firstPlan);
@@ -1214,6 +1307,10 @@ export class QuoteView {
     // Clear all selected plans in dock
     if (e.target.closest('#btnClearSelectedPlans')) {
       this.state.selectedPlans = [];
+      this.state.showIssueDetails = false;
+      this.state.issuePlan = null;
+      const mountEl = this.container?.querySelector('#step3Mount');
+      if (mountEl) mountEl.innerHTML = '';
       this._clearAllSelectionDom();
       this._syncSelectedPlansWithBackend();
       return;
@@ -1371,8 +1468,7 @@ export class QuoteView {
   }
 
   async _handleTogglePlanSelection(plan) {
-    const isSelected = this._isPlanSelected(plan);
-    await this._setPlanSelected(plan, !isSelected);
+    await this._handleAdminSelectPlan(plan);
   }
 
   async _setPlanSelected(plan, shouldBeSelected) {
@@ -1386,6 +1482,20 @@ export class QuoteView {
     } else {
       if (existingIdx !== -1) {
         this.state.selectedPlans.splice(existingIdx, 1);
+      }
+      // If the deselected plan was currently open in Step 3
+      if (this.state.issuePlan && this._getPlanKey(this.state.issuePlan) === key) {
+        if (this.state.selectedPlans.length > 0) {
+          const nextPlan = this.state.selectedPlans[this.state.selectedPlans.length - 1];
+          await this._activateIssueForPlan(nextPlan, false);
+        } else {
+          this.state.showIssueDetails = false;
+          this.state.issuePlan = null;
+          const mountEl = this.container?.querySelector('#step3Mount');
+          if (mountEl) {
+            mountEl.innerHTML = '';
+          }
+        }
       }
     }
 
@@ -1421,9 +1531,11 @@ export class QuoteView {
         if (isSelected) {
           btn.classList.add('selected');
           btn.textContent = `✓ Selected (#${selIdx + 1})`;
+          btn.title = 'Click to deselect this plan';
         } else {
           btn.classList.remove('selected');
           btn.textContent = 'Select Plan';
+          btn.title = 'Click to select this plan and open issue details';
         }
       });
     } else {
@@ -1450,9 +1562,11 @@ export class QuoteView {
         if (isSel) {
           btn.classList.add('selected');
           btn.textContent = `✓ Selected (#${selIdx + 1})`;
+          btn.title = 'Click to deselect this plan';
         } else {
           btn.classList.remove('selected');
           btn.textContent = 'Select Plan';
+          btn.title = 'Click to select this plan and open issue details';
         }
       });
     }
@@ -1491,7 +1605,10 @@ export class QuoteView {
           const badge = c.querySelector('.selected-badge');
           if (badge) badge.textContent = `✓ Selected Option #${idx + 1}`;
           const btn = c.querySelector(`button[data-select-plan-key="${spKey}"]`);
-          if (btn) btn.textContent = `✓ Selected (#${idx + 1})`;
+          if (btn) {
+            btn.textContent = `✓ Selected (#${idx + 1})`;
+            btn.title = 'Click to deselect this plan';
+          }
         }
       });
     });
@@ -1517,6 +1634,105 @@ export class QuoteView {
       if (dockActions) {
         dockActions.innerHTML = this._buildDockActionsHtml();
       }
+    }
+
+    // 6. Update Compact Company Pills in Toolbar
+    this._updateCompactCompanyPillsDom();
+  }
+
+  _updateCompactCompanyPillsDom() {
+    if (!this.container) return;
+    const wrap = this.container.querySelector('#fcCompanyPillsWrap');
+    if (wrap) {
+      wrap.innerHTML = `
+        <span class="fc-pills-label">Select:</span>
+        ${this._renderCompactCompanyPillsHtml()}
+      `;
+    }
+  }
+
+  async _toggleAllPlansForCompany(companyName) {
+    if (!companyName) return;
+
+    const compPlans = this._getAllPlansForCompany(companyName);
+    if (!compPlans || compPlans.length === 0) {
+      this.app.showToast(`No available plans found for ${companyName}`, 'warning');
+      return;
+    }
+
+    const selectedCompPlans = compPlans.filter(p => this._isPlanSelected(p));
+    const isAllSelected = selectedCompPlans.length === compPlans.length;
+
+    if (isAllSelected) {
+      // DESELECT ALL plans of this company
+      const compKeys = new Set(compPlans.map(p => this._getPlanKey(p)));
+      this.state.selectedPlans = this.state.selectedPlans.filter(p => !compKeys.has(this._getPlanKey(p)));
+
+      // If active Step 3 issue plan was from this company
+      if (this.state.issuePlan && this.state.issuePlan.companyName === companyName) {
+        if (this.state.selectedPlans.length > 0) {
+          const nextPlan = this.state.selectedPlans[this.state.selectedPlans.length - 1];
+          await this._activateIssueForPlan(nextPlan, false);
+        } else {
+          this.state.showIssueDetails = false;
+          this.state.issuePlan = null;
+          const mountEl = this.container?.querySelector('#step3Mount');
+          if (mountEl) mountEl.innerHTML = '';
+        }
+      }
+
+      this._updateSelectionDom(null);
+      this._syncSelectedPlansWithBackend();
+      this.app.showToast(`Deselected all plans for ${companyName}`, 'info');
+    } else {
+      // SELECT ALL plans of this company
+      const existingKeys = new Set(this.state.selectedPlans.map(p => this._getPlanKey(p)));
+      for (const p of compPlans) {
+        const key = this._getPlanKey(p);
+        if (!existingKeys.has(key)) {
+          this.state.selectedPlans.push(p);
+          existingKeys.add(key);
+        }
+      }
+
+      // If Step 3 is not open or not set, activate the first plan of this company
+      if (!this.state.issuePlan) {
+        await this._activateIssueForPlan(compPlans[0], true);
+      } else {
+        this._updateIssuePreview();
+      }
+
+      this._updateSelectionDom(null);
+      this._syncSelectedPlansWithBackend();
+      this.app.showToast(`Selected all ${compPlans.length} plans for ${companyName}`, 'success');
+    }
+  }
+
+  async _toggleSelectAllMatchingPlans() {
+    const allPlans = this._getAllMatchingPlans();
+    if (!allPlans || allPlans.length === 0) return;
+
+    const areAllSelected = allPlans.length > 0 && allPlans.every(p => this._isPlanSelected(p));
+
+    if (areAllSelected) {
+      this.state.selectedPlans = [];
+      this.state.showIssueDetails = false;
+      this.state.issuePlan = null;
+      const mountEl = this.container?.querySelector('#step3Mount');
+      if (mountEl) mountEl.innerHTML = '';
+      this._clearAllSelectionDom();
+      this._syncSelectedPlansWithBackend();
+      this.app.showToast('Deselected all plans', 'info');
+    } else {
+      this.state.selectedPlans = [...allPlans];
+      if (!this.state.issuePlan && allPlans.length > 0) {
+        await this._activateIssueForPlan(allPlans[0], false);
+      } else {
+        this._updateIssuePreview();
+      }
+      this._updateSelectionDom(null);
+      this._syncSelectedPlansWithBackend();
+      this.app.showToast(`Selected all ${allPlans.length} matching plans`, 'success');
     }
   }
 
@@ -3216,8 +3432,23 @@ export class QuoteView {
   }
 
   async _handleAdminSelectPlan(plan) {
-    await this._setPlanSelected(plan, true);
+    const isAlreadySelected = this._isPlanSelected(plan);
 
+    if (isAlreadySelected) {
+      // User clicked on an already-selected plan -> Deselect it!
+      await this._setPlanSelected(plan, false);
+      this.app.showToast(`Deselected ${plan.companyName} (${plan.planName})`, 'info');
+      return;
+    }
+
+    // Plan is not yet selected -> Select and open Step 3
+    await this._setPlanSelected(plan, true);
+    await this._activateIssueForPlan(plan, true);
+
+    this.app.showToast(`Step 3: Issue details opened for ${plan.companyName} (${plan.planName})`, 'info');
+  }
+
+  async _activateIssueForPlan(plan, shouldScroll = true) {
     this.state.issuePlan = plan;
     this.state.showIssueDetails = true;
 
@@ -3286,14 +3517,14 @@ export class QuoteView {
       this._refresh();
     }
 
-    setTimeout(() => {
-      const step3El = this.container?.querySelector('#step3IssueSection');
-      if (step3El) {
-        step3El.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 60);
-
-    this.app.showToast(`Step 3: Issue details opened for ${plan.companyName} (${plan.planName})`, 'info');
+    if (shouldScroll) {
+      setTimeout(() => {
+        const step3El = this.container?.querySelector('#step3IssueSection');
+        if (step3El) {
+          step3El.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 60);
+    }
   }
 
   async _copyRichFormattedToClipboardSilently() {

@@ -8,7 +8,7 @@
 import {
   getCompanies, getCompany, addCompany, renameCompany, toggleCompanyStatus, deleteCompany,
   getCompanyPlans, addPlan, renamePlan, togglePlanStatus, duplicatePlan, deletePlan,
-  getRates, saveRateGrid, bulkEditRates, previewImportCsv, importRatesCsv, exportRatesCsvUrl, downloadTemplateUrl,
+  getRates, clearRates, saveRateGrid, bulkEditRates, previewImportCsv, importRatesCsv, exportRatesCsvUrl, downloadTemplateUrl,
   loginAdmin, logoutAdmin, isAdminAuthenticated,
   getVisaLinks, addVisaLink, updateVisaLink, deleteVisaLink
 } from './api.js';
@@ -1221,6 +1221,7 @@ export class AdminView {
           </div>
           <div class="admin-page-actions">
             <button class="btn btn-secondary btn-sm" id="btnBackToCompanies">← Back to Companies</button>
+            <button class="btn btn-action-danger btn-sm" id="btnDeleteCurrentCompany" data-delete-company="${comp._id}" title="Permanently delete this entire company and all its plans">🗑️ Delete Company</button>
             <button class="btn btn-primary btn-sm" id="btnAddPlan">
               <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
               Add Plan
@@ -1295,6 +1296,7 @@ export class AdminView {
           </div>
           <div class="admin-page-actions">
             <button class="btn btn-secondary btn-sm" id="btnBackToPlans">← Back to Plans</button>
+            <button class="btn btn-action-danger btn-sm" id="btnDeleteCurrentPlan" data-delete-plan="${plan._id}" title="Permanently delete this entire plan and all its rates">🗑️ Delete Plan</button>
             <button class="btn btn-primary btn-sm" id="btnSaveGrid" ${overlapErrors.length > 0 ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''}>
               <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
               Save Grid
@@ -1360,6 +1362,12 @@ export class AdminView {
               </button>
               <button class="btn-action" id="btnImportCsv">📂 Import CSV</button>
               <button class="btn-action" id="btnExportCsv">📥 Export CSV</button>
+              <button class="btn-action btn-action-danger" id="btnClearMatrixGrid" title="Clear all rate numbers entered in this grid">
+                🗑️ Clear Grid
+              </button>
+              <button class="btn-action btn-action-danger" id="btnDeletePlanRates" title="Permanently delete all rates in database for this plan">
+                🗑️ Delete All Rates
+              </button>
             </div>
           </div>
         </div>
@@ -1900,6 +1908,16 @@ export class AdminView {
       this._exportCsv();
       return;
     }
+
+    if (e.target.closest('#btnClearMatrixGrid')) {
+      this._clearMatrixGrid();
+      return;
+    }
+
+    if (e.target.closest('#btnDeletePlanRates')) {
+      await this._promptDeletePlanRates();
+      return;
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -2029,6 +2047,11 @@ export class AdminView {
       try {
         await toggleCompanyStatus(companyId, false);
         this.app.showToast(`Company "${comp.companyName}" deactivated (soft deleted)`, 'success');
+        if (this.state.selectedCompany && this.state.selectedCompany._id === companyId) {
+          this.state.selectedCompany = null;
+          this.state.selectedPlan = null;
+          this.state.level = 'companies';
+        }
         await this._loadCompanies();
         this._refresh();
       } catch (err) {
@@ -2041,6 +2064,11 @@ export class AdminView {
       try {
         await deleteCompany(companyId, true);
         this.app.showToast(`Company "${comp.companyName}" permanently deleted`, 'success');
+        if (this.state.selectedCompany && this.state.selectedCompany._id === companyId) {
+          this.state.selectedCompany = null;
+          this.state.selectedPlan = null;
+          this.state.level = 'companies';
+        }
         await this._loadCompanies();
         this._refresh();
       } catch (err) {
@@ -2148,15 +2176,19 @@ export class AdminView {
 
     const confirmed = await this._showConfirmModal(
       'Delete Plan',
-      `Delete plan <strong>"${this._esc(plan.planName)}"</strong> and all of its rate rows?`,
-      'Delete Plan',
+      `Permanently delete plan <strong>"${this._esc(plan.planName)}"</strong> and all of its rate tables? This action cannot be undone.`,
+      'Permanent Delete',
       true
     );
     if (!confirmed) return;
 
     try {
-      await deletePlan(comp._id, planId);
-      this.app.showToast(`Plan "${plan.planName}" deleted`, 'success');
+      await deletePlan(comp._id, planId, true);
+      this.app.showToast(`Plan "${plan.planName}" permanently deleted`, 'success');
+      if (this.state.selectedPlan && this.state.selectedPlan._id === planId) {
+        this.state.selectedPlan = null;
+        this.state.level = 'plans';
+      }
       await this._reloadCompanyDetails();
     } catch (err) {
       this.app.showToast(err.message, 'error');
@@ -2324,6 +2356,20 @@ export class AdminView {
       return;
     }
     this.state.ageBands.splice(idx, 1);
+
+    // Re-index matrixData columns so rates align properly with remaining columns
+    const newMatrix = {};
+    for (const [key, val] of Object.entries(this.state.matrixData || {})) {
+      const [rStr, cStr] = key.split('_');
+      const r = parseInt(rStr, 10);
+      const c = parseInt(cStr, 10);
+      if (c === idx) continue; // Deleted column
+      const newC = c > idx ? c - 1 : c;
+      newMatrix[`${r}_${newC}`] = val;
+    }
+    this.state.matrixData = newMatrix;
+    this.state.isMatrixDirty = true;
+
     this._validateOverlapsAndGaps();
     this._refresh();
   }
@@ -2343,6 +2389,20 @@ export class AdminView {
       return;
     }
     this.state.daysSlabs.splice(idx, 1);
+
+    // Re-index matrixData rows so rates align properly with remaining rows
+    const newMatrix = {};
+    for (const [key, val] of Object.entries(this.state.matrixData || {})) {
+      const [rStr, cStr] = key.split('_');
+      const r = parseInt(rStr, 10);
+      const c = parseInt(cStr, 10);
+      if (r === idx) continue; // Deleted row
+      const newR = r > idx ? r - 1 : r;
+      newMatrix[`${newR}_${c}`] = val;
+    }
+    this.state.matrixData = newMatrix;
+    this.state.isMatrixDirty = true;
+
     this._validateOverlapsAndGaps();
     this._refresh();
   }
@@ -2380,6 +2440,47 @@ export class AdminView {
     this.state.matrixData = {}; // Clear matrix values for target region, retain slab/band structure
     this._refresh();
     this.app.showToast(`Copied structure to ${otherRegion}. Enter prices or paste from spreadsheet.`, 'info');
+  }
+
+  // ── Clear Rate Matrix Grid (UI inputs) ──────────────────────────────────
+  _clearMatrixGrid() {
+    if (!this.state.matrixData || Object.keys(this.state.matrixData).length === 0) {
+      this.app.showToast('Matrix grid is already empty', 'info');
+      return;
+    }
+    this.state.matrixData = {};
+    this.state.isMatrixDirty = true;
+    this._refresh();
+    this.app.showToast('Matrix grid inputs cleared. Click "Save Grid" to commit, or switch tabs to discard.', 'info');
+  }
+
+  // ── Delete All Saved Rates for Plan (Database) ──────────────────────────
+  async _promptDeletePlanRates() {
+    const comp = this.state.selectedCompany;
+    const plan = this.state.selectedPlan;
+    if (!comp || !plan) return;
+
+    const confirmed = await this._showConfirmModal(
+      'Delete All Saved Rates',
+      `Permanently delete <strong>ALL saved rate records</strong> for plan <strong>"${this._esc(plan.planName)}"</strong> across all coverages and regions? This will erase all pricing entries for this plan from the database.`,
+      'Permanent Delete Rates',
+      true
+    );
+    if (!confirmed) return;
+
+    try {
+      await clearRates(comp._id, plan._id);
+      this.state.matrixData = {};
+      this.state.isMatrixDirty = false;
+      this.app.showToast(`All saved rates deleted for "${plan.planName}"`, 'success');
+      await this._reloadCompanyDetails();
+      const updatedPlan = this.state.selectedCompany?.plans?.find(p => p._id === plan._id);
+      if (updatedPlan) this.state.selectedPlan = updatedPlan;
+      this._loadMatrixForCurrentSelection();
+      this._refresh();
+    } catch (err) {
+      this.app.showToast(err.message, 'error');
+    }
   }
 
   // ── Save Rate Matrix Grid ──────────────────────────────────────────────────
