@@ -20,7 +20,7 @@ try {
   VisaLink = require("./models/VisaLink");
 } catch {
   const RateSchema = new mongoose.Schema({
-    coverage: { type: Number, required: true, enum: [50000, 100000, 200000, 250000, 500000, 750000, 1000000] },
+    coverage: { type: Number, required: true, min: 1 },
     region: { type: String, required: true, enum: ["Excluding", "Including"] },
     ageFrom: { type: Number, required: true },
     ageTo: { type: Number, required: true },

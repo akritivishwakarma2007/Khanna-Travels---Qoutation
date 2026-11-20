@@ -51,11 +51,13 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/companies', require('./routes/companies'));
 app.use('/api/companies/:companyId/plans', require('./routes/plans'));
 app.use('/api/companies/:companyId/plans/:planId/rates', require('./routes/rates'));
+app.use('/api/rates', require('./routes/rates'));
 app.use('/api/quotes', require('./routes/quotes'));
 app.use('/api/quote/compare', require('./routes/compare'));
 app.use('/api/compare', require('./routes/compare'));
 app.use('/api/visa-links', require('./routes/visaLinks'));
 app.use('/api/admin/health', require('./routes/adminHealth'));
+app.use('/api/passport', require('./routes/passport'));
 
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -78,24 +80,30 @@ app.get('*', (req, res) => {
 });
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
-const server = app.listen(PORT, () => {
-  console.log(`\n🚀  Khanna Travels API running at http://localhost:${PORT}`);
-  console.log(`    Frontend  → http://localhost:${PORT}`);
-  console.log(`    API health → http://localhost:${PORT}/api/health\n`);
-});
+let serverInstance = null;
 
-connectDB().catch(err => {
-  console.warn('Background MongoDB connection error:', err.message);
-});
+async function startServer() {
+  await connectDB().catch(err => {
+    console.warn('Background MongoDB connection warning:', err.message);
+  });
 
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`\n⚠️  Port ${PORT} is already in use by another running process.`);
-    console.error(`👉  To free port ${PORT} in PowerShell, run:`);
-    console.error(`    Stop-Process -Id (Get-NetTCPConnection -LocalPort ${PORT}).OwningProcess -Force\n`);
-  } else {
-    console.error('Server error:', err);
-  }
-});
+  serverInstance = app.listen(PORT, () => {
+    console.log(`\n🚀  Khanna Travels API running at http://localhost:${PORT}`);
+    console.log(`    Frontend  → http://localhost:${PORT}`);
+    console.log(`    API health → http://localhost:${PORT}/api/health\n`);
+  });
+
+  serverInstance.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`\n⚠️  Port ${PORT} is already in use by another running process.`);
+      console.error(`👉  To free port ${PORT} in PowerShell, run:`);
+      console.error(`    Stop-Process -Id (Get-NetTCPConnection -LocalPort ${PORT}).OwningProcess -Force\n`);
+    } else {
+      console.error('Server error:', err);
+    }
+  });
+}
+
+startServer();
 
 module.exports = app;

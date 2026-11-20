@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const Company = require('../models/Company');
 
-const ALL_COVERAGE_AMOUNTS = [50000, 100000, 200000, 250000, 500000, 750000, 1000000];
+const ALL_COVERAGE_AMOUNTS = [50000, 75000, 100000, 150000, 200000, 250000, 300000, 500000, 600000, 750000, 1000000];
 
 function getSeedCompanies() {
   try {
@@ -190,7 +190,8 @@ router.post('/', async (req, res) => {
 
     // Sort each coverage tier by premium ascending with alphabetical company tie-break
     const coverageStats = {};
-    ALL_COVERAGE_AMOUNTS.forEach(amt => {
+    const allCoverages = Array.from(new Set([...ALL_COVERAGE_AMOUNTS, ...Object.keys(groupedResults).map(Number)])).sort((a, b) => a - b);
+    allCoverages.forEach(amt => {
       const list = groupedResults[amt] || [];
       list.sort((a, b) => {
         if (a.premium !== b.premium) {
@@ -228,7 +229,7 @@ router.post('/', async (req, res) => {
     };
 
     // Determine the first coverage tier with at least 1 matching plan
-    const firstNonEmptyCoverage = ALL_COVERAGE_AMOUNTS.find(amt => (groupedResults[amt] || []).length > 0) || 50000;
+    const firstNonEmptyCoverage = allCoverages.find(amt => (groupedResults[amt] || []).length > 0) || 50000;
 
     const origCountry = (req.body.departureCountry || 'India').trim();
 

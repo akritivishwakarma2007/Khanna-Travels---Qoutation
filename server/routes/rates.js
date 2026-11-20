@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const multer = require('multer');
+const XLSX = require('xlsx');
 const Company = require('../models/Company');
 const { requireAdminAuth } = require('../middleware/auth');
 
 const mongoose = require('mongoose');
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
+const { extractRatesFromDocument } = require('../services/rateDocExtractor');
 
 const DB_ERROR_MSG = 'Cannot reach the database. Check MONGODB_URI in server/.env.';
 const VALID_COVERAGES = [50000, 100000, 200000, 250000, 500000, 750000, 1000000];
@@ -48,6 +50,39 @@ router.get('/template', (req, res) => {
   res.send(csvContent);
 });
 
+// ── POST /extract-doc — extract rates from any document (PDF, Excel, Word, Image) via Gemini AI
+router.post('/extract-doc', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No document file uploaded. Please upload a PDF, Excel, Word document, or image.' });
+    }
+
+    let existingCoverages = [50000, 100000, 200000, 250000, 500000, 750000, 1000000];
+    if (req.body.existingCoverages) {
+      try {
+        const parsed = JSON.parse(req.body.existingCoverages);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          existingCoverages = parsed;
+        }
+      } catch {
+        // use default
+      }
+    }
+
+    const result = await extractRatesFromDocument({
+      buffer: req.file.buffer,
+      mimeType: req.file.mimetype,
+      originalName: req.file.originalname,
+      existingCoverages
+    });
+
+    res.json(result);
+  } catch (err) {
+    console.error('[routes/rates] extract-doc error:', err);
+    res.status(500).json({ error: err.message || 'Failed to extract rates from document' });
+  }
+});
+
 // ── GET /api/companies/:id/plans/:pid/rates ──────────────────────────────────
 // Returns rates, optionally filtered by coverage and/or region
 router.get('/', async (req, res) => {
@@ -78,8 +113,8 @@ router.post('/grid', requireAdminAuth, async (req, res) => {
     const { coverage, region, ageBands, daysSlabs, matrix, currency = 'INR' } = req.body;
     const numCov = Number(coverage);
 
-    if (!VALID_COVERAGES.includes(numCov)) {
-      return res.status(400).json({ error: `Invalid coverage amount: ${coverage}. Must be one of: ${VALID_COVERAGES.join(', ')}` });
+    if (!numCov || isNaN(numCov) || numCov <= 0) {
+      return res.status(400).json({ error: `Invalid coverage amount: ${coverage}. Must be a positive number.` });
     }
     if (!region || typeof region !== 'string' || !region.trim()) {
       return res.status(400).json({ error: 'Region is required (e.g. "Excluding" or "Including")' });
@@ -257,8 +292,8 @@ router.post('/', requireAdminAuth, async (req, res) => {
   try {
     const { coverage, region, ageFrom, ageTo, daysFrom, daysTo, premium, currency } = req.body;
 
-    if (!VALID_COVERAGES.includes(Number(coverage))) {
-      return res.status(400).json({ error: `Invalid coverage. Must be one of: ${VALID_COVERAGES.join(', ')}` });
+    if (!Number(coverage) || isNaN(Number(coverage)) || Number(coverage) <= 0) {
+      return res.status(400).json({ error: `Invalid coverage. Must be a positive number.` });
     }
     if (!region || !region.trim()) {
       return res.status(400).json({ error: 'Region is required' });
@@ -358,6 +393,435 @@ router.delete('/', requireAdminAuth, async (req, res) => {
   }
 });
 
+// ── Helper: Normalization & Clash Checks ────────────────────────────────────
+function cleanStr(s) {
+  return String(s || '').trim().toLowerCase();
+}
+
+function parseFileToRows(buffer) {
+  let rawRows = [];
+  try {
+    const wb = XLSX.read(buffer, { type: 'buffer' });
+    const sheetName = wb.SheetNames[0];
+    const ws = wb.Sheets[sheetName];
+    rawRows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+  } catch (err) {
+    const text = buffer.toString('utf-8');
+    rawRows = text.split(/\r?\n/).filter(l => l.trim() !== '').map(l => l.split(','));
+  }
+
+  if (rawRows.length < 2) return [];
+
+  const header = (rawRows[0] || []).map(h => String(h || '').trim().toLowerCase());
+  let colCov = header.findIndex(h => h.includes('cover') || h.includes('sum') || h.includes('insured'));
+  let colReg = header.findIndex(h => h.includes('reg') || h.includes('scope') || h.includes('country'));
+  let colAgeFrom = header.findIndex(h => h.includes('age') && (h.includes('from') || h.includes('min') || h.includes('start')));
+  let colAgeTo = header.findIndex(h => h.includes('age') && (h.includes('to') || h.includes('max') || h.includes('end')));
+  let colAgeRange = header.findIndex(h => h.includes('age') && !h.includes('from') && !h.includes('to'));
+  let colDaysFrom = header.findIndex(h => (h.includes('day') || h.includes('slab')) && (h.includes('from') || h.includes('min') || h.includes('start')));
+  let colDaysTo = header.findIndex(h => (h.includes('day') || h.includes('slab')) && (h.includes('to') || h.includes('max') || h.includes('end')));
+  let colDaysRange = header.findIndex(h => (h.includes('day') || h.includes('slab')) && !h.includes('from') && !h.includes('to'));
+  let colPrem = header.findIndex(h => h.includes('prem') || h.includes('rate') || h.includes('price') || h.includes('cost') || h.includes('amount'));
+  let colCurr = header.findIndex(h => h.includes('curr'));
+
+  // Default fallback if no match: 0: cov, 1: reg, 2: ageFrom, 3: ageTo, 4: daysFrom, 5: daysTo, 6: premium, 7: currency
+  if (colCov === -1 && colReg === -1 && colPrem === -1) {
+    colCov = 0; colReg = 1; colAgeFrom = 2; colAgeTo = 3; colDaysFrom = 4; colDaysTo = 5; colPrem = 6; colCurr = 7;
+  }
+
+  const parsed = [];
+  for (let i = 1; i < rawRows.length; i++) {
+    const row = rawRows[i];
+    if (!row || row.length === 0 || row.every(c => c === '' || c === undefined || c === null)) continue;
+
+    const parseRange = (val, fromIdx, toIdx) => {
+      let f = fromIdx !== -1 && row[fromIdx] !== undefined && row[fromIdx] !== '' ? Number(row[fromIdx]) : null;
+      let t = toIdx !== -1 && row[toIdx] !== undefined && row[toIdx] !== '' ? Number(row[toIdx]) : null;
+      if ((f === null || isNaN(f) || t === null || isNaN(t)) && val !== undefined && val !== '') {
+        const parts = String(val).split(/[-–—to]/i).map(s => s.trim().replace(/[^0-9]/g, ''));
+        if (parts.length >= 2) {
+          f = Number(parts[0]);
+          t = Number(parts[1]);
+        }
+      }
+      return { from: f, to: t };
+    };
+
+    const age = parseRange(colAgeRange !== -1 ? row[colAgeRange] : undefined, colAgeFrom, colAgeTo);
+    const days = parseRange(colDaysRange !== -1 ? row[colDaysRange] : undefined, colDaysFrom, colDaysTo);
+
+    let covRaw = colCov !== -1 ? row[colCov] : '';
+    let numCov = Number(String(covRaw).replace(/[^0-9]/g, ''));
+    if (numCov === 50) numCov = 50000;
+    else if (numCov === 100) numCov = 100000;
+    else if (numCov === 200) numCov = 200000;
+    else if (numCov === 250) numCov = 250000;
+    else if (numCov === 500) numCov = 500000;
+    else if (numCov === 750) numCov = 750000;
+    else if (numCov === 1 || numCov === 1000) numCov = 1000000;
+
+    let regRaw = colReg !== -1 ? String(row[colReg] || '').trim() : 'Excluding';
+    if (/incl/i.test(regRaw)) regRaw = 'Including';
+    else if (/excl/i.test(regRaw)) regRaw = 'Excluding';
+
+    let premRaw = colPrem !== -1 ? row[colPrem] : '';
+    let numPrem = Number(String(premRaw).replace(/[^0-9.]/g, ''));
+    let currRaw = colCurr !== -1 && row[colCurr] ? String(row[colCurr]).trim() : 'INR';
+
+    parsed.push({
+      rowNum: i + 1,
+      coverage: numCov,
+      region: regRaw,
+      ageFrom: age.from,
+      ageTo: age.to,
+      daysFrom: days.from,
+      daysTo: days.to,
+      premium: numPrem,
+      currency: currRaw
+    });
+  }
+
+  return parsed;
+}
+
+function checkImportClashes(rows, savedRates, mode = 'merge') {
+  const evaluated = rows.map((r, idx) => {
+    const rowNum = r.rowNum || (idx + 1);
+    const numCov = Number(r.coverage);
+    const numPrem = Number(r.premium);
+    const aFrom = Number(r.ageFrom);
+    const aTo = Number(r.ageTo);
+    const dFrom = Number(r.daysFrom);
+    const dTo = Number(r.daysTo);
+
+    const isInvalid = (
+      isNaN(numCov) || numCov <= 0 ||
+      isNaN(numPrem) || numPrem <= 0 ||
+      isNaN(aFrom) || isNaN(aTo) || aFrom > aTo ||
+      isNaN(dFrom) || isNaN(dTo) || dFrom > dTo ||
+      !r.region
+    );
+
+    if (isInvalid) {
+      return {
+        ...r,
+        rowNum,
+        tag: 'Clash',
+        status: 'Error',
+        isInvalid: true,
+        note: 'Missing or invalid fields (check numbers/boundaries)'
+      };
+    }
+
+    if (mode === 'replace') {
+      return {
+        ...r,
+        rowNum,
+        coverage: numCov,
+        premium: numPrem,
+        ageFrom: aFrom,
+        ageTo: aTo,
+        daysFrom: dFrom,
+        daysTo: dTo,
+        tag: 'New',
+        status: 'OK',
+        note: 'Will replace table'
+      };
+    }
+
+    // Merge mode: check against saved rates
+    const exact = (savedRates || []).find(s =>
+      s.coverage === numCov &&
+      cleanStr(s.region) === cleanStr(r.region) &&
+      s.ageFrom === aFrom && s.ageTo === aTo &&
+      s.daysFrom === dFrom && s.daysTo === dTo
+    );
+
+    if (exact) {
+      if (exact.premium === numPrem) {
+        return {
+          ...r,
+          rowNum,
+          coverage: numCov,
+          premium: numPrem,
+          ageFrom: aFrom,
+          ageTo: aTo,
+          daysFrom: dFrom,
+          daysTo: dTo,
+          tag: 'Same',
+          status: 'OK',
+          note: 'Exact match with saved table (no write needed)',
+          savedId: exact._id
+        };
+      } else {
+        const pct = Math.abs(numPrem - exact.premium) / exact.premium * 100;
+        const isLarge = pct > 30;
+        return {
+          ...r,
+          rowNum,
+          coverage: numCov,
+          premium: numPrem,
+          ageFrom: aFrom,
+          ageTo: aTo,
+          daysFrom: dFrom,
+          daysTo: dTo,
+          tag: 'Changed',
+          oldPremium: exact.premium,
+          pctChange: Math.round(pct),
+          status: isLarge ? 'Check' : 'OK',
+          isLargeChange: isLarge,
+          note: isLarge ? 'Large change. Check the digits.' : ('Was ₹' + exact.premium),
+          savedId: exact._id
+        };
+      }
+    }
+
+    // Range clash with saved table
+    const overlap = (savedRates || []).find(s =>
+      s.coverage === numCov &&
+      cleanStr(s.region) === cleanStr(r.region) &&
+      isOverlap(aFrom, aTo, s.ageFrom, s.ageTo) &&
+      isOverlap(dFrom, dTo, s.daysFrom, s.daysTo)
+    );
+
+    if (overlap) {
+      return {
+        ...r,
+        rowNum,
+        coverage: numCov,
+        premium: numPrem,
+        ageFrom: aFrom,
+        ageTo: aTo,
+        daysFrom: dFrom,
+        daysTo: dTo,
+        tag: 'Clash',
+        status: 'Error',
+        clashType: 'saved_table',
+        savedBand: {
+          ageFrom: overlap.ageFrom,
+          ageTo: overlap.ageTo,
+          daysFrom: overlap.daysFrom,
+          daysTo: overlap.daysTo,
+          premium: overlap.premium,
+          id: overlap._id
+        },
+        note: `Clashes with saved band: Days ${overlap.daysFrom}-${overlap.daysTo}, Age ${overlap.ageFrom}-${overlap.ageTo} (₹${overlap.premium})`
+      };
+    }
+
+    // Key not saved yet
+    return {
+      ...r,
+      rowNum,
+      coverage: numCov,
+      premium: numPrem,
+      ageFrom: aFrom,
+      ageTo: aTo,
+      daysFrom: dFrom,
+      daysTo: dTo,
+      tag: 'New',
+      status: 'OK',
+      note: 'New rate record'
+    };
+  });
+
+  // Internal checks inside import (both merge & replace)
+  for (let i = 0; i < evaluated.length; i++) {
+    for (let j = i + 1; j < evaluated.length; j++) {
+      const r1 = evaluated[i];
+      const r2 = evaluated[j];
+      if (r1.isInvalid || r2.isInvalid) continue;
+      if (r1.coverage === r2.coverage && cleanStr(r1.region) === cleanStr(r2.region)) {
+        if (r1.ageFrom === r2.ageFrom && r1.ageTo === r2.ageTo && r1.daysFrom === r2.daysFrom && r1.daysTo === r2.daysTo) {
+          r1.tag = 'Clash';
+          r1.status = 'Error';
+          r1.clashType = 'import_duplicate';
+          r1.note = `Appears twice (rows ${r1.rowNum} and ${r2.rowNum})`;
+
+          r2.tag = 'Clash';
+          r2.status = 'Error';
+          r2.clashType = 'import_duplicate';
+          r2.note = `Appears twice (rows ${r1.rowNum} and ${r2.rowNum})`;
+        } else if (isOverlap(r1.ageFrom, r1.ageTo, r2.ageFrom, r2.ageTo) && isOverlap(r1.daysFrom, r1.daysTo, r2.daysFrom, r2.daysTo)) {
+          r1.tag = 'Clash';
+          r1.status = 'Error';
+          r1.clashType = 'import_overlap';
+          r1.note = `Overlaps row ${r2.rowNum}`;
+
+          r2.tag = 'Clash';
+          r2.status = 'Error';
+          r2.note = `Overlaps row ${r1.rowNum}`;
+        }
+      }
+    }
+  }
+
+  const counts = { total: evaluated.length, new: 0, changed: 0, same: 0, clash: 0, check: 0, error: 0, missing: 0 };
+  evaluated.forEach(r => {
+    if (r.tag === 'New') counts.new++;
+    else if (r.tag === 'Changed') counts.changed++;
+    else if (r.tag === 'Same') counts.same++;
+    else if (r.tag === 'Clash') counts.clash++;
+
+    if (r.isInvalid) counts.missing++;
+    if (r.status === 'Check') counts.check++;
+    else if (r.status === 'Error') counts.error++;
+  });
+
+  return { evaluated, counts };
+}
+
+// ── POST /api/companies/:id/plans/:pid/rates/clash-check — Server-side clash analysis
+router.post('/clash-check', upload.single('file'), async (req, res) => {
+  try {
+    const { company, plan, error } = await getCompanyAndPlan(req);
+    if (error) return res.status(404).json({ error });
+
+    let rows = [];
+    const mode = req.body.mode || 'merge';
+
+    if (req.file) {
+      rows = parseFileToRows(req.file.buffer);
+    } else if (req.body.rows) {
+      rows = typeof req.body.rows === 'string' ? JSON.parse(req.body.rows) : req.body.rows;
+    }
+
+    if (!rows || rows.length === 0) {
+      return res.status(400).json({ error: 'No rate rows found in uploaded file. Ensure column headers match coverage, region, age, days, premium.' });
+    }
+
+    const { evaluated, counts } = checkImportClashes(rows, plan.rates || [], mode);
+
+    res.json({
+      success: true,
+      planName: plan.planName,
+      companyName: company.companyName,
+      mode,
+      rows: evaluated,
+      counts
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /api/companies/:id/plans/:pid/rates/commit-import — Commit resolved rows to DB (Admin protected)
+router.post('/commit-import', requireAdminAuth, async (req, res) => {
+  try {
+    const { company, plan, error } = await getCompanyAndPlan(req);
+    if (error) return res.status(404).json({ error });
+
+    const { mode = 'merge', rows = [] } = req.body;
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return res.status(400).json({ error: 'No rate rows provided to save' });
+    }
+
+    let addedCount = 0;
+    let updatedCount = 0;
+    let replacedCount = 0;
+    let skippedCount = 0;
+
+    if (mode === 'replace') {
+      plan.rates = [];
+      rows.forEach(r => {
+        if (r.isDeleted || r.action === 'skip') return;
+        plan.rates.push({
+          coverage: Number(r.coverage),
+          region: String(r.region).trim(),
+          ageFrom: Number(r.ageFrom),
+          ageTo: Number(r.ageTo),
+          daysFrom: Number(r.daysFrom),
+          daysTo: Number(r.daysTo),
+          premium: Number(r.premium),
+          currency: r.currency || 'INR',
+          updatedAt: new Date()
+        });
+        addedCount++;
+      });
+    } else {
+      // Merge mode
+      rows.forEach(r => {
+        if (r.isDeleted || r.action === 'keep_saved' || r.tag === 'Same') {
+          skippedCount++;
+          return;
+        }
+
+        const numCov = Number(r.coverage);
+        const regStr = String(r.region).trim();
+        const aFrom = Number(r.ageFrom);
+        const aTo = Number(r.ageTo);
+        const dFrom = Number(r.daysFrom);
+        const dTo = Number(r.daysTo);
+        const numPrem = Number(r.premium);
+
+        if (r.action === 'use_imported') {
+          // Remove any overlapping saved rows
+          plan.rates = plan.rates.filter(s =>
+            !(s.coverage === numCov &&
+              cleanStr(s.region) === cleanStr(regStr) &&
+              isOverlap(aFrom, aTo, s.ageFrom, s.ageTo) &&
+              isOverlap(dFrom, dTo, s.daysFrom, s.daysTo))
+          );
+          plan.rates.push({
+            coverage: numCov,
+            region: regStr,
+            ageFrom: aFrom,
+            ageTo: aTo,
+            daysFrom: dFrom,
+            daysTo: dTo,
+            premium: numPrem,
+            currency: r.currency || 'INR',
+            updatedAt: new Date()
+          });
+          replacedCount++;
+          return;
+        }
+
+        // Exact match update or new rate
+        const existing = plan.rates.find(s =>
+          s.coverage === numCov &&
+          cleanStr(s.region) === cleanStr(regStr) &&
+          s.ageFrom === aFrom && s.ageTo === aTo &&
+          s.daysFrom === dFrom && s.daysTo === dTo
+        );
+
+        if (existing) {
+          existing.premium = numPrem;
+          existing.currency = r.currency || existing.currency || 'INR';
+          existing.updatedAt = new Date();
+          updatedCount++;
+        } else {
+          plan.rates.push({
+            coverage: numCov,
+            region: regStr,
+            ageFrom: aFrom,
+            ageTo: aTo,
+            daysFrom: dFrom,
+            daysTo: dTo,
+            premium: numPrem,
+            currency: r.currency || 'INR',
+            updatedAt: new Date()
+          });
+          addedCount++;
+        }
+      });
+    }
+
+    await company.save();
+
+    res.json({
+      success: true,
+      message: `Rates saved successfully! (${addedCount} added, ${updatedCount} updated, ${replacedCount} replaced, ${skippedCount} skipped)`,
+      added: addedCount,
+      updated: updatedCount,
+      replaced: replacedCount,
+      skipped: skippedCount
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── POST /api/companies/:id/plans/:pid/rates/preview-import — preview parsed CSV
 router.post('/preview-import', upload.single('file'), async (req, res) => {
   try {
@@ -387,7 +851,7 @@ router.post('/preview-import', upload.single('file'), async (req, res) => {
       const numDaysTo = Number(daysTo);
 
       const isValid = (
-        VALID_COVERAGES.includes(numCov) &&
+        !isNaN(numCov) && numCov > 0 &&
         Boolean(region && region.trim()) &&
         !isNaN(numAgeFrom) && !isNaN(numAgeTo) && numAgeFrom <= numAgeTo &&
         !isNaN(numDaysFrom) && !isNaN(numDaysTo) && numDaysFrom <= numDaysTo &&
@@ -459,10 +923,10 @@ router.post('/import', requireAdminAuth, upload.single('file'), async (req, res)
       const numDaysTo = Number(daysTo);
 
       // Detailed validation per row
-      if (!VALID_COVERAGES.includes(numCov)) {
+      if (isNaN(numCov) || numCov <= 0) {
         errors.push({
           row: rowNumber,
-          reason: `Invalid coverage "${coverage}". Must be one of: ${VALID_COVERAGES.join(', ')}`,
+          reason: `Invalid coverage "${coverage}". Must be a positive number.`,
           data: lineText
         });
         skipped++;

@@ -252,6 +252,29 @@ export const bulkEditRates   = (companyId, planId, params)      => request('POST
 export const exportRatesCsvUrl   = (companyId, planId) => `${getApiBase()}/companies/${companyId}/plans/${planId}/rates/export`;
 export const downloadTemplateUrl = (companyId, planId) => `${getApiBase()}/companies/${companyId}/plans/${planId}/rates/template`;
 
+// AI Multimodal Document Rate Extraction (PDF, Images, Word, Spreadsheets)
+export async function extractDocRates(file, existingCoverages = []) {
+  const fd = new FormData();
+  fd.append('file', file);
+  if (existingCoverages && existingCoverages.length > 0) {
+    fd.append('existingCoverages', JSON.stringify(existingCoverages));
+  }
+  const headers = {};
+  const token = getAdminToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`${getApiBase()}/rates/extract-doc`, {
+    method: 'POST',
+    headers,
+    body: fd
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || `Document rate extraction failed with status ${res.status}`);
+  }
+  return data;
+}
+
 export async function previewImportCsv(companyId, planId, file) {
   const fd = new FormData();
   fd.append('file', file);
@@ -288,6 +311,36 @@ export async function importRatesCsv(companyId, planId, file) {
     throw err;
   }
   return data;
+}
+
+// ── Rate Import with Clash Checks & Stepper Review ──────────────────────────
+export async function checkImportClashesApi(companyId, planId, fileOrRows, mode = 'merge') {
+  const headers = {};
+  const token = getAdminToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  let body;
+  if (fileOrRows instanceof File || fileOrRows instanceof Blob) {
+    body = new FormData();
+    body.append('file', fileOrRows);
+    body.append('mode', mode);
+  } else {
+    headers['Content-Type'] = 'application/json';
+    body = JSON.stringify({ mode, rows: fileOrRows });
+  }
+
+  const res = await fetch(`${getApiBase()}/companies/${companyId}/plans/${planId}/rates/clash-check`, {
+    method: 'POST',
+    headers,
+    body
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+export async function commitImportRatesApi(companyId, planId, payload) {
+  return request('POST', `/companies/${companyId}/plans/${planId}/rates/commit-import`, payload);
 }
 
 // ── Compare & Quotes ─────────────────────────────────────────────────────────

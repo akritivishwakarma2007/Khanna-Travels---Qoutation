@@ -27,8 +27,12 @@ import {
   deletePlan,
   getRates,
   clearRates,
-  saveRateGrid
+  saveRateGrid,
+  exportRatesCsvUrl
 } from '../api.js';
+import { openRateImportReviewModal } from '../importReviewModal.js';
+import { openRateImportModal } from '../rateImportModal.js';
+import { applyImportedGroupsToState } from '../rateImport.js';
 
 const TABS = [
   { id: 'companies', label: 'Companies' },
@@ -106,6 +110,8 @@ export class PlansRatesView {
     this.dbError = null;
 
     // Rate Table state
+    this.availableCoverages = [...COVERAGE_OPTIONS];
+    this.pendingRateGroups = {}; // Multi-group imported rates awaiting save
     this.currentCoverage = 50000;
     this.currentRegion = 'Excluding';
     this.ageBands = [...DEFAULT_AGE_BANDS];
@@ -170,6 +176,23 @@ export class PlansRatesView {
     this.isRateDirty = false;
     this.matrixData = {};
     this.originalMatrixData = {};
+
+    // Incorporate any saved coverages from plan rates and pending imports into available buttons
+    if (this.selectedPlan && Array.isArray(this.selectedPlan.rates)) {
+      this.selectedPlan.rates.forEach(r => {
+        if (r.coverage && !this.availableCoverages.includes(r.coverage)) {
+          this.availableCoverages.push(r.coverage);
+        }
+      });
+    }
+    if (this.pendingRateGroups) {
+      Object.values(this.pendingRateGroups).forEach(g => {
+        if (g.sumInsured && !this.availableCoverages.includes(g.sumInsured)) {
+          this.availableCoverages.push(g.sumInsured);
+        }
+      });
+    }
+    this.availableCoverages.sort((a, b) => a - b);
 
     try {
       const rates = await getRates(this.selectedCompany._id, this.selectedPlan._id, {
@@ -651,6 +674,9 @@ export class PlansRatesView {
                               <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
                               Rate Table
                             </button>
+                            <button type="button" class="btn btn-outline btn-sm" data-import-plan="${c._id}:${p._id}" title="Import rates directly from Excel/CSV/Image">
+                              📂 Import
+                            </button>
                             <button type="button" class="btn btn-outline btn-sm pr-btn-delete" data-delete-plan="${c._id}:${p._id}" title="Permanently delete plan">
                               🗑️ Delete
                             </button>
@@ -687,10 +713,13 @@ export class PlansRatesView {
                     <span class="pr-region-tag">Region: ${regionLabel}</span>
                     <span class="pr-medical-tag">Medical: ${medicalLabel}</span>
                   </div>
-                  <div style="display:flex; gap:8px; margin-top:10px;" onclick="event.stopPropagation()">
+                  <div style="display:flex; gap:6px; margin-top:10px;" onclick="event.stopPropagation()">
                     <button type="button" class="pr-btn-rate-table pr-btn-full" data-open-rate-table="${c._id}:${p._id}" style="flex:2;">
                       <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
                       Rate Table
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" data-import-plan="${c._id}:${p._id}" style="flex:1;">
+                      📂 Import
                     </button>
                     <button type="button" class="btn btn-outline btn-sm pr-btn-delete" data-delete-plan="${c._id}:${p._id}" style="flex:1;">
                       🗑️ Delete
@@ -885,7 +914,7 @@ export class PlansRatesView {
         <div class="pr-toolbar-group">
           <span class="pr-toolbar-label">Sum Insured:</span>
           <div class="pr-pills-row" id="coveragePills">
-            ${COVERAGE_OPTIONS.map(cov => {
+            ${this.availableCoverages.map(cov => {
               const active = Number(currentCoverage) === cov;
               const formatted = cov >= 1000000 ? '$1,000,000' : `$${cov.toLocaleString()}`;
               return `
@@ -924,6 +953,7 @@ export class PlansRatesView {
 
         <!-- Template & Fast Tools -->
         <div class="pr-toolbar-group pr-tools-right">
+          <input type="file" id="importRateFileInput" accept=".xlsx, .xls, .csv, .pdf, .doc, .docx, .png, .jpg, .jpeg, .webp, application/pdf, image/*" style="display:none;" />
           <select id="selectPresetTemplate" class="pr-select pr-select-sm">
             <option value="">Load Preset Template...</option>
             ${Object.entries(PRESET_TEMPLATES).map(([key, t]) => `
@@ -932,6 +962,12 @@ export class PlansRatesView {
           </select>
           <button type="button" class="btn btn-outline btn-sm" id="btnAddAgeBand">+ Age</button>
           <button type="button" class="btn btn-outline btn-sm" id="btnAddDaysSlab">+ Days</button>
+          <button type="button" class="btn btn-primary btn-sm" id="btnTriggerRateImport" title="Import rate table from PDF, Excel (.xlsx/.xls), CSV, Word doc, or rate sheet image (Gemini AI)">
+            📂 Import Rates
+          </button>
+          <a class="btn btn-outline btn-sm" id="btnExportRateCsv" href="${exportRatesCsvUrl(comp._id, plan._id)}" download title="Download current rates as CSV">
+            📥 Export CSV
+          </a>
           <button type="button" class="btn btn-outline btn-sm pr-btn-delete" id="btnClearMatrixGrid" title="Clear entered numbers in current matrix">🗑️ Clear Grid</button>
           <button type="button" class="btn btn-outline btn-sm pr-btn-delete" id="btnDeletePlanRates" title="Permanently delete all rates in database for this plan">🗑️ Delete All Rates</button>
         </div>
@@ -1467,7 +1503,17 @@ export class PlansRatesView {
         const cov = Number(btn.dataset.coverage);
         if (this.currentCoverage === cov) return;
 
-        if (this.isRateDirty) {
+        this._saveCurrentGridToPending();
+
+        const pendingKey = `${cov}_${this.currentRegion}`;
+        if (this.pendingRateGroups[pendingKey]) {
+          this.currentCoverage = cov;
+          this._loadGridFromPending(pendingKey);
+          this._refreshDOM();
+          return;
+        }
+
+        if (this.isRateDirty && Object.keys(this.pendingRateGroups).length === 0) {
           if (!confirm('You have unsaved changes in the rate table. Do you want to discard them?')) return;
         }
 
@@ -1483,7 +1529,17 @@ export class PlansRatesView {
         const reg = btn.dataset.region;
         if (this.currentRegion === reg) return;
 
-        if (this.isRateDirty) {
+        this._saveCurrentGridToPending();
+
+        const pendingKey = `${this.currentCoverage}_${reg}`;
+        if (this.pendingRateGroups[pendingKey]) {
+          this.currentRegion = reg;
+          this._loadGridFromPending(pendingKey);
+          this._refreshDOM();
+          return;
+        }
+
+        if (this.isRateDirty && Object.keys(this.pendingRateGroups).length === 0) {
           if (!confirm('You have unsaved changes in the rate table. Do you want to discard them?')) return;
         }
 
@@ -1629,6 +1685,76 @@ export class PlansRatesView {
       });
     }
 
+    // 16d. Import Rates via Direct File Picker (Excel, CSV) -> Import Preview Modal
+    const btnTriggerImport = container.querySelector('#btnTriggerRateImport');
+    const importFileInput = container.querySelector('#importRateFileInput');
+    if (btnTriggerImport && importFileInput) {
+      btnTriggerImport.addEventListener('click', () => {
+        importFileInput.value = '';
+        importFileInput.click();
+      });
+
+      importFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file || !this.selectedCompany || !this.selectedPlan) return;
+
+        openRateImportModal({
+          file,
+          plan: this.selectedPlan,
+          existingCoverages: this.availableCoverages,
+          currentDaysSlabs: this.daysSlabs,
+          currentAgeBands: this.ageBands,
+          onApply: ({ selectedGroups, mode, totalRates, totalDaysSlabs, planName }) => {
+            this._applyImportedRates(selectedGroups, mode, totalRates, totalDaysSlabs, planName);
+          }
+        });
+      });
+    }
+
+    // Level 2 direct import per plan row
+    container.querySelectorAll('[data-import-plan]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const key = btn.dataset.importPlan;
+        if (!key) return;
+        const [compId, planId] = key.split(':');
+        const comp = this.companies.find(c => String(c._id) === String(compId));
+        if (!comp) return;
+        const plan = (comp.plans || []).find(p => String(p._id) === String(planId));
+        if (!plan) return;
+
+        // Open file picker directly
+        const tempInput = document.createElement('input');
+        tempInput.type = 'file';
+        tempInput.accept = '.xlsx, .xls, .csv, .pdf, .doc, .docx, .png, .jpg, .jpeg, .webp, application/pdf, image/*';
+        tempInput.style.display = 'none';
+        document.body.appendChild(tempInput);
+
+        tempInput.addEventListener('change', async (evt) => {
+          const file = evt.target.files && evt.target.files[0];
+          tempInput.remove();
+          if (!file) return;
+
+          this.selectedCompany = comp;
+          this.selectedPlan = plan;
+          this.level = 'plan';
+
+          openRateImportModal({
+            file,
+            plan: plan,
+            existingCoverages: this.availableCoverages,
+            currentDaysSlabs: this.daysSlabs,
+            currentAgeBands: this.ageBands,
+            onApply: ({ selectedGroups, mode, totalRates, totalDaysSlabs, planName }) => {
+              this._applyImportedRates(selectedGroups, mode, totalRates, totalDaysSlabs, planName);
+            }
+          });
+        });
+
+        tempInput.click();
+      });
+    });
+
     // 17. Rate Table: Edit Cells & Range Inputs (Marks Dirty and Enables Save Changes)
     container.querySelectorAll('.pr-cell-input').forEach(input => {
       input.addEventListener('input', (e) => {
@@ -1753,6 +1879,76 @@ export class PlansRatesView {
     }
   }
 
+  _saveCurrentGridToPending() {
+    if (!this.isRateDirty) return;
+    const key = `${this.currentCoverage}_${this.currentRegion}`;
+    const matrix = [];
+    for (let r = 0; r < this.daysSlabs.length; r++) {
+      const row = [];
+      for (let c = 0; c < this.ageBands.length; c++) {
+        const raw = this.matrixData[`${r}_${c}`];
+        const num = raw !== undefined && raw !== '' && raw !== null ? Number(raw) : null;
+        row.push(num);
+      }
+      matrix.push(row);
+    }
+    this.pendingRateGroups[key] = {
+      sumInsured: this.currentCoverage,
+      coverage: this.currentRegion,
+      daysSlabs: this.daysSlabs.map(s => ({ ...s })),
+      ageBands: this.ageBands.map(a => ({ ...a })),
+      matrix,
+      matrixData: { ...this.matrixData }
+    };
+  }
+
+  _loadGridFromPending(key) {
+    const grp = this.pendingRateGroups[key];
+    if (!grp) return;
+    this.daysSlabs = grp.daysSlabs.map(s => ({ ...s }));
+    this.ageBands = grp.ageBands.map(a => ({ ...a }));
+    this.matrixData = { ...grp.matrixData };
+    this.isRateDirty = true;
+  }
+
+  _applyImportedRates(selectedGroups, mode, totalRates, totalDaysSlabs, planName = null) {
+    const result = applyImportedGroupsToState(
+      this.pendingRateGroups,
+      selectedGroups,
+      mode,
+      this.availableCoverages
+    );
+
+    this.availableCoverages = result.updatedCoverages;
+    this.availableCoverages.sort((a, b) => a - b);
+
+    if (result.firstGroup) {
+      const first = result.firstGroup;
+      this.currentCoverage = first.sumInsured;
+      this.currentRegion = first.coverage;
+      const firstKey = `${first.sumInsured}_${first.coverage}`;
+      this._loadGridFromPending(firstKey);
+    }
+
+    // If planName extracted from document and plan is generic/unnamed, adapt plan name
+    if (planName && this.selectedPlan) {
+      const curName = (this.selectedPlan.planName || '').trim().toLowerCase();
+      if (!curName || curName === 'default plan' || curName.startsWith('new plan')) {
+        this.selectedPlan.planName = planName;
+        if (this.planSettingsDraft) this.planSettingsDraft.planName = planName;
+      }
+    }
+
+    this.isRateDirty = true;
+    this._refreshDOM();
+
+    const planLabel = planName ? ` for "${planName}"` : '';
+    this.app.showToast(
+      `Imported ${selectedGroups.length} rate groups${planLabel} (${totalDaysSlabs} day slabs · ${totalRates} rates). Click Save Changes to commit to database.`,
+      'success'
+    );
+  }
+
   async _handleSaveRateGrid() {
     if (!this.selectedCompany || !this.selectedPlan) return;
 
@@ -1760,6 +1956,42 @@ export class PlansRatesView {
     if (btnSave) {
       btnSave.disabled = true;
       btnSave.textContent = 'Saving...';
+    }
+
+    // Save active on-screen grid
+    this._saveCurrentGridToPending();
+
+    const pendingKeys = Object.keys(this.pendingRateGroups);
+    if (pendingKeys.length > 0) {
+      try {
+        let savedCount = 0;
+        for (const key of pendingKeys) {
+          const grp = this.pendingRateGroups[key];
+          await saveRateGrid(this.selectedCompany._id, this.selectedPlan._id, {
+            coverage: grp.sumInsured,
+            region: grp.coverage,
+            ageBands: grp.ageBands,
+            daysSlabs: grp.daysSlabs,
+            matrix: grp.matrix
+          });
+          savedCount++;
+        }
+
+        this.pendingRateGroups = {};
+        this.originalMatrixData = { ...this.matrixData };
+        this.isRateDirty = false;
+        this.app.showToast(`Saved ${savedCount} rate group(s) to database successfully`, 'success');
+        await this._loadData();
+        await this._loadRatesForCurrentPlan();
+        this._refreshDOM();
+      } catch (err) {
+        this.app.showToast('Failed to save rate table: ' + err.message, 'error');
+        if (btnSave) {
+          btnSave.disabled = false;
+          btnSave.textContent = 'Save Changes';
+        }
+      }
+      return;
     }
 
     // Build 2D matrix

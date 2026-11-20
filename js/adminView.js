@@ -12,6 +12,7 @@ import {
   loginAdmin, logoutAdmin, isAdminAuthenticated,
   getVisaLinks, addVisaLink, updateVisaLink, deleteVisaLink
 } from './api.js';
+import { openRateImportReviewModal } from './importReviewModal.js';
 
 // Default standard templates for Age Bands × Days Slabs
 const DEFAULT_TEMPLATES = {
@@ -1147,7 +1148,7 @@ export class AdminView {
                     </td>
                     <td><span class="admin-badge-count">${(c.plans || []).length} Plans</span></td>
                     <td>${c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '—'}</td>
-                    <td class="col-actions">
+                    <td class="col-actions"> -+
                       <div class="actions-cell">
                         <button class="btn-action btn-action-primary" data-view-plans="${c._id}">View Plans &amp; Rates</button>
                         <button class="btn-action" data-edit-company="${c._id}" title="Rename">Edit</button>
@@ -1262,6 +1263,7 @@ export class AdminView {
                     <td class="col-actions">
                       <div class="actions-cell">
                         <button class="btn-action btn-action-primary" data-view-rates="${p._id}">Edit Rates Grid</button>
+                        <button class="btn-action" data-import-plan="${p._id}" title="Import rates directly from Excel/CSV/Image">Import</button>
                         <button class="btn-action" data-duplicate-plan="${p._id}" title="Clone plan & rates">Clone</button>
                         <button class="btn-action" data-rename-plan="${p._id}" title="Rename">Rename</button>
                         <button class="btn-action btn-action-danger" data-delete-plan="${p._id}" title="Delete">Delete</button>
@@ -1356,11 +1358,11 @@ export class AdminView {
               </button>
             </div>
             <div class="speed-tools-group">
-              <input type="file" id="csvFileInput" accept=".csv" style="display:none;" />
+              <input type="file" id="csvFileInput" accept=".csv, .xlsx, .xls, .pdf, .doc, .docx, .png, .jpg, .jpeg, .webp, application/pdf, image/*" style="display:none;" />
               <button class="btn-action" id="btnDownloadTemplate" title="Download sample CSV template with standard column headers">
                 📄 CSV Template
               </button>
-              <button class="btn-action" id="btnImportCsv">📂 Import CSV</button>
+              <button class="btn-action btn-action-primary" id="btnImportCsv">📂 Import Rates</button>
               <button class="btn-action" id="btnExportCsv">📥 Export CSV</button>
               <button class="btn-action btn-action-danger" id="btnClearMatrixGrid" title="Clear all rate numbers entered in this grid">
                 🗑️ Clear Grid
@@ -1833,6 +1835,41 @@ export class AdminView {
     const delPlanBtn = e.target.closest('[data-delete-plan]');
     if (delPlanBtn) {
       await this._promptDeletePlan(delPlanBtn.dataset.deletePlan);
+      return;
+    }
+
+    const importPlanBtn = e.target.closest('[data-import-plan]');
+    if (importPlanBtn) {
+      const planId = importPlanBtn.dataset.importPlan;
+      const comp = this.state.selectedCompany;
+      if (!comp) return;
+      const plan = (comp.plans || []).find(p => p._id === planId);
+      if (!plan) return;
+
+      const tempInput = document.createElement('input');
+      tempInput.type = 'file';
+      tempInput.accept = '.csv, .xlsx, .xls, .pdf, .doc, .docx, .png, .jpg, .jpeg, .webp, application/pdf, image/*';
+      tempInput.style.display = 'none';
+      document.body.appendChild(tempInput);
+
+      tempInput.addEventListener('change', async (evt) => {
+        const file = evt.target.files && evt.target.files[0];
+        tempInput.remove();
+        if (!file) return;
+
+        await openRateImportReviewModal({
+          company: comp,
+          plan: plan,
+          file,
+          app: this.app,
+          onSaved: async () => {
+            await this._reloadCompanyDetails();
+            this._refresh();
+          }
+        });
+      });
+
+      tempInput.click();
       return;
     }
 
@@ -2675,121 +2712,25 @@ export class AdminView {
     window.location.href = url;
   }
 
-  // ── CSV Import Handler with Preview & Per-Row Error Reporting ─────────────
+  // ── Import Handler with Clash Checks & Stepper Review ─────────────────────
   async _handleCsvFileSelect(file) {
     const comp = this.state.selectedCompany;
     const plan = this.state.selectedPlan;
     if (!comp || !plan) return;
 
-    try {
-      this.app.showToast('Analyzing CSV file...', 'info');
-      const preview = await previewImportCsv(comp._id, plan._id, file);
-
-      // Render Preview Modal
-      const modalHtml = `
-        <div class="modal-backdrop" id="importPreviewModal">
-          <div class="modal-card modal-large">
-            <div class="modal-header">
-              <h2 class="modal-title">📂 CSV Import Preview</h2>
-              <button class="modal-close" id="btnCancelImport">✕</button>
-            </div>
-            <div class="modal-body">
-              <div class="import-preview-stats">
-                <div class="import-stat-card">
-                  <div class="import-stat-val">${preview.total}</div>
-                  <div class="import-stat-label">Total Rows</div>
-                </div>
-                <div class="import-stat-card">
-                  <div class="import-stat-val" style="color:#16a34a;">${preview.validCount}</div>
-                  <div class="import-stat-label">Valid Rows</div>
-                </div>
-                <div class="import-stat-card">
-                  <div class="import-stat-val" style="color:${preview.invalidCount ? '#dc2626' : '#64748b'};">${preview.invalidCount}</div>
-                  <div class="import-stat-label">Invalid Rows</div>
-                </div>
-              </div>
-
-              <div class="import-preview-table-wrapper">
-                <table class="import-preview-table">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Coverage</th>
-                      <th>Region</th>
-                      <th>Age Band</th>
-                      <th>Days Slab</th>
-                      <th>Premium</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${preview.preview.map(row => `
-                      <tr class="${row.isValid ? '' : 'invalid-row'}">
-                        <td>${row.rowNum}</td>
-                        <td>${row.coverage ? '$' + Number(row.coverage).toLocaleString() : '—'}</td>
-                        <td>${row.region || '—'}</td>
-                        <td>${row.ageBand} yrs</td>
-                        <td>${row.daysSlab} days</td>
-                        <td><strong>₹${row.premium || 0}</strong></td>
-                        <td>${row.isValid ? '<span style="color:#16a34a; font-weight:700;">✓ Valid</span>' : '<span style="color:#dc2626; font-weight:700;">✕ Invalid</span>'}</td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>
-              </div>
-              ${preview.hasMore ? `<p style="font-size:0.75rem; color:var(--gray-500); text-align:center;">Showing first 50 rows of ${preview.total}...</p>` : ''}
-            </div>
-            <div class="modal-footer">
-              <button class="btn btn-secondary" id="btnCancelImport2">Cancel</button>
-              <button class="btn btn-primary" id="btnConfirmImport">
-                Confirm & Import ${preview.validCount} Rates
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-
-      const existing = document.getElementById('importPreviewModal');
-      if (existing) existing.remove();
-
-      document.body.insertAdjacentHTML('beforeend', modalHtml);
-      const modalEl = document.getElementById('importPreviewModal');
-
-      const handleEsc = (e) => {
-        if (e.key === 'Escape') cleanup();
-      };
-      const cleanup = () => {
-        window.removeEventListener('keydown', handleEsc);
-        modalEl.remove();
-      };
-
-      window.addEventListener('keydown', handleEsc);
-      modalEl.querySelector('#btnCancelImport').addEventListener('click', cleanup);
-      modalEl.querySelector('#btnCancelImport2').addEventListener('click', cleanup);
-      modalEl.addEventListener('click', (e) => {
-        if (e.target === modalEl) cleanup();
-      });
-
-      modalEl.querySelector('#btnConfirmImport').addEventListener('click', async () => {
-        cleanup();
-        try {
-          const res = await importRatesCsv(comp._id, plan._id, file);
-
-          if (res.errors && res.errors.length > 0) {
-            this._showImportErrorReport(res);
-          } else {
-            this.app.showToast(`Import completed: ${res.added} added, ${res.updated} updated!`, 'success');
-          }
-
-          await this._reloadCompanyDetails();
-          this._loadMatrixForCurrentSelection();
-        } catch (err) {
-          this.app.showToast(err.message, 'error');
-        }
-      });
-    } catch (err) {
-      this.app.showToast('Import preview failed: ' + err.message, 'error');
-    }
+    await openRateImportReviewModal({
+      company: comp,
+      plan: plan,
+      file,
+      app: this.app,
+      onSaved: async () => {
+        await this._reloadCompanyDetails();
+        const updatedPlan = this.state.selectedCompany?.plans?.find(p => p._id === plan._id);
+        if (updatedPlan) this.state.selectedPlan = updatedPlan;
+        this._loadMatrixForCurrentSelection();
+        this._refresh();
+      }
+    });
   }
 
   // ── Per-Row Error Report Modal ────────────────────────────────────────────

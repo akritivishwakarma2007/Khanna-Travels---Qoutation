@@ -1,0 +1,1992 @@
+[
+  {
+    "insurer": "ICICI Lombard",
+    "planName": "Value Pro",
+    "coverageAmount": 75000,
+    "currency": "USD",
+    "region": "Excluding",
+    "premiumCurrency": "INR",
+    "gstIncluded": true,
+    "gstRate": 18,
+    "slabs": [
+      {
+        "daysFrom": 1,
+        "daysTo": 4,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 520 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 610 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 909 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 1609 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 1675 }
+        ]
+      },
+      {
+        "daysFrom": 5,
+        "daysTo": 6,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 618 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 670 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1066 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 1881 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 2447 }
+        ]
+      },
+      {
+        "daysFrom": 7,
+        "daysTo": 8,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 893 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 998 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1424 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 1955 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 2546 }
+        ]
+      },
+      {
+        "daysFrom": 9,
+        "daysTo": 12,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 902 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1008 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1438 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 2594 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 3581 }
+        ]
+      },
+      {
+        "daysFrom": 13,
+        "daysTo": 14,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 911 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1018 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1452 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 2703 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 3908 }
+        ]
+      },
+      {
+        "daysFrom": 15,
+        "daysTo": 21,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 960 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1077 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1876 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 3365 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 4505 }
+        ]
+      },
+      {
+        "daysFrom": 22,
+        "daysTo": 28,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1067 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1216 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2288 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4133 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 5620 }
+        ]
+      },
+      {
+        "daysFrom": 29,
+        "daysTo": 35,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1327 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1535 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2731 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4846 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 6865 }
+        ]
+      },
+      {
+        "daysFrom": 36,
+        "daysTo": 47,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1535 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1771 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3512 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 5966 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 9177 }
+        ]
+      },
+      {
+        "daysFrom": 48,
+        "daysTo": 60,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1941 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2258 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 4630 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 7165 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 11687 }
+        ]
+      },
+      {
+        "daysFrom": 61,
+        "daysTo": 75,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2214 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2566 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 5790 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 8317 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 14529 }
+        ]
+      },
+      {
+        "daysFrom": 76,
+        "daysTo": 90,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2672 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 3059 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 7466 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 11228 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 17415 }
+        ]
+      },
+      {
+        "daysFrom": 91,
+        "daysTo": 105,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3383 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 4033 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 9223 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 15166 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 20161 }
+        ]
+      },
+      {
+        "daysFrom": 106,
+        "daysTo": 120,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3413 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 4069 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 10237 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 18231 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 23027 }
+        ]
+      },
+      {
+        "daysFrom": 121,
+        "daysTo": 140,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3837 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 4553 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 13270 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 20778 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 27521 }
+        ]
+      },
+      {
+        "daysFrom": 141,
+        "daysTo": 160,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 4878 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 5724 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 14728 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 23073 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 30265 }
+        ]
+      },
+      {
+        "daysFrom": 161,
+        "daysTo": 180,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 4926 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 5780 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 15498 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 24624 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 33675 }
+        ]
+      }
+    ]
+  },
+  {
+    "insurer": "ICICI Lombard",
+    "planName": "Value Pro",
+    "coverageAmount": 75000,
+    "currency": "USD",
+    "region": "Including",
+    "premiumCurrency": "INR",
+    "gstIncluded": true,
+    "gstRate": 18,
+    "slabs": [
+      {
+        "daysFrom": 1,
+        "daysTo": 4,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 807 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 989 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1197 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 2738 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 3589 }
+        ]
+      },
+      {
+        "daysFrom": 5,
+        "daysTo": 6,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 930 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1041 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1430 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 3010 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 5318 }
+        ]
+      },
+      {
+        "daysFrom": 7,
+        "daysTo": 8,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1212 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1333 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2044 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 3252 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 5533 }
+        ]
+      },
+      {
+        "daysFrom": 9,
+        "daysTo": 12,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1333 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1437 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2117 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4108 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 7868 }
+        ]
+      },
+      {
+        "daysFrom": 13,
+        "daysTo": 14,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1347 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1450 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2137 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4441 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 8599 }
+        ]
+      },
+      {
+        "daysFrom": 15,
+        "daysTo": 21,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1438 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1647 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2905 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4621 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 9948 }
+        ]
+      },
+      {
+        "daysFrom": 22,
+        "daysTo": 28,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1630 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1838 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3595 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 6310 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 12449 }
+        ]
+      },
+      {
+        "daysFrom": 29,
+        "daysTo": 35,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2007 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2302 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 4359 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 7387 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 15239 }
+        ]
+      },
+      {
+        "daysFrom": 36,
+        "daysTo": 47,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2302 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2627 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 5593 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 9816 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 20422 }
+        ]
+      },
+      {
+        "daysFrom": 48,
+        "daysTo": 60,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3366 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 4572 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 7094 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 12669 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 26041 }
+        ]
+      },
+      {
+        "daysFrom": 61,
+        "daysTo": 75,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 4617 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 6179 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 8781 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 15641 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 32413 }
+        ]
+      },
+      {
+        "daysFrom": 76,
+        "daysTo": 90,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 5568 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 7531 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 10898 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 19929 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 38876 }
+        ]
+      },
+      {
+        "daysFrom": 91,
+        "daysTo": 105,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 6635 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 8848 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 15261 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 25151 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 45032 }
+        ]
+      },
+      {
+        "daysFrom": 106,
+        "daysTo": 120,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 6694 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 8926 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 16930 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 28160 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 51451 }
+        ]
+      },
+      {
+        "daysFrom": 121,
+        "daysTo": 140,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 7676 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 10084 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 20209 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 31290 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 61519 }
+        ]
+      },
+      {
+        "daysFrom": 141,
+        "daysTo": 160,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 9041 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 11123 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 25069 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 35777 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 67662 }
+        ]
+      },
+      {
+        "daysFrom": 161,
+        "daysTo": 180,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 9130 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 11232 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 27440 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 40259 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 75305 }
+        ]
+      }
+    ]
+  },
+  {
+    "insurer": "ICICI Lombard",
+    "planName": "Value Pro",
+    "coverageAmount": 150000,
+    "currency": "USD",
+    "region": "Excluding",
+    "premiumCurrency": "INR",
+    "gstIncluded": true,
+    "gstRate": 18,
+    "slabs": [
+      {
+        "daysFrom": 1,
+        "daysTo": 4,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 558 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 654 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 975 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 1726 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 1796 }
+        ]
+      },
+      {
+        "daysFrom": 5,
+        "daysTo": 6,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 663 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 719 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1143 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 2017 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 2625 }
+        ]
+      },
+      {
+        "daysFrom": 7,
+        "daysTo": 8,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 958 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1070 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1528 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 2098 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 2731 }
+        ]
+      },
+      {
+        "daysFrom": 9,
+        "daysTo": 12,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 968 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1081 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1543 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 2782 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 3842 }
+        ]
+      },
+      {
+        "daysFrom": 13,
+        "daysTo": 14,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 977 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1092 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1558 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 2900 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 4191 }
+        ]
+      },
+      {
+        "daysFrom": 15,
+        "daysTo": 21,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1030 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1155 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2012 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 3610 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 4832 }
+        ]
+      },
+      {
+        "daysFrom": 22,
+        "daysTo": 28,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1145 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1305 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2454 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4433 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 6029 }
+        ]
+      },
+      {
+        "daysFrom": 29,
+        "daysTo": 35,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1424 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1647 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2930 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 5198 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 7364 }
+        ]
+      },
+      {
+        "daysFrom": 36,
+        "daysTo": 47,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1647 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1900 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3767 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 6400 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 9845 }
+        ]
+      },
+      {
+        "daysFrom": 48,
+        "daysTo": 60,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2082 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2422 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 4967 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 7686 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 12537 }
+        ]
+      },
+      {
+        "daysFrom": 61,
+        "daysTo": 75,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2375 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2752 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 6211 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 8921 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 15586 }
+        ]
+      },
+      {
+        "daysFrom": 76,
+        "daysTo": 90,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2867 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 3281 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 8009 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 12045 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 18682 }
+        ]
+      },
+      {
+        "daysFrom": 91,
+        "daysTo": 105,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3629 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 4327 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 9893 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 16270 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 21628 }
+        ]
+      },
+      {
+        "daysFrom": 106,
+        "daysTo": 120,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3661 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 4365 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 10981 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 19557 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 24702 }
+        ]
+      },
+      {
+        "daysFrom": 121,
+        "daysTo": 140,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 4116 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 4884 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 14235 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 22290 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 29523 }
+        ]
+      },
+      {
+        "daysFrom": 141,
+        "daysTo": 160,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 5232 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 6140 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 15799 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 24751 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 32467 }
+        ]
+      },
+      {
+        "daysFrom": 161,
+        "daysTo": 180,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 5284 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 6200 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 16625 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 26414 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 36124 }
+        ]
+      }
+    ]
+  },
+  {
+    "insurer": "ICICI Lombard",
+    "planName": "Value Pro",
+    "coverageAmount": 150000,
+    "currency": "USD",
+    "region": "Including",
+    "premiumCurrency": "INR",
+    "gstIncluded": true,
+    "gstRate": 18,
+    "slabs": [
+      {
+        "daysFrom": 1,
+        "daysTo": 4,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 866 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1061 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1284 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 2937 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 3850 }
+        ]
+      },
+      {
+        "daysFrom": 5,
+        "daysTo": 6,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 998 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1116 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1534 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 3229 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 5705 }
+        ]
+      },
+      {
+        "daysFrom": 7,
+        "daysTo": 8,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1301 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1430 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2192 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 3490 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 5935 }
+        ]
+      },
+      {
+        "daysFrom": 9,
+        "daysTo": 12,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1430 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1541 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2270 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4407 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 8440 }
+        ]
+      },
+      {
+        "daysFrom": 13,
+        "daysTo": 14,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1445 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1556 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2293 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4764 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 9225 }
+        ]
+      },
+      {
+        "daysFrom": 15,
+        "daysTo": 21,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1542 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1766 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3116 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4957 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 10671 }
+        ]
+      },
+      {
+        "daysFrom": 22,
+        "daysTo": 28,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1749 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1972 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3857 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 6770 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 13353 }
+        ]
+      },
+      {
+        "daysFrom": 29,
+        "daysTo": 35,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2152 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2469 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 4675 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 7925 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 16348 }
+        ]
+      },
+      {
+        "daysFrom": 36,
+        "daysTo": 47,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2469 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2818 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 6000 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 10530 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 21907 }
+        ]
+      },
+      {
+        "daysFrom": 48,
+        "daysTo": 60,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3610 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 4906 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 7610 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 13590 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 27935 }
+        ]
+      },
+      {
+        "daysFrom": 61,
+        "daysTo": 75,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 4953 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 6629 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 9420 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 16779 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 34770 }
+        ]
+      },
+      {
+        "daysFrom": 76,
+        "daysTo": 90,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 5972 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 8079 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 11690 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 21378 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 41704 }
+        ]
+      },
+      {
+        "daysFrom": 91,
+        "daysTo": 105,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 7118 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 9490 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 16370 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 26981 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 48307 }
+        ]
+      },
+      {
+        "daysFrom": 106,
+        "daysTo": 120,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 7181 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 9574 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 18162 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 30208 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 55193 }
+        ]
+      },
+      {
+        "daysFrom": 121,
+        "daysTo": 140,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 8234 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 10817 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 21678 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 33567 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 65993 }
+        ]
+      },
+      {
+        "daysFrom": 141,
+        "daysTo": 160,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 9699 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 11932 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 26892 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 38379 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 72583 }
+        ]
+      },
+      {
+        "daysFrom": 161,
+        "daysTo": 180,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 9794 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 12049 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 29436 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 43187 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 80781 }
+        ]
+      }
+    ]
+  },
+  {
+    "insurer": "ICICI Lombard",
+    "planName": "Value Pro",
+    "coverageAmount": 300000,
+    "currency": "USD",
+    "region": "Excluding",
+    "premiumCurrency": "INR",
+    "gstIncluded": true,
+    "gstRate": 18,
+    "slabs": [
+      {
+        "daysFrom": 1,
+        "daysTo": 4,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 625 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 726 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1105 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 1947 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 2049 }
+        ]
+      },
+      {
+        "daysFrom": 5,
+        "daysTo": 6,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 730 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 810 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1310 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 2248 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 2953 }
+        ]
+      },
+      {
+        "daysFrom": 7,
+        "daysTo": 8,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1050 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1193 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1681 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 2405 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 3195 }
+        ]
+      },
+      {
+        "daysFrom": 9,
+        "daysTo": 12,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1104 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1240 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1711 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 3034 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 4262 }
+        ]
+      },
+      {
+        "daysFrom": 13,
+        "daysTo": 14,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1134 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1333 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1757 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 3325 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 4748 }
+        ]
+      },
+      {
+        "daysFrom": 15,
+        "daysTo": 21,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1212 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1446 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2242 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4585 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 5541 }
+        ]
+      },
+      {
+        "daysFrom": 22,
+        "daysTo": 28,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1270 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1520 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2814 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4939 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 6631 }
+        ]
+      },
+      {
+        "daysFrom": 29,
+        "daysTo": 35,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1612 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1911 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3195 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 5790 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 8169 }
+        ]
+      },
+      {
+        "daysFrom": 36,
+        "daysTo": 47,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1889 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2054 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 4319 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 7338 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 11104 }
+        ]
+      },
+      {
+        "daysFrom": 48,
+        "daysTo": 60,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2290 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2687 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 5788 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 8383 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 13966 }
+        ]
+      },
+      {
+        "daysFrom": 61,
+        "daysTo": 75,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2635 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 3117 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 6919 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 10230 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 17870 }
+        ]
+      },
+      {
+        "daysFrom": 76,
+        "daysTo": 90,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3233 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 3763 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 9183 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 14035 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 20550 }
+        ]
+      },
+      {
+        "daysFrom": 91,
+        "daysTo": 105,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 4043 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 4759 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 11872 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 18173 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 23992 }
+        ]
+      },
+      {
+        "daysFrom": 106,
+        "daysTo": 120,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 4197 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 4801 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 12591 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 22208 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 27863 }
+        ]
+      },
+      {
+        "daysFrom": 121,
+        "daysTo": 140,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 4490 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 5350 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 16588 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 24805 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 32888 }
+        ]
+      },
+      {
+        "daysFrom": 141,
+        "daysTo": 160,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 6000 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 7000 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 18438 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 29677 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 37226 }
+        ]
+      },
+      {
+        "daysFrom": 161,
+        "daysTo": 180,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 6157 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 7195 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 19597 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 31724 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 39399 }
+        ]
+      }
+    ]
+  },
+  {
+    "insurer": "ICICI Lombard",
+    "planName": "Value Pro",
+    "coverageAmount": 300000,
+    "currency": "USD",
+    "region": "Including",
+    "premiumCurrency": "INR",
+    "gstIncluded": true,
+    "gstRate": 18,
+    "slabs": [
+      {
+        "daysFrom": 1,
+        "daysTo": 4,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 968 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1177 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1454 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 3313 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 4389 }
+        ]
+      },
+      {
+        "daysFrom": 5,
+        "daysTo": 6,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1098 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1259 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1759 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 3597 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 6418 }
+        ]
+      },
+      {
+        "daysFrom": 7,
+        "daysTo": 8,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1425 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1593 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2411 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4001 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 6621 }
+        ]
+      },
+      {
+        "daysFrom": 9,
+        "daysTo": 12,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1631 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1768 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2519 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4806 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 9363 }
+        ]
+      },
+      {
+        "daysFrom": 13,
+        "daysTo": 14,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1676 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1819 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2587 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 5462 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 10449 }
+        ]
+      },
+      {
+        "daysFrom": 15,
+        "daysTo": 21,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1789 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2025 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3470 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 6629 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 12236 }
+        ]
+      },
+      {
+        "daysFrom": 22,
+        "daysTo": 28,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1940 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2298 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 4423 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 7859 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 14689 }
+        ]
+      },
+      {
+        "daysFrom": 29,
+        "daysTo": 35,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2438 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2866 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 5100 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 9316 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 18134 }
+        ]
+      },
+      {
+        "daysFrom": 36,
+        "daysTo": 47,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2831 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 3048 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 6880 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 12073 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 24710 }
+        ]
+      },
+      {
+        "daysFrom": 48,
+        "daysTo": 60,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3972 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 5442 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 9471 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 14822 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 31119 }
+        ]
+      },
+      {
+        "daysFrom": 61,
+        "daysTo": 75,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 5495 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 7508 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 10493 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 19238 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 39869 }
+        ]
+      },
+      {
+        "daysFrom": 76,
+        "daysTo": 90,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 6737 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 9264 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 13405 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 24910 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 45873 }
+        ]
+      },
+      {
+        "daysFrom": 91,
+        "daysTo": 105,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 7930 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 10440 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 19636 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 31834 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 53588 }
+        ]
+      },
+      {
+        "daysFrom": 106,
+        "daysTo": 120,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 8233 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 10532 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 20825 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 37083 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 62256 }
+        ]
+      },
+      {
+        "daysFrom": 121,
+        "daysTo": 140,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 8982 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 11848 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 27970 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 45754 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 73515 }
+        ]
+      },
+      {
+        "daysFrom": 141,
+        "daysTo": 160,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 11121 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 13604 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 34334 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 51593 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 83224 }
+        ]
+      },
+      {
+        "daysFrom": 161,
+        "daysTo": 180,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 11412 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 13984 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 34810 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 55850 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 95636 }
+        ]
+      }
+    ]
+  },
+  {
+    "insurer": "ICICI Lombard",
+    "planName": "Value Pro",
+    "coverageAmount": 600000,
+    "currency": "USD",
+    "region": "Excluding",
+    "premiumCurrency": "INR",
+    "gstIncluded": true,
+    "gstRate": 18,
+    "slabs": [
+      {
+        "daysFrom": 1,
+        "daysTo": 4,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 750 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 864 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1343 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 2355 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 2505 }
+        ]
+      },
+      {
+        "daysFrom": 5,
+        "daysTo": 6,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 861 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 981 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1612 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 2686 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 3426 }
+        ]
+      },
+      {
+        "daysFrom": 7,
+        "daysTo": 8,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1233 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1426 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1983 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 2958 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 3792 }
+        ]
+      },
+      {
+        "daysFrom": 9,
+        "daysTo": 12,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1291 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1525 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2036 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 3550 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 5071 }
+        ]
+      },
+      {
+        "daysFrom": 13,
+        "daysTo": 14,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1350 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1575 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2127 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4090 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 5769 }
+        ]
+      },
+      {
+        "daysFrom": 15,
+        "daysTo": 21,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1412 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1630 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2679 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 5731 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 6815 }
+        ]
+      },
+      {
+        "daysFrom": 22,
+        "daysTo": 28,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1510 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1900 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3462 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 5902 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 7825 }
+        ]
+      },
+      {
+        "daysFrom": 29,
+        "daysTo": 35,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1959 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2380 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3738 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 6920 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 9721 }
+        ]
+      },
+      {
+        "daysFrom": 36,
+        "daysTo": 47,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2323 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2383 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 5312 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 9026 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 13436 }
+        ]
+      },
+      {
+        "daysFrom": 48,
+        "daysTo": 60,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2702 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 3197 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 7235 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 9809 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 16689 }
+        ]
+      },
+      {
+        "daysFrom": 61,
+        "daysTo": 75,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3136 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 3788 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 8268 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 12582 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 21981 }
+        ]
+      },
+      {
+        "daysFrom": 76,
+        "daysTo": 90,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3912 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 4628 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 11295 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 17544 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 24249 }
+        ]
+      },
+      {
+        "daysFrom": 91,
+        "daysTo": 105,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 4830 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 5616 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 13890 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 25639 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 28550 }
+        ]
+      },
+      {
+        "daysFrom": 106,
+        "daysTo": 120,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 5163 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 5666 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 15488 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 25761 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 33714 }
+        ]
+      },
+      {
+        "daysFrom": 121,
+        "daysTo": 140,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 5252 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 6286 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 20734 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 32398 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 39301 }
+        ]
+      },
+      {
+        "daysFrom": 141,
+        "daysTo": 160,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 7380 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 8561 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 22598 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 40469 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 45789 }
+        ]
+      },
+      {
+        "daysFrom": 161,
+        "daysTo": 180,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 7696 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 8958 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 24398 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 46461 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 48461 }
+        ]
+      }
+    ]
+  },
+  {
+    "insurer": "ICICI Lombard",
+    "planName": "Value Pro",
+    "coverageAmount": 600000,
+    "currency": "USD",
+    "region": "Including",
+    "premiumCurrency": "INR",
+    "gstIncluded": true,
+    "gstRate": 18,
+    "slabs": [
+      {
+        "daysFrom": 1,
+        "daysTo": 4,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1162 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1400 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1767 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4009 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 5368 }
+        ]
+      },
+      {
+        "daysFrom": 5,
+        "daysTo": 6,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1295 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1524 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2163 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4298 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 8243 }
+        ]
+      },
+      {
+        "daysFrom": 7,
+        "daysTo": 8,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1674 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1905 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2846 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4921 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 8655 }
+        ]
+      },
+      {
+        "daysFrom": 9,
+        "daysTo": 12,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1994 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2174 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2997 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 5623 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 11142 }
+        ]
+      },
+      {
+        "daysFrom": 13,
+        "daysTo": 14,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2088 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2228 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3130 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 6718 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 12695 }
+        ]
+      },
+      {
+        "daysFrom": 15,
+        "daysTo": 21,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2225 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2490 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 4148 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 8286 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 15050 }
+        ]
+      },
+      {
+        "daysFrom": 22,
+        "daysTo": 28,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2550 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2872 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 5440 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 9391 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 17333 }
+        ]
+      },
+      {
+        "daysFrom": 29,
+        "daysTo": 35,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2962 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 3568 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 5967 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 11132 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 21580 }
+        ]
+      },
+      {
+        "daysFrom": 36,
+        "daysTo": 47,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3482 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 4745 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 8462 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 14850 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 29899 }
+        ]
+      },
+      {
+        "daysFrom": 48,
+        "daysTo": 60,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 4687 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 6475 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 11839 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 17342 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 37188 }
+        ]
+      },
+      {
+        "daysFrom": 61,
+        "daysTo": 75,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 6539 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 9122 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 12540 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 23664 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 49038 }
+        ]
+      },
+      {
+        "daysFrom": 76,
+        "daysTo": 90,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 8151 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 11394 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 16488 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 31138 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 54131 }
+        ]
+      },
+      {
+        "daysFrom": 91,
+        "daysTo": 105,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 9476 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 12319 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 22974 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 44153 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 63770 }
+        ]
+      },
+      {
+        "daysFrom": 106,
+        "daysTo": 120,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 10128 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 12428 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 25615 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 46646 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 75330 }
+        ]
+      },
+      {
+        "daysFrom": 121,
+        "daysTo": 140,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 10509 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 13922 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 34963 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 60208 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 87850 }
+        ]
+      },
+      {
+        "daysFrom": 141,
+        "daysTo": 160,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 13679 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 16637 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 42747 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 71507 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 102365 }
+        ]
+      },
+      {
+        "daysFrom": 161,
+        "daysTo": 180,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 14266 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 17410 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 43513 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 83578 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 121458 }
+        ]
+      }
+    ]
+  },
+  {
+    "insurer": "ICICI Lombard",
+    "planName": "Value Pro",
+    "coverageAmount": 1000000,
+    "currency": "USD",
+    "region": "Excluding",
+    "premiumCurrency": "INR",
+    "gstIncluded": true,
+    "gstRate": 18,
+    "slabs": [
+      {
+        "daysFrom": 1,
+        "daysTo": 4,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 852 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 982 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1526 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 2677 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 2847 }
+        ]
+      },
+      {
+        "daysFrom": 5,
+        "daysTo": 6,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 978 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1115 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 1832 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 3052 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 3893 }
+        ]
+      },
+      {
+        "daysFrom": 7,
+        "daysTo": 8,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1402 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1620 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2253 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 3362 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 4310 }
+        ]
+      },
+      {
+        "daysFrom": 9,
+        "daysTo": 12,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1468 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1733 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2314 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4034 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 5763 }
+        ]
+      },
+      {
+        "daysFrom": 13,
+        "daysTo": 14,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1533 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1790 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2416 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4647 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 6555 }
+        ]
+      },
+      {
+        "daysFrom": 15,
+        "daysTo": 21,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1605 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1852 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3044 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 6513 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 7745 }
+        ]
+      },
+      {
+        "daysFrom": 22,
+        "daysTo": 28,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1717 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2159 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3934 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 6706 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 8892 }
+        ]
+      },
+      {
+        "daysFrom": 29,
+        "daysTo": 35,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2226 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2704 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 4248 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 7863 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 11047 }
+        ]
+      },
+      {
+        "daysFrom": 36,
+        "daysTo": 47,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2639 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2708 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 6037 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 10257 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 15268 }
+        ]
+      },
+      {
+        "daysFrom": 48,
+        "daysTo": 60,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3070 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 3633 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 8222 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 11146 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 18965 }
+        ]
+      },
+      {
+        "daysFrom": 61,
+        "daysTo": 75,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3564 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 4304 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 9396 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 14298 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 24979 }
+        ]
+      },
+      {
+        "daysFrom": 76,
+        "daysTo": 90,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 4446 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 5259 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 12835 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 19936 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 27555 }
+        ]
+      },
+      {
+        "daysFrom": 91,
+        "daysTo": 105,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 5490 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 6382 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 15785 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 29135 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 32444 }
+        ]
+      },
+      {
+        "daysFrom": 106,
+        "daysTo": 120,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 5867 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 6438 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 17599 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 29274 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 38312 }
+        ]
+      },
+      {
+        "daysFrom": 121,
+        "daysTo": 140,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 5969 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 7142 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 23562 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 36816 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 44660 }
+        ]
+      },
+      {
+        "daysFrom": 141,
+        "daysTo": 160,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 8386 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 9728 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 25680 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 45987 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 52032 }
+        ]
+      },
+      {
+        "daysFrom": 161,
+        "daysTo": 180,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 8746 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 10180 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 27725 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 52797 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 55070 }
+        ]
+      }
+    ]
+  },
+  {
+    "insurer": "ICICI Lombard",
+    "planName": "Value Pro",
+    "coverageAmount": 1000000,
+    "currency": "USD",
+    "region": "Including",
+    "premiumCurrency": "INR",
+    "gstIncluded": true,
+    "gstRate": 18,
+    "slabs": [
+      {
+        "daysFrom": 1,
+        "daysTo": 4,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1320 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1591 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2008 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4556 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 6099 }
+        ]
+      },
+      {
+        "daysFrom": 5,
+        "daysTo": 6,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1472 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 1732 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 2458 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 4884 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 9367 }
+        ]
+      },
+      {
+        "daysFrom": 7,
+        "daysTo": 8,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 1903 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2164 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3234 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 5592 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 9835 }
+        ]
+      },
+      {
+        "daysFrom": 9,
+        "daysTo": 12,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2267 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2470 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3406 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 6390 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 12661 }
+        ]
+      },
+      {
+        "daysFrom": 13,
+        "daysTo": 14,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2372 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2531 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 3556 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 7634 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 14426 }
+        ]
+      },
+      {
+        "daysFrom": 15,
+        "daysTo": 21,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2529 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 2830 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 4713 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 9416 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 17102 }
+        ]
+      },
+      {
+        "daysFrom": 22,
+        "daysTo": 28,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 2899 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 3264 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 6181 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 10672 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 19697 }
+        ]
+      },
+      {
+        "daysFrom": 29,
+        "daysTo": 35,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3366 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 4054 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 6780 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 12650 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 24523 }
+        ]
+      },
+      {
+        "daysFrom": 36,
+        "daysTo": 47,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 3957 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 5391 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 9616 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 16875 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 33976 }
+        ]
+      },
+      {
+        "daysFrom": 48,
+        "daysTo": 60,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 5326 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 7359 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 13453 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 19707 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 42259 }
+        ]
+      },
+      {
+        "daysFrom": 61,
+        "daysTo": 75,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 7431 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 10365 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 14250 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 26890 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 55725 }
+        ]
+      },
+      {
+        "daysFrom": 76,
+        "daysTo": 90,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 9263 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 12948 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 18736 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 35384 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 61512 }
+        ]
+      },
+      {
+        "daysFrom": 91,
+        "daysTo": 105,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 10768 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 13999 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 26107 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 50174 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 72466 }
+        ]
+      },
+      {
+        "daysFrom": 106,
+        "daysTo": 120,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 11509 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 14123 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 29108 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 53006 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 85602 }
+        ]
+      },
+      {
+        "daysFrom": 121,
+        "daysTo": 140,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 11941 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 15820 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 39731 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 68417 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 99830 }
+        ]
+      },
+      {
+        "daysFrom": 141,
+        "daysTo": 160,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 15544 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 18906 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 48576 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 81257 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 116324 }
+        ]
+      },
+      {
+        "daysFrom": 161,
+        "daysTo": 180,
+        "premiums": [
+          { "ageFrom": 0, "ageTo": 40, "premium": 16211 },
+          { "ageFrom": 41, "ageTo": 60, "premium": 19784 },
+          { "ageFrom": 61, "ageTo": 70, "premium": 49447 },
+          { "ageFrom": 71, "ageTo": 80, "premium": 94975 },
+          { "ageFrom": 81, "ageTo": 85, "premium": 138021 }
+        ]
+      }
+    ]
+  }
+]

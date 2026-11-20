@@ -7,11 +7,76 @@ const Company = require('../models/Company');
 const { requireAdminAuth } = require('../middleware/auth');
 
 const DB_ERROR_MSG = 'Cannot reach the database. Check MONGODB_URI in server/.env.';
+const SEED_FILE_PATH = path.join(__dirname, '..', 'khanna-travels-seed-data.json');
+
+/**
+ * Waits briefly if MongoDB is in the middle of connecting (state 2).
+ */
+async function ensureDbConnected(maxWaitMs = 4000) {
+  if (mongoose.connection && mongoose.connection.readyState === 1) return true;
+  if (!mongoose.connection || mongoose.connection.readyState !== 2) return false;
+
+  const start = Date.now();
+  while (mongoose.connection && mongoose.connection.readyState === 2 && Date.now() - start < maxWaitMs) {
+    await new Promise(r => setTimeout(r, 100));
+  }
+  return Boolean(mongoose.connection && mongoose.connection.readyState === 1);
+}
+
+/**
+ * Offline fallback to load seed companies when MongoDB is unavailable.
+ */
+function loadSeedCompaniesFallback() {
+  try {
+    if (fs.existsSync(SEED_FILE_PATH)) {
+      const data = JSON.parse(fs.readFileSync(SEED_FILE_PATH, 'utf8'));
+      if (Array.isArray(data)) {
+        return data.map((c, idx) => ({
+          _id: c._id || `fallback-comp-${idx + 1}`,
+          companyName: c.companyName,
+          isActive: c.isActive !== false,
+          createdAt: c.createdAt || new Date().toISOString(),
+          updatedAt: c.updatedAt || new Date().toISOString(),
+          plans: (c.plans || []).map((p, pIdx) => ({
+            _id: p._id || `fallback-plan-${idx + 1}-${pIdx + 1}`,
+            planName: p.planName,
+            productLine: p.productLine || 'Standard',
+            medicalCover: Boolean(p.medicalCover),
+            isActive: p.isActive !== false,
+            rates: p.rates || []
+          }))
+        }));
+      }
+    }
+  } catch (err) {
+    console.warn('Could not load fallback seed companies:', err.message);
+  }
+  return [];
+}
 
 // GET /api/companies — list all (slim: without rate rows for speed)
 router.get('/', async (req, res) => {
   try {
-    if (mongoose.connection.readyState !== 1) {
+    const isConnected = await ensureDbConnected();
+    if (!isConnected) {
+      const fallback = loadSeedCompaniesFallback();
+      if (fallback.length > 0) {
+        return res.json(fallback.map(c => ({
+          _id: c._id,
+          companyName: c.companyName,
+          isActive: c.isActive,
+          createdAt: c.createdAt,
+          updatedAt: c.updatedAt,
+          plans: c.plans.map(p => ({
+            _id: p._id,
+            planName: p.planName,
+            productLine: p.productLine,
+            medicalCover: p.medicalCover,
+            isActive: p.isActive,
+            rates: p.rates
+          }))
+        })));
+      }
       return res.status(503).json({ error: DB_ERROR_MSG });
     }
     const companies = await Company.find(
@@ -20,6 +85,8 @@ router.get('/', async (req, res) => {
     ).sort({ companyName: 1 });
     res.json(companies);
   } catch (err) {
+    const fallback = loadSeedCompaniesFallback();
+    if (fallback.length > 0) return res.json(fallback);
     res.status(503).json({ error: DB_ERROR_MSG });
   }
 });
@@ -27,13 +94,25 @@ router.get('/', async (req, res) => {
 // GET /api/companies/:id — full company including all rates
 router.get('/:id', async (req, res) => {
   try {
-    if (mongoose.connection.readyState !== 1) {
+    const isConnected = await ensureDbConnected();
+    if (!isConnected) {
+      const fallback = loadSeedCompaniesFallback();
+      const match = fallback.find(c => c._id === req.params.id || c.companyName.toLowerCase() === req.params.id.toLowerCase());
+      if (match) return res.json(match);
       return res.status(503).json({ error: DB_ERROR_MSG });
     }
     const company = await Company.findById(req.params.id);
-    if (!company) return res.status(404).json({ error: 'Company not found' });
+    if (!company) {
+      const fallback = loadSeedCompaniesFallback();
+      const match = fallback.find(c => c._id === req.params.id);
+      if (match) return res.json(match);
+      return res.status(404).json({ error: 'Company not found' });
+    }
     res.json(company);
   } catch (err) {
+    const fallback = loadSeedCompaniesFallback();
+    const match = fallback.find(c => c._id === req.params.id);
+    if (match) return res.json(match);
     res.status(503).json({ error: DB_ERROR_MSG });
   }
 });

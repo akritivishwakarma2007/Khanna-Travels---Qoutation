@@ -6,7 +6,7 @@ const RateSchema = new Schema({
   coverage: {
     type: Number,
     required: true,
-    enum: [50000, 100000, 200000, 250000, 500000, 750000, 1000000]
+    min: 1
   },
   region: {
     type: String,

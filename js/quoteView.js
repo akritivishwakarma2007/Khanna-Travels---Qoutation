@@ -8,10 +8,14 @@ import { QuotationExporter } from './pdf-export.js';
 
 export const STANDARD_COVERAGES = [
   { value: 50000, label: '50k', sublabel: '$50,000' },
+  { value: 75000, label: '75k', sublabel: '$75,000' },
   { value: 100000, label: '100k', sublabel: '$100,000' },
+  { value: 150000, label: '150k', sublabel: '$150,000' },
   { value: 200000, label: '200k', sublabel: '$200,000' },
   { value: 250000, label: '250k', sublabel: '$250,000' },
+  { value: 300000, label: '300k', sublabel: '$300,000' },
   { value: 500000, label: '500k', sublabel: '$500,000' },
+  { value: 600000, label: '600k', sublabel: '$600,000' },
   { value: 750000, label: '750k', sublabel: '$750,000' },
   { value: 1000000, label: '1M', sublabel: '$1,000,000' }
 ];
@@ -29,6 +33,12 @@ export class QuoteView {
       departureDate: '',
       returnDate: '',
       region: '', // 'Excluding' | 'Including' (no pre-selection)
+
+      // Direct Issue Mode State
+      issueMode: false,
+      issueTraveller: null,
+      hasPassportExpiryError: false,
+      passportExpiryErrorMsg: '',
 
       // Live computed
       age: null,
@@ -117,6 +127,73 @@ export class QuoteView {
     }
   }
 
+  setDirectIssueMode(travellerData) {
+    this.state.issueMode = true;
+    this.state.issueTraveller = travellerData || null;
+    const fullName = travellerData ? (travellerData.name || `${travellerData.givenNames || ''} ${travellerData.surname || ''}`.trim()) : '';
+    if (fullName) {
+      this.state.customerName = fullName;
+    }
+    if (travellerData && travellerData.dob) {
+      this.state.dob = travellerData.dob;
+    }
+    this.state.hasPassportExpiryError = false;
+    this.state.passportExpiryErrorMsg = '';
+
+    if (this.container) {
+      const nameEl = this.container.querySelector('#qCustomerName');
+      const dobEl = this.container.querySelector('#qDob');
+      if (nameEl && fullName) nameEl.value = fullName;
+      if (dobEl && travellerData && travellerData.dob) dobEl.value = travellerData.dob;
+      if (this.state.returnDate) {
+        this._checkPassportValidity(this.state.returnDate);
+      }
+    }
+  }
+
+  _checkPassportValidity(returnDate) {
+    const expiry = this.state.issueTraveller?.expiryDate || this.state.issueTraveller?.passportExpiry;
+    if (!this.state.issueMode || !expiry || !returnDate) {
+      this.state.hasPassportExpiryError = false;
+      this.state.passportExpiryErrorMsg = '';
+      this._updatePassportExpiryErrorDom();
+      return true;
+    }
+    if (expiry <= returnDate) {
+      this.state.hasPassportExpiryError = true;
+      this.state.passportExpiryErrorMsg = `Passport expires on ${expiry}, which is on or before your return date (${returnDate}). A valid passport is required for the entire trip.`;
+      this._updatePassportExpiryErrorDom();
+      return false;
+    }
+    this.state.hasPassportExpiryError = false;
+    this.state.passportExpiryErrorMsg = '';
+    this._updatePassportExpiryErrorDom();
+    return true;
+  }
+
+  _updatePassportExpiryErrorDom() {
+    if (!this.container) return;
+    const existing = this.container.querySelector('#passportReturnDateError');
+    if (this.state.hasPassportExpiryError) {
+      if (!existing) {
+        const retInput = this.container.querySelector('#qReturnDate');
+        const parent = retInput?.closest('.form-group');
+        if (parent) {
+          const alert = document.createElement('div');
+          alert.className = 'passport-expiry-inline-alert';
+          alert.id = 'passportReturnDateError';
+          alert.setAttribute('role', 'alert');
+          alert.innerHTML = `<span>⚠️</span><span>${this.state.passportExpiryErrorMsg}</span>`;
+          parent.appendChild(alert);
+        }
+      } else {
+        existing.innerHTML = `<span>⚠️</span><span>${this.state.passportExpiryErrorMsg}</span>`;
+      }
+    } else if (existing) {
+      existing.remove();
+    }
+  }
+
   // ── Render Entry: Always renders Form + (if active) Results on the Same Page ──
   render() {
     return `
@@ -159,6 +236,18 @@ export class QuoteView {
           <div class="step-num">1</div>
           <h2 class="step-title">Enter trip details</h2>
         </div>
+
+        ${this.state.issueMode && this.state.issueTraveller ? `
+          <div class="direct-issue-banner-top" role="status">
+            <div class="dib-left">
+              <span class="dib-icon">🛂</span>
+              <span class="dib-text">
+                Getting quotes for <strong>${this._esc(this.state.issueTraveller.name || customerName)}</strong>, passport <strong>${this._esc(this.state.issueTraveller.passportNumber)}</strong> verified.
+              </span>
+            </div>
+            <a href="#issue-policy" class="dib-back-link" id="btnBackToPassportDetails">← Back to passport details</a>
+          </div>
+        ` : ''}
 
         <div class="quote-form-card" id="quoteFormCard">
           <div class="quote-form-header">
@@ -220,6 +309,12 @@ export class QuoteView {
                       <div class="age-display-label">days</div>
                     </div>
                   </div>
+                  ${this.state.hasPassportExpiryError ? `
+                    <div class="passport-expiry-inline-alert" id="passportReturnDateError" role="alert">
+                      <span>⚠️</span>
+                      <span>${this._esc(this.state.passportExpiryErrorMsg)}</span>
+                    </div>
+                  ` : ''}
                 </div>
 
                 <!-- 5. Travelling Country  -->
@@ -799,7 +894,10 @@ export class QuoteView {
     return `
       <button class="btn-dock-clear" id="btnClearSelectedPlans" title="Clear all selected plans">Clear</button>
       ${copyButtonsHtml}
-      <button class="btn-dock-issue" id="btnDockOpenIssue" title="Go to Issue details to prepare and share policy request" style="background:#0d6b46; color:#ffffff; border:none; border-radius:8px; padding:6px 12px; font-weight:700; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:all 0.15s ease;">
+      <button class="btn-dock-issue" id="btnDockConfirmAndIssue" title="Start policy issuance flow for this quote" style="background:#0d6b46; color:#ffffff; border:none; border-radius:8px; padding:6px 14px; font-weight:700; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all 0.15s ease;">
+        🚀 Issue Policy
+      </button>
+      <button class="btn-dock-issue" id="btnDockOpenIssue" title="Go to Issue details to prepare and share policy request" style="background:#1b3a6b; color:#ffffff; border:none; border-radius:8px; padding:6px 12px; font-weight:700; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:all 0.15s ease;">
         📝 Issue Details
       </button>
       <button class="btn-dock-forward" id="btnViewPrintQuotation" title="View &amp; Print Quotations / Copy Individual Images">
@@ -859,6 +957,10 @@ export class QuoteView {
       this.state.returnDate = retVal;
       this.state.age = age;
       this.state.travelDays = days;
+
+      if (this.state.issueMode && retVal) {
+        this._checkPassportValidity(retVal);
+      }
     };
 
     // Input events (customer name, countries, dates, and Step 3 details)
@@ -1148,6 +1250,24 @@ export class QuoteView {
       return;
     }
 
+    // Direct Issue mode: Back to passport details link
+    if (e.target.closest('#btnBackToPassportDetails')) {
+      e.preventDefault();
+      const issueView = this.app.views['issue-policy'];
+      if (issueView && typeof issueView.returnToDirectD2 === 'function') {
+        issueView.returnToDirectD2();
+      }
+      this.app.navigate('issue-policy');
+      return;
+    }
+
+    // Confirm & Issue Policy button (From Dock, Selected Plan Strip, or Step 3)
+    if (e.target.closest('#btnConfirmAndIssuePolicy') || e.target.closest('#btnDockConfirmAndIssue') || e.target.closest('#btnStripIssuePolicy')) {
+      const plan = this.state.issuePlan || (this.state.selectedPlans && this.state.selectedPlans[0]);
+      this._handleConfirmAndIssue(plan);
+      return;
+    }
+
     // Go to Issue Details button from dock
     if (e.target.closest('#btnDockOpenIssue')) {
       if (this.state.issuePlan && this.container?.querySelector('#step3IssueSection')) {
@@ -1389,6 +1509,10 @@ export class QuoteView {
       errors.push('Return Date must be on or after Departure Date.');
     } else if (days > 180) {
       errors.push('Travel duration exceeds maximum limit of 180 days.');
+    }
+
+    if (this.state.issueMode && this.state.hasPassportExpiryError) {
+      errors.push(this.state.passportExpiryErrorMsg || 'Passport expires on or before return date.');
     }
 
     const errBox = this.container.querySelector('#formErrorBox');
@@ -2920,7 +3044,10 @@ export class QuoteView {
               </div>
             </div>
           </div>
-          <div class="sps-right">
+          <div class="sps-right" style="display:flex; align-items:center; gap:10px;">
+            <button type="button" class="btn-sps-issue" id="btnStripIssuePolicy" style="background:#0d6b46; color:#ffffff; border:none; border-radius:8px; padding:8px 16px; font-weight:700; font-size:13.5px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow: 0 1px 3px rgba(0,0,0,0.12);">
+              🚀 Issue Policy →
+            </button>
             <button type="button" class="btn-change-plan" id="btnChangePlan" title="Return to comparison results to select another plan">
               <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
                 <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
@@ -3163,6 +3290,13 @@ export class QuoteView {
 
             <!-- Buttons Row -->
             <div class="issue-actions-row">
+              <button type="button" class="btn-confirm-issue-flow" id="btnConfirmAndIssuePolicy" style="background:#0d6b46; color:#ffffff; border:none; border-radius:8px; padding:10px 18px; font-weight:700; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow: 0 2px 4px rgba(13,107,70,0.25); transition:all 0.15s ease;" title="Confirm this quote and start policy issuance flow">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"/>
+                </svg>
+                <span>Confirm &amp; Issue Policy →</span>
+              </button>
+
               <button type="button" class="btn-issue-copy" id="btnCopyIssueMsg">
                 <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18" aria-hidden="true">
                   <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
@@ -3432,6 +3566,11 @@ export class QuoteView {
   }
 
   async _handleAdminSelectPlan(plan) {
+    if (this.state.issueMode && this.state.hasPassportExpiryError) {
+      this.app.showToast('Cannot select plan: passport expires on or before return date', 'error');
+      return;
+    }
+
     const isAlreadySelected = this._isPlanSelected(plan);
 
     if (isAlreadySelected) {
@@ -3446,6 +3585,79 @@ export class QuoteView {
     await this._activateIssueForPlan(plan, true);
 
     this.app.showToast(`Step 3: Issue details opened for ${plan.companyName} (${plan.planName})`, 'info');
+  }
+
+  _handleConfirmAndIssue(plan = null) {
+    const targetPlan = plan || this.state.issuePlan || (this.state.selectedPlans && this.state.selectedPlans[0]);
+    if (!targetPlan) {
+      this.app.showToast('Please select a quote/plan first', 'warning');
+      return;
+    }
+
+    if (this.state.issueMode && this.state.hasPassportExpiryError) {
+      this.app.showToast('Cannot issue quote: passport expires on or before return date', 'error');
+      return;
+    }
+
+    const rawCustomer = (this.container?.querySelector('#qCustomerName')?.value || this.state.customerName || '').trim();
+    const customer = (rawCustomer && rawCustomer.toLowerCase() !== 'customer') ? rawCustomer : (this.state.issueForm?.issueFor || 'Customer');
+
+    const travellers = (this.state.issueForm?.travellers && this.state.issueForm.travellers.length > 0)
+      ? this.state.issueForm.travellers.filter(t => t && t.trim())
+      : (customer ? [customer] : ['']);
+
+    const isGroup = (travellers.length > 1) || (this.state.issueForm?.groupSuffix === 'group');
+
+    const quoteData = {
+      quoteId: this.state.savedQuote?.quoteReference || `QT-${Date.now().toString(36).toUpperCase()}`,
+      planName: targetPlan.planName,
+      companyName: targetPlan.companyName,
+      totalPremium: Number(targetPlan.premium || 0) * (isGroup ? travellers.length : 1),
+      perTravellerPremium: Number(targetPlan.premium || 0),
+      travellerCountQuoted: travellers.length || 1,
+      estimatedTotal: Number(targetPlan.premium || 0) * (travellers.length || 1),
+      travellerName: customer,
+      dob: this.state.dob || '',
+      destination: this.state.travellingCountry || this.state.arrivalCountry || 'Worldwide',
+      tripStart: this.state.departureDate || '',
+      tripEnd: this.state.returnDate || '',
+      durationDays: this._computeDays(this.state.departureDate, this.state.returnDate) || 15,
+      coverage: targetPlan.coverage,
+      coverTable: targetPlan.benefits || [
+        { benefit: 'Emergency Medical & Evacuation', amount: `$${(targetPlan.coverage || 100000).toLocaleString()}` },
+        { benefit: 'Trip Cancellation & Curtailment', amount: '$2,500' },
+        { benefit: 'Baggage Loss / Delay', amount: '$1,000' },
+        { benefit: 'Personal Accident', amount: '$25,000' },
+        { benefit: 'Passport Loss Assistance', amount: '$500' },
+        { benefit: 'Personal Liability', amount: '$50,000' }
+      ],
+      isGroup
+    };
+
+    if (this.state.issueMode && this.state.issueTraveller) {
+      quoteData.source = 'direct';
+      quoteData.directTraveller = this.state.issueTraveller;
+    }
+
+    // Store in sessionStorage so it persists across refreshes
+    try {
+      sessionStorage.setItem('kt_selected_quote_for_issue', JSON.stringify(quoteData));
+    } catch (e) {
+      console.warn('Could not save to sessionStorage:', e);
+    }
+
+    // Pass directly to IssuePolicyView instance if loaded
+    const issueView = this.app.views['issue-policy'];
+    if (issueView) {
+      if (this.state.issueMode && typeof issueView.setDirectIssueQuote === 'function') {
+        issueView.setDirectIssueQuote(quoteData, this.state.issueTraveller);
+      } else if (typeof issueView.setSelectedQuote === 'function') {
+        issueView.setSelectedQuote(quoteData);
+      }
+    }
+
+    // Navigate to Issue Policy
+    this.app.navigate('issue-policy');
   }
 
   async _activateIssueForPlan(plan, shouldScroll = true) {
@@ -3925,7 +4137,7 @@ export class QuoteView {
   }
 
   _esc(str) {
-    if (!str) return '';
+    if (!str || str === 'null' || str === 'undefined') return '';
     return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 

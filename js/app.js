@@ -5,9 +5,10 @@
  */
 import { QuoteView } from './quoteView.js';
 import { VisaLinksView } from './views/visaLinksView.js';
-import { PlansRatesView } from './views/plansRatesView.js?v=3.3';
+import { PlansRatesView } from './views/plansRatesView.js?v=3.6';
 import { SettingsView } from './views/settingsView.js';
 import { LoginView } from './views/loginView.js?v=2.1';
+import { IssuePolicyView } from './views/issuePolicyView.js?v=3.7';
 import { healthCheck, getAdminHealth, isAdminAuthenticated, logoutAdmin } from './api.js';
 import { StorageManager } from './storage.js';
 
@@ -18,6 +19,7 @@ class App {
     this.views = {
       quote: new QuoteView(this),
       visa: new VisaLinksView(this),
+      'issue-policy': new IssuePolicyView(this),
       admin: new PlansRatesView(this),
       settings: new SettingsView(this),
       login: new LoginView(this)
@@ -192,6 +194,8 @@ class App {
     const mapped = (viewId || '').toLowerCase();
     if (mapped === 'quotation' || mapped === 'quote') {
       this.navigate('quote');
+    } else if (mapped === 'issue' || mapped === 'issue-policy' || mapped === 'policy') {
+      this.navigate('issue-policy');
     } else if (mapped === 'rates' || mapped === 'rate-tables') {
       if (this.views.admin) {
         this.views.admin.activeTab = 'rate-tables';
