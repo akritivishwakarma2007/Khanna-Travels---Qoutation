@@ -30,7 +30,6 @@ import {
   saveRateGrid,
   exportRatesCsvUrl
 } from '../api.js';
-import { openRateImportReviewModal } from '../importReviewModal.js';
 import { openRateImportModal } from '../rateImportModal.js';
 import { applyImportedGroupsToState } from '../rateImport.js';
 
