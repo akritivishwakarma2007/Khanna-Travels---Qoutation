@@ -15,35 +15,31 @@ Assessment Target: cPanel Web Hosting Deployment
     c:\Akriti IMP\quatation\
     ├── index.html                   # Single Page Application HTML shell
     ├── logo.png                     # Branding logo asset
-    ├── khanna-travels-logo.png      # High-res logo asset
-    ├── Super age.pdf                # Reference documentation asset
     ├── css/                         # Modular CSS design system
     │   ├── main.css                 # Base tokens, variables, typography, layouts
     │   ├── quote.css                # Quotation generator & mobile quote cards
     │   ├── admin.css                # Admin portal styling & rate matrix grid
-    │   ├── dashboard.css            # Dashboard styling
-    │   ├── quotation.css            # Quotation print/summary styles
-    │   ├── tables.css               # Generic table styling
+    │   ├── issuePolicy.css          # Policy issuance & passport scan styles
+    │   ├── savedQuotesAndPolicies.css # 24h drafts & policy records styles
     │   └── print.css                # PDF/print styles
     ├── js/                          # Frontend Vanilla JavaScript modules
     │   ├── app.js                   # Client SPA router & access controller
     │   ├── api.js                   # Centralized API fetch client & offline engine
-    │   ├── engine.js                # Premium calculation calculation engine
-    │   ├── data.js                  # Default insurer metadata & constants
+    │   ├── data.js                  # Country lookup metadata & constants
     │   ├── storage.js               # LocalStorage state management
     │   ├── quoteView.js             # Quote calculator & results card UI
+    │   ├── rateImport.js            # Rate import parser
+    │   ├── rateImportModal.js       # Rate import review modal
     │   ├── pdf-export.js            # HTML2Canvas PNG/card image exporter
     │   └── views/                   # Modular sub-views
-    │       ├── plansRatesView.js    # 2-Tab Admin View (Companies & Rate Tables)
+    │       ├── plansRatesView.js    # Unified Admin View (Companies & Rate Tables)
+    │       ├── settingsView.js      # System configurations & DB health
     │       ├── visaLinksView.js     # Visa portal directory view
+    │       ├── issuePolicyView.js   # Instant policy issuance flow
+    │       ├── issuedPoliciesView.js # Issued policy records & search
     │       ├── documentDetailsView.js # Document checklist view
-    │       ├── loginView.js         # Admin authentication view
-    │       ├── dashboardView.js     # Retained view
-    │       ├── rateTablesView.js    # Retained view
-    │       ├── quotationsListView.js# Retained view
-    │       ├── customersView.js     # Retained view
-    │       ├── reportsView.js       # Retained view
-    │       └── settingsView.js      # Retained view
+    │       ├── billingView.js       # Billing & invoices view
+    │       └── loginView.js         # Admin authentication view
     └── server/                      # Backend Node.js & Express REST API
         ├── server.js                # Express app entry point & static file server
         ├── db.js                    # Mongoose / MongoDB Atlas connection handler

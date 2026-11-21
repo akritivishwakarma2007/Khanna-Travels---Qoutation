@@ -56,29 +56,28 @@ c:\Akriti IMP\quatation\
 │   ├── main.css                # Base styles, CSS variables, typography, layout grid
 │   ├── quote.css               # Quote calculator, comparison cards, and forms
 │   ├── admin.css               # Admin control panel and management UI
-│   ├── dashboard.css           # Admin analytics dashboard widgets
-│   ├── quotation.css           # Quotation summary render layout
-│   ├── tables.css              # Data table styling and rate grids
+│   ├── issuePolicy.css         # Multi-step policy issuance and OCR styling
+│   ├── savedQuotesAndPolicies.css # 24h saved drafts & policy records styling
 │   └── print.css               # Print & export stylesheet
 │
 ├── js/                         # Frontend Application Modules
 │   ├── app.js                  # Main entry point & SPA view router
 │   ├── api.js                  # REST API client with offline fallback support
-│   ├── engine.js               # Multi-insurer premium calculation engine
-│   ├── data.js                 # Default rates, insurers metadata, and fallback data
+│   ├── data.js                 # Country lookups and destination regions
 │   ├── storage.js              # LocalStorage state management
 │   ├── quoteView.js            # Quote calculator UI component & interactions
-│   ├── adminView.js            # Admin management dashboard component
+│   ├── rateImport.js           # Excel & PDF rate table extractor
+│   ├── rateImportModal.js      # Rate import preview and confirmation modal
 │   ├── pdf-export.js           # HTML2Canvas quote card renderer & exporter
-│   └── views/                  # Modular Admin Sub-views
-│       ├── dashboardView.js    # Performance analytics & quick metrics
-│       ├── rateTablesView.js   # Rate matrix grid editor
-│       ├── quotationView.js    # Detailed quotation inspector
-│       ├── quotationsListView.js# Saved quote log & filter
-│       ├── companiesView.js    # Insurer company profile settings
-│       ├── customersView.js    # Customer record list
-│       ├── reportsView.js      # Exportable business reports
-│       └── settingsView.js     # System configurations
+│   └── views/                  # Modular Admin & Flow Views
+│       ├── plansRatesView.js   # Unified Insurance Plans & Rate Matrix editor
+│       ├── settingsView.js     # System configurations & MongoDB Atlas health
+│       ├── visaLinksView.js    # Official Visa Portal directories
+│       ├── issuePolicyView.js  # Instant passport scan & policy issuance flow
+│       ├── issuedPoliciesView.js # Issued policy records & search
+│       ├── billingView.js      # Agency billing & transactions
+│       ├── documentDetailsView.js # Document verification & details
+│       └── loginView.js        # Admin authentication modal
 │
 └── server/                     # Backend Node.js & Express REST API
     ├── server.js               # Express app entry point & static server
