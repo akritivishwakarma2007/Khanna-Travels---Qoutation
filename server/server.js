@@ -52,9 +52,12 @@ app.use('/api/companies', require('./routes/companies'));
 app.use('/api/companies/:companyId/plans', require('./routes/plans'));
 app.use('/api/companies/:companyId/plans/:planId/rates', require('./routes/rates'));
 app.use('/api/rates', require('./routes/rates'));
+app.use('/api/quotes/saved', require('./routes/savedQuotes'));
 app.use('/api/quotes', require('./routes/quotes'));
 app.use('/api/quote/compare', require('./routes/compare'));
 app.use('/api/compare', require('./routes/compare'));
+app.use('/api/policy', require('./routes/policies'));
+app.use('/api/policies', require('./routes/policies'));
 app.use('/api/visa-links', require('./routes/visaLinks'));
 app.use('/api/admin/health', require('./routes/adminHealth'));
 app.use('/api/passport', require('./routes/passport'));
@@ -86,6 +89,9 @@ async function startServer() {
   await connectDB().catch(err => {
     console.warn('Background MongoDB connection warning:', err.message);
   });
+
+  const { startBackgroundCleaner } = require('./services/savedQuoteCleaner');
+  startBackgroundCleaner();
 
   serverInstance = app.listen(PORT, () => {
     console.log(`\n🚀  Khanna Travels API running at http://localhost:${PORT}`);

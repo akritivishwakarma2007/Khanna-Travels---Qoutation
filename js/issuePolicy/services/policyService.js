@@ -5,6 +5,7 @@
  * // TODO(API): Connect getFormSchema(), issue(), and issueGroup() to your backend insurance provider or aggregation gateway.
  */
 import { ISSUE_POLICY_CONFIG } from '../config.js';
+import { issuePolicyApi } from '../../api.js';
 
 export const policyService = {
   /**
@@ -281,21 +282,14 @@ export const policyService = {
    * @returns {Promise<Object>}
    */
   async issue(payload) {
-    // // TODO(API): Call real policy issuance endpoint when endpoint is live
-    if (ISSUE_POLICY_CONFIG.USE_LIVE_POLICY_API) {
-      try {
-        const res = await fetch('/api/policy/issue/individual', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        if (res.ok) return await res.json();
-      } catch (e) {
-        console.warn('Live policy issuance failed, using simulated response:', e.message);
-      }
+    try {
+      const res = await issuePolicyApi(payload);
+      if (res && res.success) return res;
+    } catch (e) {
+      console.warn('Live policy issuance failed, using simulated response:', e.message);
     }
 
-    // Mock network latency
+    // Mock network latency fallback
     await new Promise(resolve => setTimeout(resolve, 800));
 
     const policyNumber = 'POL-IND-' + Math.floor(100000 + Math.random() * 900000);

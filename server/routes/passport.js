@@ -164,13 +164,13 @@ router.post(
       if (err.code === 'AUTH_FAILED') {
         return res.status(502).json({
           code: 'AUTH_FAILED',
-          message: err.message || 'AZAPI OCR authentication failed.'
+          message: err.message || 'OCR authentication failed. Please verify OCR_API_KEY and GEMINI_API_KEY in server/.env or Render environment.'
         });
       }
 
       return res.status(502).json({
         code: 'OCR_FAILED',
-        message: err.message || "The passport reader didn't respond. Try again."
+        message: err.message || "The passport reader didn't respond or timed out. Please enter details manually or retry."
       });
     }
   }

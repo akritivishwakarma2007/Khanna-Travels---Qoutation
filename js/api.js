@@ -45,6 +45,23 @@ export function setBaseUrl(url) {
 export const BASE_URL = activeBaseUrl;
 const getApiBase = () => `${activeBaseUrl}/api`;
 const AUTH_STORAGE_KEY = 'khanna_admin_token';
+const AGENT_ID_KEY = 'kt_agent_id';
+
+export function getAgentId() {
+  if (typeof localStorage === 'undefined') return 'agent_default';
+  let id = localStorage.getItem(AGENT_ID_KEY);
+  if (!id) {
+    id = 'agent_' + Math.random().toString(36).substring(2, 8);
+    localStorage.setItem(AGENT_ID_KEY, id);
+  }
+  return id;
+}
+
+export function setAgentId(agentId) {
+  if (typeof localStorage !== 'undefined' && agentId) {
+    localStorage.setItem(AGENT_ID_KEY, String(agentId).trim());
+  }
+}
 
 export function getAdminToken() {
   return localStorage.getItem(AUTH_STORAGE_KEY) || sessionStorage.getItem(AUTH_STORAGE_KEY) || null;
@@ -72,6 +89,10 @@ async function request(method, path, body = null, timeoutMs = 6000) {
   const token = getAdminToken();
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
+  }
+  const agentId = getAgentId();
+  if (agentId) {
+    headers['x-agent-id'] = agentId;
   }
 
   const send = async (baseUrl, curTimeout = timeoutMs) => {
@@ -349,6 +370,18 @@ export const saveQuote       = (quoteData)                       => request('POS
 export const selectPlan      = (quoteId, payload)                => request('PATCH', `/quotes/${quoteId}/select`, payload.selectedPlans || payload.selectedPlan ? payload : { selectedPlan: payload });
 export const getQuoteByRef   = (ref)                             => request('GET', `/quotes/${ref}`);
 export const getRecentQuotes = (limit = 20)                      => request('GET', `/quotes?limit=${limit}`);
+
+// ── Saved Quotes (24-Hour Drafts) ───────────────────────────────────────────
+export const saveDraftQuote    = (data)                          => request('POST', '/quotes/saved', data);
+export const getSavedQuotes    = (search = '')                   => request('GET', `/quotes/saved${search ? `?search=${encodeURIComponent(search)}` : ''}`);
+export const resumeSavedQuote  = (id)                            => request('GET', `/quotes/saved/${encodeURIComponent(id)}/resume`);
+export const deleteSavedQuote  = (id)                            => request('DELETE', `/quotes/saved/${encodeURIComponent(id)}`);
+export const extendSavedQuote  = (id)                            => request('POST', `/quotes/saved/${encodeURIComponent(id)}/extend`);
+
+// ── Issued Policy Records ───────────────────────────────────────────────────
+export const issuePolicyApi    = (payload)                       => request('POST', '/policy/issue', payload);
+export const getIssuedPolicies = (search = '')                   => request('GET', `/policies${search ? `?search=${encodeURIComponent(search)}` : ''}`);
+export const getPolicyDetails  = (policyNumber)                  => request('GET', `/policies/${encodeURIComponent(policyNumber)}`);
 
 // ── Health Check with Smart Fallback ─────────────────────────────────────────
 export async function healthCheck() {

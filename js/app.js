@@ -9,6 +9,7 @@ import { PlansRatesView } from './views/plansRatesView.js?v=3.6';
 import { SettingsView } from './views/settingsView.js';
 import { LoginView } from './views/loginView.js?v=2.1';
 import { IssuePolicyView } from './views/issuePolicyView.js?v=3.7';
+import { IssuedPoliciesView } from './views/issuedPoliciesView.js?v=1.0';
 import { healthCheck, getAdminHealth, isAdminAuthenticated, logoutAdmin } from './api.js';
 import { StorageManager } from './storage.js';
 
@@ -20,6 +21,7 @@ class App {
       quote: new QuoteView(this),
       visa: new VisaLinksView(this),
       'issue-policy': new IssuePolicyView(this),
+      policies: new IssuedPoliciesView(this),
       admin: new PlansRatesView(this),
       settings: new SettingsView(this),
       login: new LoginView(this)

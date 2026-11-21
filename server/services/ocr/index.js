@@ -331,9 +331,13 @@ async function _callAzapiOcr(pageFile, ocrApiUrl, ocrApiKey, timeoutMs) {
     });
 
     if (response.status === 401 || response.status === 403) {
-      const err = new Error('AZAPI OCR authentication failed. Please verify your OCR_API_KEY in server/.env.');
-      err.code = 'AUTH_FAILED';
-      throw err;
+      if (!process.env.GEMINI_API_KEY) {
+        const err = new Error('AZAPI OCR authentication failed. Please verify your OCR_API_KEY in server/.env.');
+        err.code = 'AUTH_FAILED';
+        throw err;
+      }
+      console.warn(`[OCR] AZAPI authentication failed (status ${response.status}). Will fall back to Gemini AI.`);
+      return { ok: false, status: response.status, error: 'AUTH_FAILED' };
     }
 
     let rawBodyText = '';
@@ -352,7 +356,7 @@ async function _callAzapiOcr(pageFile, ocrApiUrl, ocrApiKey, timeoutMs) {
 
     return { ok: true, status: response.status, json: ocrJson };
   } catch (netErr) {
-    if (netErr.code === 'AUTH_FAILED') throw netErr;
+    if (netErr.code === 'AUTH_FAILED' && !process.env.GEMINI_API_KEY) throw netErr;
     console.warn('[OCR] AZAPI call failed for page:', netErr.message);
     return { ok: false, error: netErr.message };
   } finally {
@@ -399,9 +403,8 @@ async function _extractMrzWithAi(fileBuffer, mimeType = 'image/jpeg') {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || !fileBuffer) return null;
 
-  try {
-    const base64Data = fileBuffer.toString('base64');
-    const prompt = `You are a passport MRZ and data reader.
+  const base64Data = fileBuffer.toString('base64');
+  const prompt = `You are a passport MRZ and data reader.
 Analyze this Indian passport photo/scan.
 Extract the Machine Readable Zone (MRZ) lines and printed fields accurately as JSON with these keys:
 {
@@ -426,34 +429,40 @@ Extract the Machine Readable Zone (MRZ) lines and printed fields accurately as J
 }
 Only return valid JSON without markdown wrapping.`;
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000);
+  const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.8-flash', 'gemini-flash-latest'];
 
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: prompt },
-            { inlineData: { mimeType: mimeType || 'image/jpeg', data: base64Data } }
-          ]
-        }],
-        generationConfig: { responseMimeType: 'application/json' }
-      }),
-      signal: controller.signal
-    });
+  for (const model of candidateModels) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-    clearTimeout(timeoutId);
-    if (!res.ok) return null;
-    const json = await res.json();
-    const txt = json.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!txt) return null;
-    return JSON.parse(txt);
-  } catch (e) {
-    console.warn('[OCR AI] Gemini MRZ extraction skipped:', e.message);
-    return null;
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: prompt },
+              { inlineData: { mimeType: mimeType || 'image/jpeg', data: base64Data } }
+            ]
+          }],
+          generationConfig: { responseMimeType: 'application/json' }
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+      if (!res.ok) continue;
+      const json = await res.json();
+      const txt = json.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!txt) continue;
+      return JSON.parse(txt);
+    } catch (e) {
+      console.warn(`[OCR AI] Gemini (${model}) extraction attempt failed:`, e.message);
+    }
   }
+
+  return null;
 }
 
 /**
@@ -487,11 +496,11 @@ async function extractPassport(files) {
 
   const ocrApiUrl = (process.env.OCR_API_URL || 'https://ocr.azapi.ai/ind0005d').trim();
   const ocrApiKey = (process.env.OCR_API_KEY || '').trim();
-  const timeoutMs = parseInt(process.env.OCR_TIMEOUT_MS || '60000', 10);
+  const timeoutMs = parseInt(process.env.OCR_TIMEOUT_MS || '25000', 10);
 
-  if (!ocrApiKey) {
-    console.error('[OCR Error] OCR_API_KEY is not configured in server/.env');
-    const err = new Error('AZAPI OCR API key is not configured. Please set OCR_API_KEY in server/.env.');
+  if (!ocrApiKey && !process.env.GEMINI_API_KEY) {
+    console.error('[OCR Error] Neither OCR_API_KEY nor GEMINI_API_KEY is configured in server/.env');
+    const err = new Error('OCR API key is not configured. Please set OCR_API_KEY or GEMINI_API_KEY in server/.env.');
     err.code = 'AUTH_FAILED';
     throw err;
   }
@@ -528,9 +537,12 @@ async function extractPassport(files) {
     throw err;
   }
 
-  // 3. Call AZAPI OCR for each candidate page
-  const pagePromises = candidatePages.map(page => _callAzapiOcr(page, ocrApiUrl, ocrApiKey, timeoutMs));
-  const pageResponses = await Promise.all(pagePromises);
+  // 3. Call AZAPI OCR for each candidate page if key available
+  let pageResponses = [];
+  if (ocrApiKey) {
+    const pagePromises = candidatePages.map(page => _callAzapiOcr(page, ocrApiUrl, ocrApiKey, timeoutMs));
+    pageResponses = await Promise.all(pagePromises);
+  }
 
   // 4. Classify each page (Front Data Page vs Back Page)
   let frontData = null;
@@ -565,6 +577,31 @@ async function extractPassport(files) {
         // Merge with existing back page
         backData = mergeSides(backData, mapped);
         hasBack = true;
+      }
+    }
+  }
+
+  // 4.5 Resilient Fallback: If no front data page recognized via AZAPI, try Gemini AI directly
+  if (!hasFront && process.env.GEMINI_API_KEY) {
+    for (const page of candidatePages) {
+      try {
+        const aiData = await _extractMrzWithAi(page.buffer, page.mimetype);
+        if (aiData && (aiData.passportNumber || (aiData.mrzLine1 && aiData.mrzLine2) || (aiData.surname || aiData.givenNames))) {
+          const candidateMrz = (aiData.mrzLine1 && aiData.mrzLine2) ? [aiData.mrzLine1, aiData.mrzLine2] : null;
+          const parsedAi = parsePrintedPassportPage(aiData.rawLines || [], aiData, candidateMrz);
+          frontData = {
+            ..._getEmptyRawShape(),
+            ...parsedAi.fields,
+            mrz: parsedAi.mrz || candidateMrz,
+            lowConfidence: parsedAi.lowConfidence || [],
+            fieldReasons: parsedAi.fieldReasons || {}
+          };
+          hasFront = true;
+          frontCandidatePage = page;
+          break;
+        }
+      } catch (geminiErr) {
+        console.warn('[OCR] Gemini direct extraction fallback failed:', geminiErr.message);
       }
     }
   }

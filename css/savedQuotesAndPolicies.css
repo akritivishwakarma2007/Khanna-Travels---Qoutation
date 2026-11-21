@@ -1,0 +1,631 @@
+/**
+ * css/savedQuotesAndPolicies.css
+ * Styling for 24-hour saved quote drafts, auto-delete badges,
+ * and issued policy records & inspector modal.
+ */
+
+/* ── Quotes Main Nav Tabs ─────────────────────────────────────────────────── */
+.quotes-nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 6px;
+}
+
+.q-nav-tab {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.q-nav-tab:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+.q-nav-tab.active {
+  color: #0284c7;
+  background: #e0f2fe;
+}
+
+.q-nav-badge {
+  background: #0284c7;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+/* ── 24-Hour Auto-Delete Notice ───────────────────────────────────────────── */
+.auto-delete-disclaimer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.auto-delete-disclaimer .info-icon {
+  font-size: 16px;
+}
+
+/* ── Saved Quotes Section ─────────────────────────────────────────────────── */
+.saved-quotes-view {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.sq-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.sq-search-wrap {
+  flex: 1;
+  min-width: 260px;
+  position: relative;
+}
+
+.sq-search-input {
+  width: 100%;
+  padding: 9px 36px 9px 36px;
+  font-size: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.sq-search-input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+}
+
+.sq-search-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.sq-clear-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+/* ── Saved Quotes Table ───────────────────────────────────────────────────── */
+.sq-table-wrapper {
+  overflow-x: auto;
+}
+
+.sq-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.sq-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  padding: 12px 14px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.sq-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.sq-table tr:hover td {
+  background: #f8fafc;
+}
+
+.sq-customer-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.sq-plan-text {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.sq-sub-text {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.sq-premium {
+  font-weight: 700;
+  color: #047857;
+  font-size: 15px;
+}
+
+/* ── Expiry Badge ─────────────────────────────────────────────────────────── */
+.expiry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.expiry-badge.orange {
+  background: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+  animation: pulse-orange 2s infinite ease-in-out;
+}
+
+@keyframes pulse-orange {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* ── Step Badge ───────────────────────────────────────────────────────────── */
+.sq-step-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+/* ── Action Buttons ───────────────────────────────────────────────────────── */
+.sq-actions-col {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-sq-resume {
+  background: #0284c7;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-sq-resume:hover {
+  background: #0369a1;
+}
+
+.btn-sq-delete {
+  background: none;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-sq-delete:hover {
+  background: #fef2f2;
+  border-color: #f87171;
+}
+
+/* ── Save For Later Button ────────────────────────────────────────────────── */
+.btn-save-draft {
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-save-draft:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+/* ── Issued Policies Screen ───────────────────────────────────────────────── */
+.issued-policies-page {
+  padding-top: 16px;
+  padding-bottom: 40px;
+}
+
+.policies-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.policies-search-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.search-input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 38px 10px 38px;
+  font-size: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.btn-clear-search {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.policies-table-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.policies-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.policies-table th {
+  background: #f8fafc;
+  padding: 12px 14px;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.policies-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.policies-table tr:hover td {
+  background: #f8fafc;
+}
+
+.policy-number-badge {
+  font-weight: 700;
+  color: #0284c7;
+}
+
+.policy-group-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  background: #fef3c7;
+  color: #b45309;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+}
+
+.policy-premium-text {
+  font-weight: 700;
+  color: #047857;
+  font-size: 15px;
+}
+
+.policy-actions-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-view-policy-details {
+  background: #0284c7;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-open-doc {
+  background: #f8fafc;
+  color: #0284c7;
+  border: 1px solid #0284c7;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* ── Policy Modal ─────────────────────────────────────────────────────────── */
+.policy-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.policy-modal-overlay.active {
+  display: flex;
+}
+
+.policy-modal-card {
+  background: #fff;
+  border-radius: 10px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+.pm-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #f8fafc;
+}
+
+.pm-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.pm-sub {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.pm-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pm-section {
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  padding: 16px;
+  background: #ffffff;
+}
+
+.pm-sec-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.pm-grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.pm-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.pm-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.pm-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.pm-val {
+  font-size: 14px;
+  color: #0f172a;
+  margin-top: 2px;
+}
+
+.pm-val.highlight-val {
+  color: #047857;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.traveller-card-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: #f8fafc;
+}
+
+.t-item-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.t-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #334155;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.pm-footer {
+  padding: 14px 24px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: #f8fafc;
+}
+
+.btn-close-modal {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.policies-empty-card,
+.sq-empty-card {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+}
+
+.policies-empty-card .empty-icon,
+.sq-empty-card .empty-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+/* ── Modal Confirm Premium Change ─────────────────────────────────────────── */
+.premium-change-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.premium-change-modal-overlay.active {
+  display: flex;
+}
+
+.pcm-card {
+  background: #fff;
+  border-radius: 10px;
+  max-width: 480px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+}
+
+.pcm-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #b45309;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pcm-message {
+  font-size: 14px;
+  color: #334155;
+  margin: 14px 0 20px 0;
+  line-height: 1.5;
+}
+
+.pcm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

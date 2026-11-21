@@ -3,7 +3,16 @@
  * Form & Results live on the same screen. Clicking Compare reveals results below the form.
  */
 
-import { compareQuotes, saveQuote, selectPlan } from './api.js';
+import {
+  compareQuotes,
+  saveQuote,
+  selectPlan,
+  saveDraftQuote,
+  getSavedQuotes,
+  resumeSavedQuote,
+  deleteSavedQuote,
+  extendSavedQuote
+} from './api.js';
 import { QuotationExporter } from './pdf-export.js';
 
 export const STANDARD_COVERAGES = [
@@ -47,6 +56,14 @@ export class QuoteView {
       // Results state (null until Compare is clicked)
       hasResults: false,
       savedQuote: null,
+
+      // Saved Quotes (24-Hour Drafts) State
+      activeMainTab: 'new_quote', // 'new_quote' | 'saved_quotes'
+      savedQuotesList: [],
+      savedQuotesCount: 0,
+      savedQuotesLoading: false,
+      savedQuotesSearch: '',
+      pendingResumeConfirm: null,
       groupedResults: {},
       coverageStats: {},
       resultsSummary: {},
@@ -198,15 +215,187 @@ export class QuoteView {
   render() {
     return `
       <div class="quote-single-page ${this.state.hasResults ? 'has-results' : ''}">
-        <!-- TOP SECTION: QUOTE FORM -->
-        ${this._renderQuoteFormSection()}
+        <!-- Quotes Top Nav Tabs (New quotation vs Saved quotes 24h drafts) -->
+        <div class="quotes-nav-tabs" role="tablist">
+          <button type="button" class="q-nav-tab ${this.state.activeMainTab === 'new_quote' ? 'active' : ''}" id="tabNewQuote">
+            ✈️ New quotation
+          </button>
+          <button type="button" class="q-nav-tab ${this.state.activeMainTab === 'saved_quotes' ? 'active' : ''}" id="tabSavedQuotes">
+            📁 Saved quotes (24h drafts)
+            ${this.state.savedQuotesCount ? `<span class="q-nav-badge">${this.state.savedQuotesCount}</span>` : ''}
+          </button>
+        </div>
 
-        <!-- BOTTOM SECTION: COMPARISON RESULTS (Revealed after clicking Compare) -->
-        ${this.state.hasResults && this.state.savedQuote ? this._renderResultsSection() : ''}
+        <!-- 24-Hour Auto-Delete Disclaimer -->
+        <div class="auto-delete-disclaimer" role="note">
+          <span class="info-icon">ℹ️</span>
+          <span>Saved quotes and their details are deleted automatically after 24 hours.</span>
+        </div>
 
-        <!-- STEP 3: ISSUE DETAILS (Public & Admin, revealed after Select Plan) -->
-        <div id="step3Mount">
-          ${this._shouldRenderIssueStep() ? this._renderIssueStepSection() : ''}
+        ${this.state.activeMainTab === 'saved_quotes'
+          ? this._renderSavedQuotesSection()
+          : `
+            <!-- TOP SECTION: QUOTE FORM -->
+            ${this._renderQuoteFormSection()}
+
+            <!-- BOTTOM SECTION: COMPARISON RESULTS (Revealed after clicking Compare) -->
+            ${this.state.hasResults && this.state.savedQuote ? this._renderResultsSection() : ''}
+
+            <!-- STEP 3: ISSUE DETAILS (Public & Admin, revealed after Select Plan) -->
+            <div id="step3Mount">
+              ${this._shouldRenderIssueStep() ? this._renderIssueStepSection() : ''}
+            </div>
+          `
+        }
+
+        <!-- Modal for confirming updated premium upon resume -->
+        ${this.state.pendingResumeConfirm ? this._renderPremiumChangeModal(this.state.pendingResumeConfirm) : ''}
+      </div>
+    `;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 0. SAVED QUOTES (24-HOUR DRAFTS) SECTION
+  // ═══════════════════════════════════════════════════════════════════════════
+  _renderSavedQuotesSection() {
+    const list = this.state.savedQuotesList || [];
+    const isLoading = this.state.savedQuotesLoading;
+
+    return `
+      <div class="saved-quotes-view" id="savedQuotesView">
+        <div class="sq-toolbar">
+          <div class="sq-search-wrap">
+            <span class="sq-search-icon">🔍</span>
+            <input
+              type="text"
+              id="inputSavedQuotesSearch"
+              class="sq-search-input"
+              placeholder="Search by customer name, mobile, quote ID, plan or insurer..."
+              value="${this._esc(this.state.savedQuotesSearch)}"
+            />
+            ${this.state.savedQuotesSearch ? `
+              <button type="button" class="sq-clear-btn" id="btnClearSavedQuotesSearch" title="Clear search">✕</button>
+            ` : ''}
+          </div>
+          <button type="button" class="btn-secondary btn-sm" id="btnRefreshSavedQuotes">
+            🔄 Refresh
+          </button>
+        </div>
+
+        ${isLoading ? `
+          <div style="text-align:center; padding: 40px;">
+            <div class="spinner"></div>
+            <p style="margin-top:10px; color:#64748b;">Loading saved quotes...</p>
+          </div>
+        ` : (list.length === 0 ? `
+          <div class="sq-empty-card">
+            <div class="empty-icon">📁</div>
+            <h3>No saved quotes found</h3>
+            <p>${this.state.savedQuotesSearch ? 'No saved quotes matched your search.' : 'Quotes saved with "Save for later" will appear here for 24 hours before automatic deletion.'}</p>
+            <button type="button" class="btn-primary btn-sm" id="btnNewQuoteFromEmpty" style="margin-top:12px;">
+              Create a new quote
+            </button>
+          </div>
+        ` : `
+          <div class="sq-table-wrapper">
+            <table class="sq-table">
+              <thead>
+                <tr>
+                  <th>Customer Name</th>
+                  <th>Plan &amp; Insurer</th>
+                  <th>Destination</th>
+                  <th>Travel Dates</th>
+                  <th>Premium</th>
+                  <th>Saved At</th>
+                  <th>Expires In</th>
+                  <th>Step</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${list.map(item => {
+                  const cust = item.customer || {};
+                  const q = item.quote || {};
+                  const savedAtFormatted = item.createdAt
+                    ? new Date(item.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })
+                    : '—';
+                  const expBadgeClass = item.isExpiringSoon ? 'orange' : '';
+                  const stepLabel = item.flowStep ? item.flowStep.toUpperCase() : 'QUOTES';
+
+                  return `
+                    <tr class="sq-row" data-quote-id="${this._esc(item.quoteId)}">
+                      <td>
+                        <div class="sq-customer-name">${this._esc(cust.name || 'Customer')}</div>
+                        ${cust.mobile ? `<div class="sq-sub-text">📞 ${this._esc(cust.mobile)}</div>` : ''}
+                      </td>
+                      <td>
+                        <div class="sq-plan-text">${this._esc(q.plan || 'Standard')}</div>
+                        <div class="sq-sub-text">${this._esc(q.insurer || 'Insurer')} · <span class="font-mono">${this._esc(item.quoteId)}</span></div>
+                      </td>
+                      <td>
+                        <div>${this._esc(q.destination || 'Worldwide')}</div>
+                        <div class="sq-sub-text">${q.coverage ? `$${Number(q.coverage).toLocaleString()}` : ''}</div>
+                      </td>
+                      <td>
+                        <div class="font-mono">${this._esc(q.travelStart || '—')}</div>
+                        <div class="sq-sub-text font-mono">to ${this._esc(q.travelEnd || '—')}</div>
+                      </td>
+                      <td>
+                        <span class="sq-premium">₹${Number(q.premium || 0).toLocaleString('en-IN')}</span>
+                      </td>
+                      <td>
+                        <span class="sq-sub-text">${this._esc(savedAtFormatted)}</span>
+                      </td>
+                      <td>
+                        <span class="expiry-badge ${expBadgeClass}" title="Expires at ${new Date(item.expiresAt).toLocaleString('en-IN')}">
+                          ⏱️ ${this._esc(item.expiresInText)}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="sq-step-badge">${this._esc(stepLabel)}</span>
+                      </td>
+                      <td style="text-align:right;">
+                        <div class="sq-actions-col">
+                          <button type="button" class="btn-sq-resume" data-resume-quote-id="${this._esc(item.quoteId)}">
+                            Resume
+                          </button>
+                          <button type="button" class="btn-sq-delete" data-delete-quote-id="${this._esc(item.quoteId)}" title="Delete saved quote permanently">
+                            Delete now
+                          </button>
+                          ${!item.extendedOnce ? `
+                            <button type="button" class="btn-sq-extend btn-secondary btn-sm" data-extend-quote-id="${this._esc(item.quoteId)}" title="Keep 24h more (one-time only)" style="font-size:11px; padding:3px 6px;">
+                              +24h
+                            </button>
+                          ` : ''}
+                        </div>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        `)}
+      </div>
+    `;
+  }
+
+  _renderPremiumChangeModal(confirmData) {
+    const q = confirmData.savedQuote?.quote || {};
+    return `
+      <div class="premium-change-modal-overlay active" id="modalPremiumChange">
+        <div class="pcm-card" role="dialog" aria-labelledby="pcmTitle" aria-modal="true">
+          <div class="pcm-title" id="pcmTitle">⚠️ Premium Updated</div>
+          <div class="pcm-message">
+            The premium for <strong>${this._esc(q.plan || 'Plan')}</strong> (${this._esc(q.insurer || 'Insurer')}) has changed since this quote was saved.<br><br>
+            <strong>Previous Premium:</strong> ₹${Number(confirmData.savedPremium || 0).toLocaleString('en-IN')}<br>
+            <strong>Updated Premium:</strong> <span style="color:#047857; font-weight:700;">₹${Number(confirmData.latestPremium || 0).toLocaleString('en-IN')}</span><br><br>
+            Do you want to proceed with the updated premium?
+          </div>
+          <div class="pcm-actions">
+            <button type="button" class="btn-secondary" id="btnCancelResume">Cancel</button>
+            <button type="button" class="btn-primary" id="btnConfirmPremiumChange">Accept &amp; Proceed</button>
+          </div>
         </div>
       </div>
     `;
@@ -698,6 +887,9 @@ export class QuoteView {
             <button type="button" class="btn-select-plan ${isSelectedPlan ? 'selected' : ''}" data-select-plan-key="${this._esc(planKey)}" title="${isSelectedPlan ? 'Click to deselect this plan' : 'Click to select this plan and open issue details'}">
               ${isSelectedPlan ? `✓ Selected (#${selIndex + 1})` : 'Select Plan'}
             </button>
+            <button type="button" class="btn-save-draft" data-save-plan-key="${this._esc(planKey)}" title="Save quote for 24 hours">
+              💾 Save for later
+            </button>
             <button type="button" class="btn-view-details" data-view-plan-key="${this._esc(planKey)}">
               Details
             </button>
@@ -965,6 +1157,14 @@ export class QuoteView {
 
     // Input events (customer name, countries, dates, and Step 3 details)
     container.addEventListener('input', (e) => {
+      if (e.target.id === 'inputSavedQuotesSearch') {
+        clearTimeout(this._searchDebounce);
+        this.state.savedQuotesSearch = e.target.value;
+        this._searchDebounce = setTimeout(() => {
+          this._loadSavedQuotes();
+        }, 350);
+        return;
+      }
       if (e.target.id === 'qCustomerName') {
         const prevCust = this.state.customerName;
         this.state.customerName = e.target.value;
@@ -1164,8 +1364,210 @@ export class QuoteView {
     container.addEventListener('click', (e) => this._handleResultsClick(e));
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SAVED QUOTES (24-HOUR DRAFTS) LOGIC
+  // ═══════════════════════════════════════════════════════════════════════════
+  async _loadSavedQuotes() {
+    this.state.savedQuotesLoading = true;
+    this._refresh();
+    try {
+      const res = await getSavedQuotes(this.state.savedQuotesSearch);
+      if (res && res.success) {
+        this.state.savedQuotesList = res.savedQuotes || [];
+        this.state.savedQuotesCount = res.count !== undefined ? res.count : this.state.savedQuotesList.length;
+      }
+    } catch (err) {
+      console.warn('[QuoteView] Could not load saved quotes:', err.message);
+    } finally {
+      this.state.savedQuotesLoading = false;
+      this._refresh();
+    }
+  }
+
+  async _handleSavePlanForLater(planKey) {
+    const plan = this.currentPlanMap?.get(planKey);
+    if (!plan) return;
+
+    const { customerName, dob, departureDate, returnDate, travellingCountry } = this.state;
+    const dest = travellingCountry || 'Worldwide';
+
+    const payload = {
+      quote: {
+        plan: plan.planName,
+        insurer: plan.companyName,
+        premium: plan.premium,
+        currency: plan.currency || 'INR',
+        destination: dest,
+        travelStart: departureDate,
+        travelEnd: returnDate,
+        coverage: plan.coverage,
+        coverageSummary: `$${Number(plan.coverage).toLocaleString()}`
+      },
+      customer: {
+        name: customerName || '',
+        dob: dob || '',
+        mobile: '',
+        email: ''
+      },
+      flowStep: 'quotes'
+    };
+
+    try {
+      const res = await saveDraftQuote(payload);
+      if (res && res.success) {
+        this.app?.showToast?.('Quote saved for later! It will be available for 24 hours in Saved Quotes.', 'success');
+        this.state.savedQuotesCount = (this.state.savedQuotesCount || 0) + 1;
+        const badge = this.container?.querySelector('.q-nav-badge');
+        if (badge) badge.textContent = this.state.savedQuotesCount;
+      }
+    } catch (err) {
+      this.app?.showToast?.('Failed to save quote: ' + err.message, 'error');
+    }
+  }
+
+  async _handleResumeQuote(quoteId) {
+    try {
+      this.app?.showToast?.('Resuming quote...', 'info');
+      const res = await resumeSavedQuote(quoteId);
+      if (!res || !res.success) {
+        throw new Error(res?.error || 'Resume failed');
+      }
+
+      const savedQuote = res.savedQuote;
+
+      // 1. If travel date has passed:
+      if (savedQuote.travelDatePassed || res.code === 'TRAVEL_DATE_PASSED') {
+        alert('Travel date has passed. Create a new quote.');
+        return;
+      }
+
+      // 2. If premium has changed:
+      if (savedQuote.premiumCheck && savedQuote.premiumCheck.premiumChanged) {
+        this.state.pendingResumeConfirm = {
+          savedQuote,
+          savedPremium: savedQuote.premiumCheck.savedPremium,
+          latestPremium: savedQuote.premiumCheck.latestPremium
+        };
+        this._refresh();
+        return;
+      }
+
+      // 3. Proceed to resume in IssuePolicyView
+      this._proceedWithResume(savedQuote);
+    } catch (err) {
+      alert(err.message || 'Could not resume quote.');
+    }
+  }
+
+  _proceedWithResume(savedQuote) {
+    const issueView = this.app?.views?.['issue-policy'];
+    if (issueView && typeof issueView.restoreSavedQuoteDraft === 'function') {
+      issueView.restoreSavedQuoteDraft(savedQuote);
+      if (!savedQuote.hasPassportData) {
+        this.app?.showToast?.('Passport details were not previously scanned. Please scan passport or enter details.', 'info');
+      }
+    }
+    this.state.pendingResumeConfirm = null;
+    this.app?.navigate?.('issue-policy');
+  }
+
+  async _handleDeleteQuote(quoteId) {
+    try {
+      const res = await deleteSavedQuote(quoteId);
+      if (res && res.success) {
+        this.app?.showToast?.('Saved quote permanently deleted.', 'success');
+        await this._loadSavedQuotes();
+      }
+    } catch (err) {
+      this.app?.showToast?.('Could not delete quote: ' + err.message, 'error');
+    }
+  }
+
+  async _handleExtendQuote(quoteId) {
+    try {
+      const res = await extendSavedQuote(quoteId);
+      if (res && res.success) {
+        this.app?.showToast?.('Quote validity extended by 24 hours!', 'success');
+        await this._loadSavedQuotes();
+      }
+    } catch (err) {
+      this.app?.showToast?.('Could not extend quote: ' + err.message, 'error');
+    }
+  }
+
   // ── Results Clicks Handler ────────────────────────────────────────────────
   async _handleResultsClick(e) {
+    // Top Tabs: New Quotation vs Saved Quotes
+    if (e.target.closest('#tabNewQuote') || e.target.closest('#btnNewQuoteFromEmpty')) {
+      this.state.activeMainTab = 'new_quote';
+      this._refresh();
+      return;
+    }
+
+    if (e.target.closest('#tabSavedQuotes') || e.target.closest('#btnRefreshSavedQuotes')) {
+      this.state.activeMainTab = 'saved_quotes';
+      await this._loadSavedQuotes();
+      return;
+    }
+
+    if (e.target.closest('#btnClearSavedQuotesSearch')) {
+      this.state.savedQuotesSearch = '';
+      const inp = this.container?.querySelector('#inputSavedQuotesSearch');
+      if (inp) inp.value = '';
+      await this._loadSavedQuotes();
+      return;
+    }
+
+    // Save plan for later
+    const savePlanBtn = e.target.closest('[data-save-plan-key]');
+    if (savePlanBtn) {
+      const key = savePlanBtn.dataset.savePlanKey;
+      await this._handleSavePlanForLater(key);
+      return;
+    }
+
+    // Resume saved quote
+    const resumeBtn = e.target.closest('[data-resume-quote-id]');
+    if (resumeBtn) {
+      const qid = resumeBtn.dataset.resumeQuoteId;
+      await this._handleResumeQuote(qid);
+      return;
+    }
+
+    // Delete saved quote
+    const deleteBtn = e.target.closest('[data-delete-quote-id]');
+    if (deleteBtn) {
+      const qid = deleteBtn.dataset.deleteQuoteId;
+      if (confirm('Are you sure you want to permanently delete this saved quote? This cannot be undone.')) {
+        await this._handleDeleteQuote(qid);
+      }
+      return;
+    }
+
+    // Extend saved quote (+24h)
+    const extendBtn = e.target.closest('[data-extend-quote-id]');
+    if (extendBtn) {
+      const qid = extendBtn.dataset.extendQuoteId;
+      await this._handleExtendQuote(qid);
+      return;
+    }
+
+    // Confirm or cancel updated premium modal upon resume
+    if (e.target.closest('#btnConfirmPremiumChange')) {
+      if (this.state.pendingResumeConfirm) {
+        const savedQuote = this.state.pendingResumeConfirm.savedQuote;
+        this.state.pendingResumeConfirm = null;
+        this._proceedWithResume(savedQuote);
+      }
+      return;
+    }
+
+    if (e.target.closest('#btnCancelResume') || e.target.id === 'modalPremiumChange') {
+      this.state.pendingResumeConfirm = null;
+      this._refresh();
+      return;
+    }
+
     // Toggle Company dropdown popover
     if (e.target.closest('#btnCompanyDropdown')) {
       const wrap = this.container.querySelector('#companyDropdownWrap');

@@ -14,6 +14,7 @@ import { ISSUE_POLICY_CONFIG } from '../issuePolicy/config.js';
 import { quoteService } from '../issuePolicy/services/quoteService.js';
 import { passportService } from '../issuePolicy/services/passportService.js';
 import { policyService } from '../issuePolicy/services/policyService.js';
+import { saveDraftQuote } from '../api.js';
 import { DynamicForm } from '../issuePolicy/components/DynamicForm.js';
 import { PassportDropzone } from '../issuePolicy/components/PassportDropzone.js';
 import { GroupReviewGrid } from '../issuePolicy/components/GroupReviewGrid.js';
@@ -45,6 +46,7 @@ export class IssuePolicyView {
         step: 1, // 1: Traveller details, 2: Verify details, 3: Issue policy
         entryMethod: 'ocr', // 'ocr' | 'manual'
         quote: null,
+        savedQuoteId: null,
         isDirectIssue: false,
         sessionExpired: false,
         directAcceptedQuote: false,
@@ -203,6 +205,122 @@ export class IssuePolicyView {
     this.state.individual.step = 2;
     this._ensureDirectIssueDraft();
     this.renderView();
+  }
+
+  restoreSavedQuoteDraft(savedQuote) {
+    if (!savedQuote) return;
+    const q = savedQuote.quote || {};
+    const isGroup = Boolean(q.isGroup);
+    this.mode = isGroup ? 'group' : 'individual';
+
+    const normalizedQuote = {
+      quoteId: q.quoteId || savedQuote.quoteId,
+      planName: q.plan,
+      companyName: q.insurer,
+      totalPremium: q.premium,
+      premium: q.premium,
+      destination: q.destination,
+      tripStart: q.travelStart,
+      tripEnd: q.travelEnd,
+      coverage: q.coverage,
+      travellerName: savedQuote.customer?.name || '',
+      dob: savedQuote.customer?.dob || '',
+      isGroup
+    };
+
+    this.selectedQuote = normalizedQuote;
+
+    if (!isGroup) {
+      this.state.individual.quote = normalizedQuote;
+      this.state.individual.savedQuoteId = savedQuote.quoteId;
+      if (savedQuote.passport) {
+        this.state.individual.verifiedData = { ...savedQuote.passport };
+        this.state.individual.extractedData = { ...savedQuote.passport };
+        this.state.individual.verified = true;
+      }
+      if (savedQuote.customer) {
+        this.state.individual.policyDetails = {
+          ...this.state.individual.policyDetails,
+          email: savedQuote.customer.email || '',
+          mobile: savedQuote.customer.mobile || ''
+        };
+      }
+      const stepMap = {
+        'passport': 1,
+        'quotes': 2,
+        'policy details': 3,
+        'review': 4
+      };
+      this.state.individual.step = stepMap[savedQuote.flowStep] || 3;
+    } else {
+      this.state.group.quote = normalizedQuote;
+      this.state.group.savedQuoteId = savedQuote.quoteId;
+      if (savedQuote.groupTravellers && Array.isArray(savedQuote.groupTravellers)) {
+        this.state.group.rows = savedQuote.groupTravellers;
+      }
+      this.state.group.step = 2;
+    }
+
+    this.renderView();
+  }
+
+  async _handleSaveForLater(isAutoSave = false) {
+    const q = this.selectedQuote || this.state.individual.quote || this.state.group.quote;
+    if (!q) return;
+
+    const isGroup = this.mode === 'group' || Boolean(q.isGroup);
+    const data = isGroup
+      ? null
+      : (this.state.individual.verifiedData || this.state.individual.extractedData);
+    const pd = this.state.individual.policyDetails || {};
+
+    const flowStepMap = {
+      1: 'passport',
+      2: 'quotes',
+      3: 'policy details',
+      4: 'review'
+    };
+    const currentStep = isGroup ? this.state.group.step : this.state.individual.step;
+    const flowStep = flowStepMap[currentStep] || 'quotes';
+
+    const payload = {
+      quoteId: this.state.individual.savedQuoteId || q.quoteId,
+      quote: {
+        quoteId: q.quoteId,
+        plan: q.planName || q.plan,
+        insurer: q.companyName || q.insurer,
+        premium: q.totalPremium || q.premium || q.estimatedTotal,
+        destination: q.destination,
+        travelStart: q.tripStart || q.travelStart,
+        travelEnd: q.tripEnd || q.travelEnd,
+        coverage: q.coverage,
+        isGroup
+      },
+      customer: {
+        name: data?.fullName || `${data?.givenNames || ''} ${data?.surname || ''}`.trim() || q.travellerName || '',
+        dob: data?.dob || q.dob || '',
+        mobile: pd.mobile || '',
+        email: pd.email || ''
+      },
+      passport: data,
+      groupTravellers: isGroup ? this.state.group.rows : null,
+      flowStep,
+      isAutoSave
+    };
+
+    try {
+      const res = await saveDraftQuote(payload);
+      if (res && res.success) {
+        this.state.individual.savedQuoteId = res.savedQuote?.quoteId || payload.quoteId;
+        if (!isAutoSave) {
+          this.app?.showToast?.('Quote draft saved! You can resume it within 24 hours from Saved Quotes.', 'success');
+        }
+      }
+    } catch (err) {
+      if (!isAutoSave) {
+        this.app?.showToast?.('Could not save quote draft: ' + err.message, 'error');
+      }
+    }
   }
 
   _ensureDirectIssueDraft() {
@@ -522,6 +640,13 @@ export class IssuePolicyView {
         <!-- Compact Read-Only Quote Summary Bar (Always visible at top of every step when quote is present) -->
         ${this._renderQuoteSummaryBar(quote)}
 
+        ${quote ? `
+          <div class="auto-delete-disclaimer" role="note" style="margin: 10px 0 16px 0;">
+            <span class="info-icon">ℹ️</span>
+            <span>Saved quotes and their details are deleted automatically after 24 hours.</span>
+          </div>
+        ` : ''}
+
         <!-- 3-Step Individual / 5-Step Group Flow Stepper -->
         <nav class="flow-stepper" aria-label="Progress steps">
           <ol class="stepper-list">
@@ -630,6 +755,9 @@ export class IssuePolicyView {
           </div>
         </div>
         <div class="qsb-actions">
+          <button type="button" class="btn-save-draft" id="btnSaveForLaterIssue" title="Save this quote draft for 24 hours">
+            💾 Save for later
+          </button>
           <a href="#quote" class="qsb-change-link" id="linkChangeQuote" title="Return to Quotes screen to choose a different plan">
             Change quote
           </a>
@@ -3315,11 +3443,22 @@ export class IssuePolicyView {
       });
     }
 
-    // "Change quote" link in quote summary bar
+    // "Save for later" manual button in quote summary bar
+    const btnSaveLater = container.querySelector('#btnSaveForLaterIssue');
+    if (btnSaveLater) {
+      btnSaveLater.addEventListener('click', (e) => {
+        e.preventDefault();
+        this._handleSaveForLater(false);
+      });
+    }
+
+    // "Change quote" link in quote summary bar (auto-saves draft on departure)
     const linkChange = container.querySelector('#linkChangeQuote');
     if (linkChange) {
       linkChange.addEventListener('click', (e) => {
         e.preventDefault();
+        // Auto-save draft when leaving flow with selected quote
+        this._handleSaveForLater(true);
         if (this.state.individual.isDirectIssue) {
           const draft = this._ensureDirectIssueDraft() || this.state.individual.verifiedData;
           if (this.app?.views?.quote && draft) {
@@ -4586,6 +4725,7 @@ export class IssuePolicyView {
         destination: q?.destination,
         tripStart: q?.tripStart,
         tripEnd: q?.tripEnd,
+        savedQuoteId: this.state.individual.savedQuoteId || null,
         overrides: overrides,
         overrideConfirmedBy: overrides.length > 0 ? loggedInAgent : null,
         overrideConfirmedAt: overrides.length > 0 ? new Date().toISOString() : null,
