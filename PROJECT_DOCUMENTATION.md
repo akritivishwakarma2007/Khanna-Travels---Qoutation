@@ -32,7 +32,7 @@ graph TD
         A1[index.html]
         A2[js/app.js - Router]
         A3[js/quoteView.js - Comparison & Cards]
-        A4[js/adminView.js - Admin Suite]
+        A4[js/views/plansRatesView.js - Plans & Rates Admin]
         A5[js/api.js - Client API Service]
     end
 
@@ -64,21 +64,19 @@ quatation/
 ├── css/                                 # Design System & Stylesheets
 │   ├── main.css                         # Global CSS custom properties, typography, resets, header & badges
 │   ├── quote.css                        # Quote forms, comparison tables, company filter bar & bottom dock
-│   ├── quotation.css                    # Branded quotation cards, modal dialogs, and action buttons
 │   ├── admin.css                        # Admin panel layout, company management cards, and modal dialogs
-│   ├── print.css                        # Media print formatting for PDF and browser print flows
-│   ├── tables.css                       # Reusable responsive table rules and cell alignments
-│   ├── dashboard.css                    # Dashboard metrics, summary cards, and stats counters
-│   └── khanna-travels-seed-data.json    # Master seed dataset (Asego, Bajaj, Bajaj Allianz)
+│   ├── issuePolicy.css                  # Multi-step policy issuance and OCR styling
+│   ├── savedQuotesAndPolicies.css       # 24h saved drafts & policy records styling
+│   └── print.css                        # Media print formatting for PDF and browser print flows
 │
 ├── js/                                  # Frontend Application Modules (ES Modules)
-│   ├── app.js                           # App router, view switcher (Quote vs Admin), and toast manager
+│   ├── app.js                           # App router, view switcher, and toast manager
 │   ├── quoteView.js                     # Core quote flow: trip form, comparison table, dock & cards
-│   ├── adminView.js                     # Administrative panel: CRUD for companies, plans, and rate grids
 │   ├── api.js                           # Centralized HTTP client communicating with backend REST endpoints
-│   ├── data.js                          # Static fallback data, country lists, and region categorizers
-│   ├── engine.js                        # Client-side rate calculation & matrix filter engine
-│   ├── storage.js                       # LocalStorage cache, recent search history, and draft quotes
+│   ├── data.js                          # Country lookup lists and destination region categorizers
+│   ├── storage.js                       # LocalStorage cache, recent search history, and settings
+│   ├── rateImport.js                    # Excel & PDF rate table extractor
+│   ├── rateImportModal.js               # Rate import preview and confirmation modal
 │   └── pdf-export.js                    # Helper module for document printing and PDF exports
 │
 └── server/                              # Backend Node.js / Express Server
@@ -117,29 +115,26 @@ quatation/
 
 ### `css/` Directory
 - **[css/main.css](file:///c:/Users/admin/Downloads/quatation1/quatation/css/main.css)**: Global CSS design tokens (primary colors, slate tones, accent amber, border radiuses, shadows), base typography, header styling, and toast notification styles.
-- **[css/quote.css](file:///c:/Users/admin/Downloads/quatation1/quatation/css/quote.css)**: Styles for the quote input panel, date selectors, comparison tables, coverage tabs, company quick select bar (`.company-quick-select-bar`), and the slim 52px floating dock (`.quote-selection-dock`).
-- **[css/quotation.css](file:///c:/Users/admin/Downloads/quatation1/quatation/css/quotation.css)**: Layout and aesthetics for the generated quotation preview modal, company-separated quotation cards (`.company-quote-card`), action button bars, and responsive print preview.
+- **[css/quote.css](file:///c:/Users/admin/Downloads/quatation1/quatation/css/quote.css)**: Styles for the quote input panel, date selectors, comparison tables, coverage tabs, company quick select bar (`.company-quick-select-bar`), and the floating dock (`.quote-selection-dock`).
 - **[css/admin.css](file:///c:/Users/admin/Downloads/quatation1/quatation/css/admin.css)**: Admin dashboard styling: company cards, plan tables, rate grids, badge pills, and modal dialogs for adding/editing rates.
+- **[css/issuePolicy.css](file:///c:/Users/admin/Downloads/quatation1/quatation/css/issuePolicy.css)**: Instant passport scanning dropzone, MRZ extraction preview, and policy stepper styles.
+- **[css/savedQuotesAndPolicies.css](file:///c:/Users/admin/Downloads/quatation1/quatation/css/savedQuotesAndPolicies.css)**: Saved 24h drafts manager and issued policies search grid.
 - **[css/print.css](file:///c:/Users/admin/Downloads/quatation1/quatation/css/print.css)**: `@media print` rules ensuring clean A4-formatted page breaks and hiding unnecessary UI controls when printing.
-- **[css/tables.css](file:///c:/Users/admin/Downloads/quatation1/quatation/css/tables.css)**: Generic responsive table classes, striped rows, and currency column alignments.
-- **[css/dashboard.css](file:///c:/Users/admin/Downloads/quatation1/quatation/css/dashboard.css)**: Layout styling for KPI stat widgets and quote activity lists.
-- **[css/khanna-travels-seed-data.json](file:///c:/Users/admin/Downloads/quatation1/quatation/css/khanna-travels-seed-data.json)**: The master seed database containing company, plan, and rate definitions.
 
 ### `js/` Directory
-- **[js/app.js](file:///c:/Users/admin/Downloads/quatation1/quatation/js/app.js)**: Client entry point. Initializes navigation handlers, handles view routing (`quote` vs `admin`), and manages toast alerts.
+- **[js/app.js](file:///c:/Users/admin/Downloads/quatation1/quatation/js/app.js)**: Client entry point. Initializes navigation handlers, handles view routing (`quote`, `admin`, `policies`, `settings`, `visa`), and manages toast alerts.
 - **[js/quoteView.js](file:///c:/Users/admin/Downloads/quatation1/quatation/js/quoteView.js)**: The heart of the quotation experience:
   - Form state handling (dates, age calculation, country destination, region auto-detect).
-  - Fetches and displays comparison results grouped by coverage.
+  - Fetches and displays comparison results from MongoDB grouped by coverage.
   - Multi-select checkbox engine for rate selection.
   - Renders the Quick Company Selector bar.
-  - Manages the slim floating dock with company count badges.
+  - Manages the floating dock with company count badges.
   - Generates company-separated quotation cards.
   - Integrates `html2canvas` for single-company image copy, download, and plain-text WhatsApp formatting.
-- **[js/adminView.js](file:///c:/Users/admin/Downloads/quatation1/quatation/js/adminView.js)**: Admin view controller enabling agents to add/modify insurance companies, create plans, and edit rate matrix tables directly.
+- **[js/views/plansRatesView.js](file:///c:/Users/admin/Downloads/quatation1/quatation/js/views/plansRatesView.js)**: Admin view controller enabling agents to add/modify insurance companies, create plans, and edit rate matrix tables directly.
 - **[js/api.js](file:///c:/Users/admin/Downloads/quatation1/quatation/js/api.js)**: Wrapper around `fetch()` for backend API communication (`/api/compare`, `/api/companies`, `/api/quotes`, etc.).
 - **[js/data.js](file:///c:/Users/admin/Downloads/quatation1/quatation/js/data.js)**: Static lookup data, country lists, and region classifiers (detects if a country is USA/Canada to toggle "Including" vs "Excluding").
-- **[js/engine.js](file:///c:/Users/admin/Downloads/quatation1/quatation/js/engine.js)**: Client-side mathematical rate matching fallback engine.
-- **[js/storage.js](file:///c:/Users/admin/Downloads/quatation1/quatation/js/storage.js)**: Manages `localStorage` for recent searches and offline caching.
+- **[js/storage.js](file:///c:/Users/admin/Downloads/quatation1/quatation/js/storage.js)**: Manages `localStorage` caching and agency settings.
 - **[js/pdf-export.js](file:///c:/Users/admin/Downloads/quatation1/quatation/js/pdf-export.js)**: Triggers print stylesheets and PDF generation.
 
 ### `server/` Directory
