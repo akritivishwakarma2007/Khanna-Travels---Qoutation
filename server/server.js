@@ -32,11 +32,22 @@ const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'x-agent-id',
+    'X-Agent-Id',
+    'x-admin-token',
+    'X-Admin-Token'
+  ]
 };
 
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
+app.options('/api/*', cors(corsOptions));
 
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(express.json());
